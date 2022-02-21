@@ -1,0 +1,112 @@
+
+.transcript {
+  flex: 1 1 auto;
+  position: relative;
+}
+
+.scrollable {
+  overflow-y: scroll;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding-bottom: 1em;
+}
+
+.row {
+  width: 100%;
+  margin-bottom: .25em;
+  margin-top: .25em;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.cell {
+  color: white;
+  padding: 1em;
+  border-radius: 1em;
+  max-width: 70%;
+  display: inline-block;
+}
+
+/*noinspection CssUnusedSymbol*/
+.ourRow {
+  text-align: right;
+}
+
+/*noinspection CssUnusedSymbol*/
+.theirRow {
+  text-align: left;
+}
+
+/*noinspection CssUnusedSymbol*/
+.systemRow {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+/*noinspection CssUnusedSymbol*/
+.ourCell {
+  text-align: left;
+  background-color: var(--message-frame);
+}
+
+/*noinspection CssUnusedSymbol*/
+.theirCell {
+  text-align: left;
+  background-color: #888888;
+}
+
+/*noinspection CssUnusedSymbol*/
+.systemCell {
+  text-align: center;
+  color: #888888;
+  font-size: smaller;
+  flex: 0 0 auto;
+}
+
+/*noinspection CssUnusedSymbol,CssUnusedSymbol*/
+.systemRow:before,
+.systemRow:after {
+  background-color: #aaaaaa;
+  content: "";
+  display: inline-block;
+  height: 1px;
+  flex: 0.5 0.5 auto;
+}
+
+span.them {
+  font-weight: bolder;
+  font-size: smaller;
+}
+
+.imageCell {
+  color: white;
+  padding: 3px;
+  border-radius: 1em;
+  max-width: 70%;
+  display: inline-block;
+  height: 156px;
+}
+.imageCellSrc{
+  height: 150px;
+  width: 150px;
+  border-radius: 1em;
+  object-fit: cover;
+}
+
+
+.videoCell{
+  width: 300px;
+  padding: 3px;
+  border-radius: 1em;
+  display: inline-block;
+}
+
+.videoCellEmbed{
+  border-radius: 1em;
+}

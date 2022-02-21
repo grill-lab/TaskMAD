@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ad-core
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ad-core      
+  template:
+    metadata:
+      labels:
+        app: ad-core
+    spec:
+      containers:
+      - name: ad-core
+        image: gcr.io/agent-dialogue/agent-dialogue-core:v11
+        imagePullPolicy: Always
+        env:
+        - name: "PORT"
+          value: "8070"
+        ports:
+        - containerPort: 8070
+        volumeMounts:
+        - mountPath: /mnt/fileserver
+          name: logs
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-disk-claim
+            readOnly: false
+

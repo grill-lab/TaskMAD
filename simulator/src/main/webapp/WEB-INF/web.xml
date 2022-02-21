@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_4_0.xsd"
+        version="2.5">
+
+
+
+    <display-name>Agent Dialogue Web Simulator</display-name>
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>resources/css/App.css</welcome-file>
+        <welcome-file>resources/css/InputField.css</welcome-file>
+    </welcome-file-list>
+
+
+
+    <servlet>
+        <servlet-name>AdClientServiceServlet</servlet-name>
+        <servlet-class>edu.gla.kail.ad.service.AdCoreClientServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdClientServiceServlet</servlet-name>
+        <url-pattern>/ad-client-service-servlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OfflineMtRankingServlet</servlet-name>
+        <servlet-class>edu.gla.kail.ad.offlineExperiment.RatingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OfflineMtRankingServlet</servlet-name>
+        <url-pattern>/offline-mt-ranking-servlet</url-pattern>
+    </servlet-mapping>
+</web-app>

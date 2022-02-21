@@ -1,0 +1,47 @@
+
+.app {
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+.appHeader {
+  background-color: var(--header-top);
+  height: 10vw;
+  padding: 0.7vw 1.4vw;
+}
+
+.appLogo {
+  margin-left: auto;
+  margin-right: auto;
+  float: left;
+  height: 6vw;
+}
+
+.appTitle {
+  font-size: 3vw;
+  min-font-size: 0.6em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  sans-serif;
+  text-align: center;
+}
+
+.mainTab {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+:global(#root) .mainTabPane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+

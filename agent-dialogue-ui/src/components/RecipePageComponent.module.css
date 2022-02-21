@@ -1,0 +1,37 @@
+.root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  padding: 20px;
+}
+.recipeCheckbox{
+  float: left;
+}
+
+.checkBoxLabel{
+  margin-left: 25px;
+  margin-bottom: 5px;
+}
+
+.recipeSectionDiv{
+  margin-bottom: 15px;
+}
+
+.recipeStepImage{
+  height: auto;
+  width: 60%;
+  border-radius: 1em;
+  object-fit: cover;
+  position: relative;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  left: 20%;
+}
+
+
+.nextButton{
+  background-color: var(--main-color) !important;
+  color: white !important;
+}

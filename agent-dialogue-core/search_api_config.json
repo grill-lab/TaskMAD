@@ -1,0 +1,9 @@
+{
+    "search_api_url": "http://34.116.219.205",
+    "api_endpoints": {
+        "query_documents": "/search",
+        "page": "/extract_page",
+        "recipe": "/recipe"
+    }
+
+}

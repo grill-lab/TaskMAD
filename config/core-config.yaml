@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: core
+  template:
+    metadata:
+      labels:
+        app: core
+    spec:
+      containers:
+      - name: core-container
+        image: gcr.io/agent-dialogue/agent-dialogue-core:v4
+        ports:
+        - containerPort: 8070
+        volumeMounts:
+        - mountPath: /mnt/fileserver
+          name: logs
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-disk-claim
+            readOnly: false

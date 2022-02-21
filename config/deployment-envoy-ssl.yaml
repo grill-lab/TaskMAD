@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: esp-core-envoy-ssl
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  selector:
+    app: esp-core
+  type: LoadBalancer
+  loadBalancerIP: 35.225.124.161
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esp-core-ssl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: esp-core      
+  template:
+    metadata:
+      labels:
+        app: esp-core
+    spec:
+      containers:
+      # [START envoy]
+      - name: esp
+        image: gcr.io/agent-dialogue/envoy:v32
+        ports:
+          - containerPort: 8080
+          - containerPort: 443
+      # [END envoy]
+      - name: core
+        image: gcr.io/agent-dialogue/agent-dialogue-core:v8
+        ports:
+          - containerPort: 8070
+        volumeMounts:
+        - mountPath: /mnt/fileserver
+          name: logs
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-disk-claim
+            readOnly: false
+

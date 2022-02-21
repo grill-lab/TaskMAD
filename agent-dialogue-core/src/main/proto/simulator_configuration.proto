@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad;
+
+option java_package = "edu.gla.kail.ad";
+
+
+// Structure used for configuration of the Simulator module.
+message SimulatorConfig {
+    string grpc_core_server_host = 1; // The address of the host, that the Core gRPC service is running on.
+    int32 grpc_core_server_port = 2; // The port number of the Core gRPC service.
+    string log_storage_path = 3; // URL path to the directory, where logs should be stored.
+    string firestore_authorization_URL = 4; // The URL to the Firestore authorization key JSON File, where the logs are stored and from which the experiment data is fetched.
+}

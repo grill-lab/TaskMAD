@@ -1,0 +1,34 @@
+# File need for CD
+steps:
+# Build the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
+
+# Push the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}']
+# Build the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
+
+# Push the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
+
+# deploy container image to GKE
+- name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=config/${_K8_FILE}
+  - --location=${_CLUSTER_LOCATION}
+  - --cluster=${_CLUSTER_NAME}
+
+substitutions:
+  _REPOSITORY: agent-dialogue-system 
+  _IMAGE_VERSION: latest
+  _K8_FILE: deployment-envoy.yaml
+  _CLUSTER_LOCATION: europe-central2-a
+  _CLUSTER_NAME: esp-core-cluster
+  
+# Timeout for 30 mins
+timeout: 1800s

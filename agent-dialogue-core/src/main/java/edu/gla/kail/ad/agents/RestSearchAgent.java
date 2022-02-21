@@ -1,0 +1,162 @@
+package edu.gla.kail.ad.agents;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.api.core.SettableApiFuture;
+import com.google.gson.JsonObject;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Timestamp;
+import com.google.protobuf.Value;
+import com.google.protobuf.util.JsonFormat;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.gla.kail.ad.Client;
+import edu.gla.kail.ad.Client.InteractionRequest;
+import edu.gla.kail.ad.Client.InteractionResponse;
+import edu.gla.kail.ad.Client.InteractionType;
+import edu.gla.kail.ad.Client.OutputInteraction;
+import edu.gla.kail.ad.Client.InteractionResponse.ClientMessageStatus;
+import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
+import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
+import edu.gla.kail.ad.core.AgentInterface;
+import edu.gla.kail.ad.core.Log.ResponseLog;
+import edu.gla.kail.ad.core.Log.SystemAct;
+import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
+import io.grpc.stub.StreamObserver;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
+public class RestSearchAgent implements AgentInterface {
+
+    private static final Logger logger = LoggerFactory.getLogger(RestSearchAgent.class);
+
+    // Hold the wizard agent's configuration, including necessary db credentials.
+    private AgentConfig _agent;
+    // Gold the hardcoded agent ID.
+    private String _agentId = null;
+
+    private String _searchApiRootUrl = null;
+    private JSONObject _supportedAPiEndpoints = null;
+
+    public RestSearchAgent(AgentConfig agent) throws Exception {
+        this._agent = agent;
+        this._agentId = _agent.getProjectId();
+        initAgent();
+    }
+
+    /**
+     * Initialize the agent.
+     *
+     * @throws Exception
+     */
+    private void initAgent() throws Exception {
+        // URL configFileURL = new URL(_agent.getConfigurationFileURL());
+        JSONObject jsonSearchApiConfig = new JSONObject(
+                IOUtils.toString(new FileInputStream(_agent.getConfigurationFileURL()), "UTF-8"));
+
+        this._searchApiRootUrl = jsonSearchApiConfig.getString("search_api_url");
+        this._supportedAPiEndpoints = jsonSearchApiConfig.getJSONObject("api_endpoints");
+
+        if (this._searchApiRootUrl.isEmpty()) {
+            throw new Exception("Search API root url missing.");
+        }
+    }
+
+    @Override
+    public ServiceProvider getServiceProvider() {
+        return _agent.getServiceProvider();
+    }
+
+    @Override
+    public String getAgentId() {
+        return _agentId;
+    }
+
+    @Override
+    public ResponseLog getResponseFromAgent(InteractionRequest interactionRequest) throws Exception {
+        // We need to perform a call based on the request specified.
+        // The function handles any type of specific call. The only two parameters
+        // that must be specified as agentRequestParameters are:
+        // 1) api_endpoint: which specifies which API endpoint should be called
+        // 2) request_body: the specific request body that need to be passed to the api
+
+        Map<String, Value> fieldsMap = interactionRequest.getAgentRequestParameters().getFieldsMap();
+        String result = "";
+        // If these two parameters are not specified we return an error
+        if (fieldsMap.containsKey("api_endpoint") && fieldsMap.containsKey("request_body")) {
+            try {
+                // Construct the url where to perform the request
+                URL url = new URL(this._searchApiRootUrl
+                        + _supportedAPiEndpoints.getString(fieldsMap.get("api_endpoint").getStringValue()));
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+                conn.setDoOutput(true);
+
+                // We convert the request_body to json
+                String requestBodyString = JsonFormat.printer().preservingProtoFieldNames()
+                        .print(fieldsMap.get("request_body").getStructValue());
+                JSONObject requestBody = new JSONObject(requestBodyString);
+                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                wr.write(requestBody.toString());
+                wr.flush();
+
+                // If the response is not successful we raise an error
+                if (conn.getResponseCode() != 200) {
+                    throw new Exception("Failed : HTTP error code : " + conn.getResponseCode());
+                }
+
+                // We need now to parse the returned message from the API
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+                result = br.lines().collect(Collectors.joining());
+
+                conn.disconnect();
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                throw new Exception("Malformed API URL:" + e.getMessage());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new Exception("IOException:" + e.getMessage());
+
+            }
+
+        } else {
+            throw new Exception("Api endpoint or request body not specified.");
+        }
+
+        Struct.Builder builder = Struct.newBuilder();
+        JsonFormat.parser().merge(result, builder);
+
+        // Return a ResponseLog object
+        return ResponseLog.newBuilder().setClientId(Client.ClientId.EXTERNAL_APPLICATION)
+                .setServiceProvider(ServiceProvider.SEARCH).setMessageStatus(MessageStatus.SUCCESSFUL)
+                .setRawResponse(result).addAction(SystemAct.newBuilder().setInteraction(OutputInteraction.newBuilder()
+                        .setType(InteractionType.TEXT).setText(result).setUnstructuredResult(builder).build()))
+                .build();
+
+    }
+
+    @Override
+    public void streamingResponseFromAgent(InteractionRequest interactionRequest,
+            StreamObserver<InteractionResponse> responseObserver) throws Exception {
+
+    }
+
+}

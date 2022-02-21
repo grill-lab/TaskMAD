@@ -1,0 +1,13 @@
+:global(#root) i.enterButton {
+  background-color: var(--message-frame)!important;
+}
+
+.entry {
+  flex: 0 0 auto;
+}
+
+/*noinspection ALL*/
+#entry {
+  width: 100%;
+}
+

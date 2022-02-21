@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: esp-core-envoy
+spec:
+  ports:
+  - port: 80
+    targetPort: 10000
+    protocol: TCP
+    name: http
+  selector:
+    app: esp-core
+  type: LoadBalancer
+  loadBalancerIP: "34.118.18.219"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esp-core
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: esp-core-custom
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: esp-core
+        app.kubernetes.io/name: esp-core-custom
+    spec:
+      volumes:
+        - name: disk-core-volume
+          persistentVolumeClaim:
+            claimName: disk-core-claim
+      containers:
+      # [START envoy]
+      - name: esp
+        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/envoy:latest
+        #imagePullPolicy: Never
+        ports:
+          - containerPort: 10000
+      # [END envoy]
+      - name: core
+        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/grpc-server:latest
+        #imagePullPolicy: Never
+        ports:
+          - containerPort: 8070
+        volumeMounts:
+          - mountPath: "code/keys"
+            name: disk-core-volume 

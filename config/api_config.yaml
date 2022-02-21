@@ -1,0 +1,23 @@
+type: google.api.Service
+config_version: 3
+
+name: agentdialogue.endpoints.agent-dialogue.cloud.goog
+
+title: AgentDialogue gRPC API
+apis:
+- name: edu.gla.kail.ad.service.AgentDialogue
+
+#
+# API usage restrictions.
+#
+usage:
+  rules:
+  # ListShelves methods can be called without an API Key.
+  - selector: edu.gla.kail.ad.service.AgentDialogue.GetResponseFromAgents
+    allow_unregistered_calls: true
+
+host: "agentdialogue.endpoints.agent-dialogue.cloud.goog"
+x-google-endpoints:
+- name: "agentdialogue.endpoints.agent-dialogue.cloud.goog"
+  target: "35.193.60.43"
+

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad;
+
+option java_package = "edu.gla.kail.ad";
+
+// Defines the type of the agent.
+enum ServiceProvider {
+    UNRECOGNISED = 0;
+    DIALOGFLOW = 1;
+    WIZARD = 2;
+}
+
+message CoreConfig {
+    int32 grpc_server_port = 1; // Localhost port on which gRPC listens to calls.
+    string log_storage_path = 2; // The URL to the Log Storage Directory.
+    int32 max_number_of_simultaneous_conversations = 3;
+    int32 session_timeout_minutes = 4; // The time of inactivity, after which a session for a particular user times out.
+    repeated AgentConfig agents = 5;
+}
+
+// Agent configuration data structure.
+message AgentConfig {
+    ServiceProvider service_provider = 1;
+    string project_id = 2; // Unique ID of a particular agent, e.g. my-quotemaster-123456
+    string configuration_file_URL = 3; // The URL to a configuration file for a particular Agent.
+}

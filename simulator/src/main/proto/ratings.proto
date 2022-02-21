@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad.eval;
+
+import "google/protobuf/timestamp.proto";
+
+// Protocol buffer which enables storing user-ratings of provided responses.
+// TODO: Needs to be updated, so that it matches the ratings stored in the Firestore Database.
+
+message Rating {
+    string experiment_id = 1; // Unique ID of an Experiment that the rating was a part of.
+    string response_id = 2; // The unique ID of the response that the rating was created for.
+    int32 score = 3; // The score of the rating.
+    google.protobuf.Timestamp time = 4; // The time the rating was created or updated.
+    string request_id = 5; // The unique ID of the request that was preceding the rated response.
+}

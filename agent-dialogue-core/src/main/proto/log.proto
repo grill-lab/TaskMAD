@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad.core;
+
+option java_package = "edu.gla.kail.ad.core";
+
+import "google/protobuf/timestamp.proto";
+import "client.proto";
+import "core_configuration.proto";
+
+// This protobuffer is used for storing the data created by the agent-dialogue-core, that is used
+// across the platform.
+
+message LogEntry {
+    string session_id = 1; // The unique session ID.
+    repeated Turn turn = 2; // The list of turns in the conversation.
+}
+
+message Turn {
+    ResponseLog response_log = 1; // The choosen response that the client receives.
+    RequestLog request_log = 2; // The request sent by the client.
+    repeated ResponseLog candidate_response = 3; // The list of all possible responses received from the Agents.
+    string session_id = 4; // The unique session ID.
+}
+
+message RequestLog {
+    string request_id = 1; // The ID which is being assigned by DialogAgentManager.
+    google.protobuf.Timestamp time = 2; // The time the request was created.
+    ClientId client_id = 3; // The ID of the client the request is sent from.
+    InputInteraction interaction = 4; // The request we get from the client.
+}
+
+message ResponseLog {
+    enum MessageStatus {
+        NONSET = 0;
+        SUCCESSFUL = 1;
+        UNSUCCESSFUL = 2;
+    }
+    string response_id = 1; // The response ID obtained from the Agent.
+    google.protobuf.Timestamp time = 2; // The time the response was created.
+    ClientId client_id = 3; // The ID of the client the request is sent from.
+    ServiceProvider service_provider = 4;
+    string raw_response = 5; // The raw response in e.g. JSON format obtained from the Agent.
+    repeated SystemAct action = 6; // The actions sent in the response from the Agent.
+    MessageStatus message_status = 7; // The status of the message received from the agent.
+    string error_message = 8;
+}
+
+message SystemAct {
+    string action = 1; // The name of the action we get from the Agent's API.
+    OutputInteraction interaction = 2; // Contains the response from the Agent.
+    repeated Slot slot = 3; // The parameters that are passed by the Agent.
+}
+
+message Slot {
+    string name = 1; // E.g. name = "author"
+    string value = 2; // E.g. value = "Ada Lovelace"
+}

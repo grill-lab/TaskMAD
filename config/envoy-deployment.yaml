@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy-alpine:v1.9.1
+        ports:
+        - name: https
+          containerPort: 443
+        volumeMounts:
+        - name: config
+          mountPath: /etc/envoy
+        - name: certs
+          mountPath: /etc/ssl/envoy
+      volumes:
+      - name: config
+        configMap:
+          name: envoy-conf
+      - name: certs
+        secret:
+          secretName: envoy-certs

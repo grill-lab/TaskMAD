@@ -1,0 +1,79 @@
+/*
+Colour variables
+ */
+:root {
+    --task-on-hoover: rgb(253, 105, 37);
+    --task-off-hoover: rgb(245, 220, 202);
+}
+
+/*
+Right panel sections.
+ */
+
+.user-details-form {
+    padding: 10px 15px;
+    margin-top: 7px;
+}
+
+#user {
+    background-color: white;
+}
+
+.task-details {
+    padding: 10px 15px;
+    margin-top: 7px;
+}
+
+#user-submit-button {
+    background-color: var(--button-colour);
+    width: 8vw;
+}
+
+#next-batch-button, #next-task-button {
+    width: 9vw;
+    background-color: var(--button-colour);
+}
+
+/*
+Tasks list.
+ */
+
+.tasks-list-block {
+    padding: 10px 15px;
+    margin-top: 7px;
+}
+
+.tasks-list-block li {
+    display: inline;
+    text-align: center;
+    margin: auto;
+    list-style-type: none;
+}
+
+.tasks-list-block li a {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 7px 8px;
+    margin: 3px;
+    text-decoration: none;
+    list-style-type: none;
+}
+
+.tasks-list-block li a:hover:not(.active) {
+    background-color: var(--task-on-hoover);
+}
+
+.tasks-list-block .active {
+    background-color: var(--task-off-hoover);
+}
+
+/*
+Task completion indicator - "question mark" and "check".
+ */
+#tasks-indicator {
+    text-align: center;
+    white-space: nowrap;
+    margin: auto;
+    width: 1.4vw;
+}

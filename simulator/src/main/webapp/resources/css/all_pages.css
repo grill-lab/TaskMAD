@@ -1,0 +1,195 @@
+/*
+Colour variables
+ */
+
+:root {
+    --header-top: rgb(245, 182, 113);
+    --header-menu: rgb(255, 146, 46);
+    --header-menu-active: rgb(253, 105, 37);
+    --message-frame: rgb(255, 98, 0);
+    --right-panels: rgb(255, 146, 46);
+    --menu-font-colour: rgb(255, 222, 207);
+    --button-colour: white;
+}
+
+/*
+Header specific:
+ */
+
+.App-header {
+    background-color: var(--header-top);
+    height: 6vw;
+    padding: 0.7vw;
+    padding-left: 1.4vw;
+    padding-right: 1.4vw;
+}
+
+.App-logo {
+    margin-left: auto;
+    margin-right: auto;
+    float: left;
+    height: 6vw;
+}
+
+.App-title {
+    font-size: 3vw;
+    min-font-size: 0.6em;
+    font-family: Courier New;
+    text-align: center;
+}
+
+.functionality-menu {
+    padding: 0;
+    overflow: hidden;
+    text-align: center;
+    margin: auto;
+    background-color: var(--header-menu);
+}
+
+.functionality-menu li {
+    display: inline;
+    text-align: center;
+    margin: auto;
+    list-style-type: none;
+}
+
+.functionality-menu li a {
+    display: inline-block;
+    color: var(--menu-font-colour);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    list-style-type: none;
+}
+
+.functionality-menu li a:hover:not(.active) {
+    background-color: var(--header-menu);
+}
+
+.functionality-menu .active {
+    background-color: var(--header-menu-active);
+}
+
+/*
+Content specific:
+ */
+
+h3 {
+    font-size: 1.7vw;
+}
+
+h5 {
+    font-size: 0.9vw;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+.main {
+    text-align: center;
+    overflow: auto;
+    margin: 20px;
+}
+
+.main * {
+    box-sizing: border-box;
+}
+
+/*
+Right - options / user panel.
+Left - message box.
+ */
+
+.right {
+    text-align: center;
+    float: right;
+    width: 35%;
+}
+
+.right * {
+    border-radius: 2vw;
+    margin: 7px;
+}
+
+*.right > div {
+    background-color: var(--right-panels);
+}
+
+#conversation-panel {
+    text-align: center;
+    width: 75%;
+    position: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.left {
+    float: left;
+    width: 60%;
+    overflow: hidden;
+    border-style: solid;
+    border-radius: 5vw;
+    border-color: var(--message-frame);
+    padding: 2vw;
+}
+
+/*
+Messages displayed to the user / sent by the user.
+ */
+
+#message {
+    width: 90%;
+    word-wrap: break-word;
+    word-break: break-all;
+    font-size: 14px;
+    border-radius: 0.5vw;
+}
+
+
+.submit-button {
+    width: 5vw;
+    min-width: 80px;
+    padding: 1vw;
+    border-radius: 2vw;
+}
+
+#request {
+    text-align: right;
+}
+
+#response {
+    text-align: left;
+}
+
+.date-utterance {
+    font-size: 12px;
+}
+
+/*
+Ratings slider.
+ */
+
+#rating-indicator {
+    margin-left: 0.4vw;
+    padding-left: 0.8vw;
+    width: 3vw;
+}
+
+.rating, .rating-slider-section {
+    padding-top: 1vw;
+    height: 10vw;
+}
+
+.slider label, #slider label {
+    position: absolute;
+    word-wrap: break-word;
+    width: 8vw;
+    font-size: 10px;
+    padding-top: 3vw;
+    margin-left: -4vw;
+    padding-bottom: 1vw;
+    text-align: center;
+}

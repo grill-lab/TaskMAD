@@ -1,0 +1,73 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "max-line-length": {
+      "options": [
+        120
+      ]
+    },
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "allow-leading-underscore"
+    ],
+    "new-parens": true,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-consecutive-blank-lines": false,
+    "no-console": {
+      "severity": "warning",
+      "options": [
+        "debug",
+        "info",
+        "log",
+        "time",
+        "timeEnd",
+        "trace"
+      ]
+    },
+    "no-trailing-whitespace": [
+      true,
+      "ignore-comments",
+      "ignore-blank-lines"
+    ],
+    "no-unexpected-multiline": "error",
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "private-constructor",
+          "protected-constructor",
+          "public-constructor",
+          "private-static-field",
+          "private-static-method",
+          "private-instance-field",
+          "private-instance-method",
+          "protected-static-field",
+          "protected-static-method",
+          "protected-instance-field",
+          "protected-instance-method",
+          "public-static-field",
+          "public-static-method",
+          "public-instance-field",
+          "public-instance-method"
+        ]
+      }
+    ],
+    "semicolon": [
+      true,
+      "never"
+    ]
+  },
+  "linterOptions":{
+    "exclude": ["src/generated/*"]
+  },
+  "jsRules": {
+    "max-line-length": {
+      "options": [
+        120
+      ]
+    }
+  }
+}

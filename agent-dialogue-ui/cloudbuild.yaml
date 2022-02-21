@@ -1,0 +1,42 @@
+# File needed for CD
+steps:
+# Build the chat image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${_IMAGE_VERSION}', '${_ROOT_FOLDER}/.']
+
+# Push the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE_NAME}:${_IMAGE_VERSION}']
+
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
+  - ${_ROOT_FOLDER}/${_K8_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
+  - ${_ROOT_FOLDER}/${_INGRESS_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+substitutions:
+  _ROOT_FOLDER: agent-dialogue-ui
+  _REPOSITORY: agent-dialogue-system 
+  _IMAGE_NAME: chat
+  _IMAGE_VERSION: latest
+  _K8_FILE: chat_deployment_nginx.yaml
+  _INGRESS_FILE: chat_managed_cert_ingress.yaml
+  _CLUSTER_LOCATION: europe-central2-a
+  _CLUSTER_NAME: chat-cluster
+  
+    
+# Time out after 30 minutes
+timeout: 1800s

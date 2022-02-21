@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: esp-core-proxy
+spec:
+  ports:
+  - port: 80
+    targetPort: 8081
+    protocol: TCP
+    name: http
+  selector:
+    app: esp-core
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: esp-core
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: esp-core
+    spec:
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: nginx-ssl
+        secret:
+          secretName: nginx-ssl      
+      containers:
+      # [START esp]
+      - name: esp
+        image: gcr.io/endpoints-release/endpoints-runtime:1
+        args: [
+          "-n", "/etc/nginx/custom/nginx.conf",
+          "--backend=grpc://127.0.0.1:8070",
+          "--service=agentdialogue.endpoints.agent-dialogue.cloud.goog",
+          "--rollout_strategy", "managed",
+        ]
+        ports:
+          - containerPort: 5000
+        volumeMounts:
+          - mountPath: /etc/nginx/ssl
+            name: nginx-ssl
+            readOnly: true
+          - mountPath: /etc/nginx/custom
+            name: nginx-config
+            readOnly: true
+      # [END esp]
+      - name: core
+        image: gcr.io/agent-dialogue/agent-dialogue-core:v4
+        ports:
+          - containerPort: 8070
+        volumeMounts:
+        - mountPath: /mnt/fileserver
+          name: logs
+      volumes:
+        - name: logs
+          persistentVolumeClaim:
+            claimName: logs-disk-claim
+            readOnly: false
+

@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad;
+
+option java_package = "edu.gla.kail.ad";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// This protobuffer is used for storing the data that is being obtained from the client
+// and that is being sent back to the client.
+
+// Store entire conversation held within a particular session.
+message ClientConversation {
+    repeated ClientTurn turn = 1;
+}
+
+// Store request from the user and response from the agent.
+message ClientTurn {
+    InteractionRequest interaction_request = 1;
+    InteractionResponse interaction_response = 2;
+}
+
+// The ID of the client the request is sent from.
+enum ClientId {
+    NONSET = 0;
+    EXTERNAL_APPLICATION = 1;
+    LOG_REPLAYER = 2;
+    WEB_SIMULATOR = 3;
+}
+
+// The message that is being passed through gRPC calls, from client to core, containing the information about the request and the request itself.
+message InteractionRequest {
+    google.protobuf.Timestamp time = 1; // The time of the creation of the request
+    ClientId client_id = 2; // The ID of the client the request is sent from.
+    InputInteraction interaction = 3;
+    string user_id = 4; // A unique ID of the user who sent the request.
+    // A struct representing a json configuration object containing agent-specific request parameters.
+    google.protobuf.Struct agent_request_parameters = 5; // The Structure unique for every Agent type (ServiceProvider), which contains data used by the instance of that Agent.
+    repeated string chosen_agents = 6; // The list of agents ID, that are "asked" to provide the reply.
+}
+
+// The message that is being passed through gRPC calls, from Core to Client, containing the information about the response and the response itself.
+message InteractionResponse {
+    // The status of the message received from the agent-dialogue-core.
+    enum ClientMessageStatus {
+        NONSET = 0;
+        SUCCESSFUL = 1;
+        ERROR = 2;
+    }
+    string response_id = 1; // The ID assigned by the Agent.
+    google.protobuf.Timestamp time = 2; // The time of the creation of the response.
+    ClientId client_id = 3; // The ID of the client the request is sent from.
+    repeated OutputInteraction interaction = 4;
+    ClientMessageStatus message_status = 5; // The status of the message received from the agent-dialogue-core.
+    string error_message = 6; // The error message informing the user about the particular error that occured.
+    string user_id = 7; // The unique ID of the user that the response is sent to.
+    string session_id = 8; // The unique ID of the session that the response is sent within.
+}
+
+// The type of the interaction.
+enum InteractionType {
+    NOTSET = 0; // Proto3 doesn't distinguish between field that is empty or is set to it's default (value = 0).
+    TEXT = 1;
+    AUDIO = 2;
+    ACTION = 3;
+    STATUS = 4;
+}
+
+// Message sent to the agent.
+message InputInteraction {
+    string text = 1; // The text that is being sent to the Agent.
+    string audio_bytes = 2; // The audio bytes that are being sent to the Agent.
+    repeated string action = 3; // The requested interaction (e.g. "click on a result").
+    InteractionType type = 4;
+    string device_type = 5; // The type of the device the request is sent from.
+    string language_code = 6; // The language code, e.g. "en-US".
+    repeated string logged_search_queries = 7; // The list of search queries associated to this message
+    repeated int64 logged_search_queries_timestamp = 8; // The list of search queries timestamp associated to this message
+    repeated string logged_page_ids = 9; // The list of page ids associated to the buttons clicked to generate this message
+    repeated string logged_paragraph_ids = 10; // The list of paragraphs ids associated to the buttons clicked to generate this message
+    repeated string logged_paragraph_texts = 11; // The list of the paragraphs text associated to the buttons clicked to generate this message
+    repeated string logged_page_origins = 12; // The list of page origins associated to the buttons clicked to generate this message
+    repeated string logged_page_titles = 13; // The list of page titles associated to the buttons clicked to generate this message
+    repeated string logged_section_titles = 14; // The list of section titles associated to the buttons clicked to generate this message
+    repeated int64 logged_paragraph_timestamp = 15; // The list timestamps associated to the buttons clicked to generate this message
+
+    // User side recipe logged actions
+    repeated string logged_user_recipe_page_ids = 16; // The list of recipe page ids associated to the checkboxes clicked 
+    repeated string logged_user_recipe_page_title = 17; // The list of recipe page titles associated to the checkboxes clicked
+    repeated string logged_user_recipe_section = 18; // The list the sections associated to the checkboxes clicked
+    repeated string logged_user_recipe_section_value = 19; // The list of checkboxes text associated to the checboxes clicked
+    repeated int64 logged_user_recipe_select_timestamp = 20; // The list of timestamps associated to the checkboxes clicked
+}
+
+// Message sent back by agent.
+message OutputInteraction {
+    string text = 1; // The text that is being sent as the response by the Agent.
+    string audio_bytes = 2; // The audio bytes that are being sent as the response by the Agent.
+    repeated string action = 3; // The requested interaction (e.g. "click on a result").
+    InteractionType type = 4;
+    repeated Result result = 5; // To allow search results and similar output
+    google.protobuf.Struct unstructured_result = 6; // General unstructured result used to handle responses in different format (e.g. json)
+    google.protobuf.Timestamp interaction_time = 7; // The time of the creation of the response.
+}
+
+message Result {
+    string id = 1;
+    float score = 2;
+    int32 rank = 3;
+    string title = 4;
+    string short_description = 5;
+    string full_text = 6;
+}
