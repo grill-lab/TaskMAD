@@ -29,6 +29,8 @@
   'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
   text-align: center;
+  position: relative;
+  left: -3%;
 }
 
 .mainTab {

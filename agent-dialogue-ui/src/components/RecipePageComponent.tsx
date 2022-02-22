@@ -83,7 +83,7 @@ export class RecipePageComponent
 
             // Once we move the a new section we also need to read section title and provide prompt 
             // to the user 
-            var textString = "Here is section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and ask questions to the expert agent.";
+            var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
             playTextToAudio(textString);
 
             // At the end of the interaction we notify the Wizard of the actual change happening 

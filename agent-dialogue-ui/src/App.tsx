@@ -57,7 +57,7 @@ class App extends Component<{}, IAppState> {
       <div className={css.app}>
         <header className={css.appHeader}>
           <img src={logo} className={css.appLogo} alt="logo"/>
-          <h1 className={css.appTitle}>Task Chat</h1>
+          <h1 className={css.appTitle}>TaskMAD</h1>
         </header>
 
         <Tab className={css.mainTab}
@@ -67,7 +67,7 @@ class App extends Component<{}, IAppState> {
                inverted: true,
                tabular: false }}
              panes={panes} />
-
+        <a href="https://www.flaticon.com/free-icons/chatbot" title="chatbot icons">Chatbot icons created by Freepik - Flaticon</a>
       </div>
     )
   }
