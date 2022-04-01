@@ -4,7 +4,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   overflow-y: scroll;
-  padding: 20px;
+  padding: var(--chat-container-top);
 }
 .recipeCheckbox{
   float: left;
@@ -34,4 +34,10 @@
 .nextButton{
   background-color: var(--main-color) !important;
   color: white !important;
+}
+
+.recipeComponentContainer{
+  background-color: var(--chat-container-background);
+  padding: var(--chat-container-top);
+  border-radius: var(--chat-container-border-radius);
 }

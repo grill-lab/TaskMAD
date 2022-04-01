@@ -157,7 +157,7 @@ class WoZParamForm extends React.Component<IWoZParamFormProperties, IWozParams> 
 
   public render(): React.ReactNode {
     const { conversationID, url, userID, selectedRecipeId } = this.state
-    return <Segment>
+    return <Segment className={css.loginForm}>
       <Form onSubmit={this.handleSubmit}>
         <Form.Input label="Host URL" name="url" value={url}
           onChange={this.handleChange} />
@@ -170,7 +170,7 @@ class WoZParamForm extends React.Component<IWoZParamFormProperties, IWozParams> 
           <Dropdown label="" name="selectedRecipeId" options={this.convertToDropdownOptions()}
             value={selectedRecipeId} onChange={this.handleChangeDropdown} placeholder='Select Recipe' selection />
         </Form.Field>
-        <Button type="submit">Submit</Button>
+        <Button type="submit" color="black">Submit</Button>
 
       </Form>
     </Segment>

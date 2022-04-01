@@ -6,12 +6,16 @@ export interface IDialogue {
 }
 
 export class Dialogue implements IDialogue {
+
+  
+
   constructor(model: IDialogue) {
     Object.assign(this, model)
   }
 
   // noinspection JSUnusedGlobalSymbols
   public messages!: IMessage[]
+  private showTimeMessages: boolean = false;
 
   public hasMessage = (message: Message) => {
     return undefined !== this.messages.find(
@@ -32,7 +36,7 @@ export class Dialogue implements IDialogue {
         < (time.getTime() - durationBetweenDatesInSec * 1000)) {
 
         // We show the time message only if the message sent is text (and not a status message)
-        if (message.messageType === InteractionType.TEXT) {
+        if (message.messageType === InteractionType.TEXT && this.showTimeMessages) {
           messages.unshift(new Message(time))
         }
 

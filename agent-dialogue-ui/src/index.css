@@ -33,11 +33,11 @@ div.ui.inverted.orange.menu a:last-child {
   --right-panels: rgb(255, 146, 46);
   --menu-font-colour: rgb(255, 222, 207);
   --button-colour: white; */
-  --main-color: rgb(49,167,251);
+  --main-color: rgb(0,0,0);
   --header-top: rgb(248,246,246);
   --header-menu: var(--main-color);
   --header-menu-active: var(--main-color);
-  --message-frame: var(--main-color);
+  --message-frame: rgba(27,105,228);
   --right-panels: var(--main-color);
   --menu-font-colour: rgb(255, 222, 207);
   --button-colour: white;

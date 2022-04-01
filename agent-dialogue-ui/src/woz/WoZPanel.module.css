@@ -4,11 +4,13 @@
 }
 
 #appGroupId {
+  padding: 0;
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
   bottom: 0;
+  height: calc(100% - var(--header-height) + 14px);
+  top: var(--header-height);
 }
 
 #appGroupId {
@@ -22,5 +24,12 @@
 }
 
 .gridColumn{
-  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.loginForm{
+  margin: 0 auto !important;
+  width: 500px;
+  top: 20%;
 }

@@ -271,7 +271,7 @@ export class RecipePageComponent
     let pageBody: JSX.Element[] = this.props.showFullPageCheckList ? this.generatePageBodyFullPage() : this.generatePageBodySingleSection(this.recipeSectionIndex);
     let errorMessage = <Message color='red' key='0'>An error occurred when retrieving the recipe. Try again later.</Message>
     return <div className={css.root}>
-      <Container textAlign='left'>
+      <Container className={css.recipeComponentContainer} textAlign='left'>
         <Header as='h2'>{this.props.recipeObj?.pageTitle}</Header>
         {pageBody.length > 0 ? pageBody : errorMessage}
         {!this.props.wizardNavigationControl ? this.generateButtonsMenu(this.recipeSectionIndex) : undefined}

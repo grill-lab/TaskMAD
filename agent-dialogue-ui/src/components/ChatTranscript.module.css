@@ -2,6 +2,10 @@
 .transcript {
   flex: 1 1 auto;
   position: relative;
+  background-color: var(--chat-container-background);
+  top: var(--chat-container-top);
+  border-radius: var(--chat-container-border-radius);
+  margin-bottom: 20px;
 }
 
 .scrollable {
@@ -9,7 +13,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
+  top: 10px;
   bottom: 0;
   padding-bottom: 1em;
 }
@@ -24,8 +28,8 @@
 
 .cell {
   color: white;
-  padding: 1em;
-  border-radius: 1em;
+  padding: 5px;
+  border-radius: var(--chat-container-border-radius);
   max-width: 70%;
   display: inline-block;
 }
@@ -87,7 +91,7 @@ span.them {
 .imageCell {
   color: white;
   padding: 3px;
-  border-radius: 1em;
+  border-radius: var(--chat-container-border-radius);
   max-width: 70%;
   display: inline-block;
   height: 156px;
@@ -95,7 +99,7 @@ span.them {
 .imageCellSrc{
   height: 150px;
   width: 150px;
-  border-radius: 1em;
+  border-radius: var(--chat-container-border-radius);
   object-fit: cover;
 }
 
@@ -103,10 +107,10 @@ span.them {
 .videoCell{
   width: 300px;
   padding: 3px;
-  border-radius: 1em;
+  border-radius: var(--chat-container-border-radius);
   display: inline-block;
 }
 
 .videoCellEmbed{
-  border-radius: 1em;
+  border-radius: var(--chat-container-border-radius);
 }
