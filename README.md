@@ -2,38 +2,9 @@
 
 # Project Overview
 
-**A Framework Agent Dialog, Experimentation and Analysis**
+In this repository we introduce Task-oriented Multimodal Agent Dialogue (TaskMAD), a new platform that supports the creation of interactive multimodal and task-centric datasets in a Wizard-of-Oz experimental setup. TaskMAD includes support for text and voice, federated retrieval from text and knowledge bases, and structured logging of interactions for offline labeling. Its architecture supports a spectrum of tasks that span open-domain exploratory search to traditional frame-based dialogue tasks. It’s open-source and offers rich capability as a platform used to collect data for the Amazon Alexa Prize Taskbot challenge, TREC Conversational Assistance track, undergraduate student research, and others. 
 
-The proposed project aims to develop a meta-agent framework for conversational search research (MetaBot).
-
-Metabot will allow researchers to plug-in existing bots for evaluation and building conversational training / test collections. It addresses fundamental research problems on agent system design.
-
-**Metabot key features**
-
-Allow testing bots from a variety of frameworks (end-to-end ML bots, rule-based systems, and existing Google DialogFlow / Alexa Skills bots). 
-Logging and analytics of conversations
-Dialogue simulation and crowdsourcing using a web simulator 
-
-
-Metabot core is the main dialogue system. It will support flexible third-party APIs for major components  -- speech recognition, natural language understanding, dialogue management, and language generation (and TTS). 
-
-Metabot core is a federated agent system.  It runs and coordinates multiple internal and external agent systems. 
-Agent intent routing - Determines what agents are relevant to the current step in the conversation
-Agent response ranking - Perform relevance ranking of the returned agents
-Conversation state management - Keeps a version of the current state of the conversation 
-Metabot core will be written in a mixture of Java & Kotlin.  We plan to use RxJava (or a similar framework) for asynchronous event handling. 
-
-**Metabot Simulator**
-
-A web application interface that allows users to play (and simulate) offline and online conversations. 
-This is used to create crowdsourced conversational datasets.
-Metabot simulator developed with Kotlin.
-
-**Research Goals**
-
-It will be used as the platform for a new proposed TREC track (government-sponsored competition) on conversational agents in 2019.  We will start the development of the tasks over the summer.
-Proposed tasks: Federated agent ranking (and response ranking)
-Informational dialogue - Using Wikipedia and third-parties APIs
+TaskMAD has also been designed with the goal in mind of allowing researchers to plug-in existing bots for evaluation and building conversational training / test collections. 
 
 # Online Demo
 
@@ -45,7 +16,7 @@ To access to the chat interface simply visit the following url [http://chat-uog.
 
 In order to effectively connect the Chat interface with the backend server it is required to provide the configurations outlined below: 
 
-* **Host Url:** http://34.118.18.219
+* **Host Url:** http://35.241.45.255
 * **User ID:** user
 * **Conversation ID:** *Any conversation ID of personal choice i.e. conv1*
 * **Select Recipe:** *Pick any recipe of personal choice*
@@ -57,11 +28,15 @@ To access the Wizard interface simply visit the following url [http://woz-uog.on
 In order to effectively connect the Wizard interface with the backend server it is required to provide the configurations outlined below: 
 
 * First of all, from the **Selected Connector** section select the **Agent Dialogue** option. Here specify the following: 
-	* **Server Url:** http://34.118.18.219
+	* **Server Url:** http://35.241.45.255
 	* **User ID:** wizard
 	* **Conversation ID:** *The same conversation ID of specified for the chat*
 * Tick the checkbox **Show chat transcript**
 * Then click on the *Upload Excel Spreadsheet* and upload the file *woz_input_excel.xlsx* provided in the repository.  
+
+## Repository Content
+
+In this repository we provide content only to run the Task-MAD gRPC server and the Chat interface. To run the Wizard Interface it 
 
 # Installation 
 
@@ -146,7 +121,7 @@ If everything has been configured correctly it is possible to deploy the system.
  
 1. We need to edit the `deployment-envoy.yaml` file. We need to remove all the configurations that refer to the deployment on Cloud. More precisely we need to comment out the following lines:
 
-	- Remote IP address `loadBalancerIP: "34.118.18.219"`
+	- Remote IP address `loadBalancerIP: "35.241.45.255"`
 	- Remove the volumes
 	
 		```yaml
@@ -195,19 +170,19 @@ If the process has been successful, we should be able to interact with the two a
 
 Deploying to Google Cloud requires multiple services to communicate and interact correclty. Before to proceed make sure to have done all the steps required up to **Local Deployment**. 
 
-### 1. Creating static external IP addresses
+### Step 1: Creating static external IP addresses
 
 1. The first thing we need to do is to create static external IP addresses that won't change as we redeploy our application. This will make our applications accessible. To do so, in the Google Cloud console, go to the *External IP addresses* under the *VPC Network* tab. 
 2. Reserve 2 different ip addresses one for the chat interface and one for the grpc server. Here you can pick either regional or global addresses as desired. 
 3. Now, specify the reserved IP addresses in the files `chat_deployment_nginx.yaml` and `deployment-envoy.yaml` under the tag `loadBalancerIP`. 
 
-### 2. Create Artifact Registry Repository
+### Step 2: Create Artifact Registry Repository
 
 1. Create a an Artifact repository on Google Cloud with the preferred name. Select Docker as format. 
 2. Now we need to change again `chat_deployment_nginx.yaml` and `deployment-envoy.yaml` in order to specify from where our images will need to be pulled from when deploying to kubernetes. The path we are looking for should similar to the following one `europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system`
 	- Hence, in both .yaml files replace the `image` tag with the path previously defined in order to point to the images we will push later on. 
 
-### 3. Creating and Pusing Images to Artifact Registry
+### Step 3: Creating and Pusing Images to Artifact Registry
 
 At this point, we can create the images we need locally and push them to Artifact registry. To do so we proceed as follows: 
 
@@ -215,6 +190,10 @@ At this point, we can create the images we need locally and push them to Artifac
 2. Run the command `docker build -t grpc-server:latest  .` from within the `agent-dialogue-core` folder
 3. Run the command `docker build -t chat:latest .` from within the folder `agent-dialogue-ui`
 4. Now push the images to Artifact registry by followign [this guide.](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling)
+
+### Step 4: Creating Clusters 
+
+In order to deploy  
 
 
 

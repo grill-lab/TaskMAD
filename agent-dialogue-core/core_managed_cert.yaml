@@ -1,0 +1,8 @@
+# File used to manage a certificate with google cloud for https
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: core-managed-cert
+spec:
+  domains:
+    - backend-server.online
