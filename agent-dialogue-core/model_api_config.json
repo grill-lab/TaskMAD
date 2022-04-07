@@ -1,0 +1,10 @@
+{
+    "internal_grill" : 
+    {
+        "root_url": "http://172.30.146.197:9999",
+        "api_endpoints": {
+            "inference": "/run"
+                
+        }
+    }
+}

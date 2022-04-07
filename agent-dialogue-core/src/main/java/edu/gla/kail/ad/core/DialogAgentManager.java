@@ -5,6 +5,7 @@ import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.agents.DialogflowAgent;
+import edu.gla.kail.ad.agents.ModelInteractionAgent;
 import edu.gla.kail.ad.agents.RestSearchAgent;
 import edu.gla.kail.ad.agents.WizardAgent;
 import edu.gla.kail.ad.core.Log.RequestLog;
@@ -123,6 +124,13 @@ public class DialogAgentManager {
                 case SEARCH:
                     try {
                         _agents.add(new RestSearchAgent(agent));
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                    break;
+                case MODEL_INFERENCE: 
+                    try {
+                        _agents.add(new ModelInteractionAgent(agent));
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }

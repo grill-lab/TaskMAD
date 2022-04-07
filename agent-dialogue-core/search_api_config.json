@@ -1,9 +1,16 @@
 {
-    "search_api_url": "http://34.116.219.205",
-    "api_endpoints": {
-        "query_documents": "/search",
-        "page": "/extract_page",
-        "recipe": "/recipe"
+    "search_api":{
+        "root_url": "http://34.116.219.205",
+        "api_endpoints": {
+            "query_documents": "/search",
+            "page": "/extract_page",
+            "recipe": "/recipe"
+        }
+    },
+    "cast_api":{
+        "root_url": "http://3.83.54.47:5000",
+        "api_endpoints": {
+            "rewrite": "/rewrite"
+        }
     }
-
 }
