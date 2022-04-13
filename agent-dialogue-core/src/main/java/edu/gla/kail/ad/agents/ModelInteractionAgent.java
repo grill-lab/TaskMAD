@@ -92,6 +92,11 @@ public class ModelInteractionAgent implements AgentInterface {
 
         Map<String, Value> fieldsMap = interactionRequest.getAgentRequestParameters().getFieldsMap();
         String result = "";
+        // Get request type
+        String request_type = "POST";
+        if(fieldsMap.containsKey("request_type")){
+            request_type = fieldsMap.get("request_type").getStringValue();
+        }
         // If these two parameters are not specified we return an error
         if (fieldsMap.containsKey("model_name") && fieldsMap.containsKey("api_endpoint") && fieldsMap.containsKey("request_body")) {
             try {
@@ -116,7 +121,7 @@ public class ModelInteractionAgent implements AgentInterface {
 
                 // Start the connection 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
+                conn.setRequestMethod(request_type);
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setDoOutput(true);

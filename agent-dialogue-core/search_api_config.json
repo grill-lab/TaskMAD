@@ -8,8 +8,9 @@
         }
     },
     "cast_api":{
-        "root_url": "http://3.83.54.47:5000",
+        "root_url": "http://54.236.60.171:5000",
         "api_endpoints": {
+            "search": "/search",
             "rewrite": "/rewrite"
         }
     }

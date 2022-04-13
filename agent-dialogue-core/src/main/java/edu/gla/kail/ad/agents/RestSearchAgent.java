@@ -94,6 +94,11 @@ public class RestSearchAgent implements AgentInterface {
 // If these two parameters are not specified we return an error
         Map<String, Value> fieldsMap = interactionRequest.getAgentRequestParameters().getFieldsMap();
         String result = "";
+        // Get request type
+        String request_type = "POST";
+        if(fieldsMap.containsKey("request_type")){
+            request_type = fieldsMap.get("request_type").getStringValue();
+        }
         if (fieldsMap.containsKey("service_name") && fieldsMap.containsKey("api_endpoint") && fieldsMap.containsKey("request_body")) {
             try {
                 // Get the service name 
@@ -117,7 +122,7 @@ public class RestSearchAgent implements AgentInterface {
 
                 // Start the connection 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
+                conn.setRequestMethod(request_type);
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setDoOutput(true);

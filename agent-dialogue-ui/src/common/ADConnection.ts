@@ -242,7 +242,7 @@ export class ADConnection {
   }
 
   // Method used in order to perform a generic call to the SearchAPI 
-  public searchApi = async (requestBody: Struct): Promise<{ [key: string]: JavaScriptValue; }> => {
+  public agentInteractionApi = async (requestBody: Struct, agent: string): Promise<{ [key: string]: JavaScriptValue; }> => {
 
     // Return a new promise
     return new Promise((resolve) => {
@@ -255,13 +255,13 @@ export class ADConnection {
       request.setInteraction(input)
 
       // Specify that the request is for the SearchAPI agent
-      request.setChosenAgentsList(["SearchAPI"])
+      request.setChosenAgentsList([agent])
       request.setAgentRequestParameters(requestBody);
 
       var response: { [key: string]: JavaScriptValue; };
       var callback = (_err: grpcWeb.Error,
         _response: InteractionResponse,) => {
-          
+
         // If the response is successfull        
         if (_err === null || _err.code === 0) {
           if (_response !== undefined
@@ -288,5 +288,7 @@ export class ADConnection {
         callback)
 
     });
+
+
   }
 }
