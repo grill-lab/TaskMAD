@@ -11,6 +11,8 @@ import com.google.protobuf.Value;
 import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.InteractionType;
+import edu.gla.kail.ad.Client.LoggedCastQueryRewrite;
+import edu.gla.kail.ad.Client.LoggedCastSearcherSelection;
 import edu.gla.kail.ad.Client.OutputInteraction;
 import edu.gla.kail.ad.Client.OutputInteraction.Builder;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
@@ -23,7 +25,6 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -361,6 +362,33 @@ public class WizardAgent implements AgentInterface {
     data.put("logged_user_recipe_section", interactionRequest.getInteraction().getLoggedUserRecipeSectionList());
     data.put("logged_user_recipe_section_value", interactionRequest.getInteraction().getLoggedUserRecipeSectionValueList());
     data.put("logged_user_recipe_select_timestamp", interactionRequest.getInteraction().getLoggedUserRecipeSelectTimestampList());
+
+
+    // Log specific CAsT values 
+    Map<String, Object> loggedCastQueryRewriteData = new HashMap<String, Object>();
+    for(LoggedCastQueryRewrite queryRewrite: interactionRequest.getInteraction().getLoggedCastQueryRewriteList()){
+      Map<String, Object> loggedCastQueryRewriteInnerData = new HashMap<String, Object>();
+      loggedCastQueryRewriteInnerData.put("query", queryRewrite.getContent().getQuery());
+      loggedCastQueryRewriteInnerData.put("context", queryRewrite.getContent().getContext());
+      loggedCastQueryRewriteInnerData.put("rewritten_query", queryRewrite.getContent().getRewrittenQuery());
+      loggedCastQueryRewriteData.put(queryRewrite.getId(), loggedCastQueryRewriteInnerData);
+    }
+
+    data.put("logged_cast_query_rewrite", loggedCastQueryRewriteData);
+
+    Map<String, Object> loggedCastSearcherSelection = new HashMap<String, Object>();
+    for(LoggedCastSearcherSelection searcherSelection: interactionRequest.getInteraction().getLoggedCastSearcherSelectionList()){
+      Map<String, Object> loggedCastSearcherSelectionInnerData = new HashMap<String, Object>();
+
+      loggedCastSearcherSelectionInnerData.put("query", searcherSelection.getContent().getQuery());
+      loggedCastSearcherSelectionInnerData.put("passage_id", searcherSelection.getContent().getPassageIdList());
+      loggedCastSearcherSelectionInnerData.put("passage_text", searcherSelection.getContent().getPassageTextList());
+
+      loggedCastSearcherSelection.put(searcherSelection.getId(), loggedCastSearcherSelectionInnerData);
+    }
+
+    data.put("logged_cast_searcher_selection", loggedCastSearcherSelection);
+
     chatReference.set(data);
     return chatReference;
   }
