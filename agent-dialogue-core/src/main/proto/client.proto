@@ -92,8 +92,7 @@ message InputInteraction {
     repeated string logged_user_recipe_section_value = 19; // The list of checkboxes text associated to the checboxes clicked
     repeated int64 logged_user_recipe_select_timestamp = 20; // The list of timestamps associated to the checkboxes clicked
 
-    repeated LoggedCastQueryRewrite logged_cast_query_rewrite = 21; // Struc to store the query rewrites executed when composing a message
-    repeated LoggedCastSearcherSelection logged_cast_searcher_selection = 22; // Struc to store the searches and paragraphs selected composing a message
+    repeated LoggedBotInteraction logged_bot_interaction = 21; // Struc to store the bot interaction when composing a message
 
 }
 
@@ -117,27 +116,15 @@ message Result {
     string full_text = 6;
 }
 
-message LoggedCastQueryRewrite{
+message LoggedBotInteraction{
 
-    message LoggedCastQueryRewriteContent{
-        string query = 1;
-        string context = 2;
-        string rewritten_query = 3;
+    message Content{
+        string issued_query = 1;
+        string bot_response = 2;
+        string bot_rewritten_response = 3;
     }
 
     string id = 1;
-    LoggedCastQueryRewriteContent content = 2;
+    Content content = 2;
 
-}
-
-message LoggedCastSearcherSelection{
-
-    message LoggedCastSearcherSelectionContent{
-        string query = 1;
-        repeated string passage_id = 2;
-        repeated string passage_text = 3;
-    }
-    
-    string id = 1;
-    LoggedCastSearcherSelectionContent content = 2;
 }
