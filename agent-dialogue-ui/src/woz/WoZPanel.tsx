@@ -355,6 +355,7 @@ class WoZDialogue
           us={this.props.params.userID}
           them={[]}
           onEnter={this.onEnter}
+          connection={this.props.connection}
         />
       </Grid.Column>
     </Grid>);

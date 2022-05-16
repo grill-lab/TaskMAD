@@ -243,6 +243,9 @@ export class InputInteraction extends jspb.Message {
   clearLoggedUserRecipeSelectTimestampList(): InputInteraction;
   addLoggedUserRecipeSelectTimestamp(value: number, index?: number): InputInteraction;
 
+  getAudioBase64(): string;
+  setAudioBase64(value: string): InputInteraction;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InputInteraction.AsObject;
   static toObject(includeInstance: boolean, msg: InputInteraction): InputInteraction.AsObject;
@@ -273,6 +276,7 @@ export namespace InputInteraction {
     loggedUserRecipeSectionList: Array<string>,
     loggedUserRecipeSectionValueList: Array<string>,
     loggedUserRecipeSelectTimestampList: Array<number>,
+    audioBase64: string,
   }
 }
 

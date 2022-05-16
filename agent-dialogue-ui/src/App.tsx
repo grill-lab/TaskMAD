@@ -1,13 +1,12 @@
 import React, { Component } from "react"
-import { Tab } from "semantic-ui-react"
 import css from "./App.module.css"
 // import {HomePanel} from "./home/HomePanel"
 // import {RatingsPanel} from "./ratings/RatingsPanel"
 import logo from "./resources/img/uog_logo.png"
-import {WoZPanel} from "./woz/WoZPanel"
+import { WoZPanel } from "./woz/WoZPanel"
 
 // tslint:disable-next-line:interface-name
-export interface StringMap {[index: string]: string}
+export interface StringMap { [index: string]: string }
 
 interface IAppState {
   readonly params: StringMap
@@ -24,9 +23,9 @@ class App extends Component<{}, IAppState> {
     //   userID: "test",
     // }
     new URL(window.location.href)
-        .searchParams.forEach((value, key) => {
-      params[key] = value
-    })
+      .searchParams.forEach((value, key) => {
+        params[key] = value
+      })
 
     this.state = {
       params,
@@ -57,7 +56,7 @@ class App extends Component<{}, IAppState> {
       <div className={css.app}>
         <div className={css.overlayLayer}>
           <header className={css.appHeader}>
-            <img src={logo} className={css.appLogo} alt="logo"/>
+            <img src={logo} className={css.appLogo} alt="logo" />
             <h1 className={css.appTitle}>Cooking Masterclass</h1>
           </header>
           {/* <Tab className={css.mainTab}
@@ -67,7 +66,7 @@ class App extends Component<{}, IAppState> {
                 inverted: true,
                 tabular: false }}
               panes={panes} /> */}
-          <WoZPanel params={this.state.params}/>
+          <WoZPanel params={this.state.params} />
           <a className={css.appFooter} href="https://www.flaticon.com/free-icons/chatbot" title="chatbot icons"></a>
         </div>
       </div>

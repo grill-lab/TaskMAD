@@ -291,4 +291,51 @@ export class ADConnection {
 
 
   }
+
+  // Method used in order to perform a generic call to the SearchAPI 
+  public agentSpeechToTextInteractionApi = async (base64Audio: string): Promise<string> => {
+
+    // Return a new promise
+    return new Promise((resolve) => {
+
+      const input = new InputInteraction();
+      input.setAudioBase64(base64Audio);
+
+      // Populate the InteractionRequest object
+      const request = new InteractionRequest()
+      request.setClientId(ClientId.WEB_SIMULATOR)
+      request.setInteraction(input)
+
+      // Specify that the request is for the SearchAPI agent
+      request.setChosenAgentsList(['SpeechToText'])
+
+      var callback = (_err: grpcWeb.Error,
+        _response: InteractionResponse,) => {
+
+        // If the response is successfull        
+        if (_err === null || _err.code === 0) {
+          if (_response !== undefined
+            && _response.getMessageStatus() === InteractionResponse.ClientMessageStatus.SUCCESSFUL
+            && _response.getInteractionList().length !== 0) {
+
+            // Retrieve the response object and resolve the promise
+            let responseObj = _response.getInteractionList()[0].getText();
+            if (responseObj !== undefined) {
+              resolve(responseObj);
+              return;
+            }
+          }
+        }
+
+      }
+
+      // Perform the call 
+      this.getClient().getResponseFromAgents(
+        request, {},
+        callback)
+
+    });
+
+
+  }
 }

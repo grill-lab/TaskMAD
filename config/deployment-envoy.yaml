@@ -35,14 +35,14 @@ spec:
       containers:
       # [START envoy]
       - name: esp
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/envoy:latest
-        #imagePullPolicy: Never
+        image: envoy:latest
+        imagePullPolicy: Never
         ports:
           - containerPort: 10000
       # [END envoy]
       - name: core
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/grpc-server:latest
-        #imagePullPolicy: Never
+        image: grpc-server:latest
+        imagePullPolicy: Never
         ports:
           - containerPort: 8070
         volumeMounts:

@@ -91,6 +91,7 @@ message InputInteraction {
     repeated string logged_user_recipe_section = 18; // The list the sections associated to the checkboxes clicked
     repeated string logged_user_recipe_section_value = 19; // The list of checkboxes text associated to the checboxes clicked
     repeated int64 logged_user_recipe_select_timestamp = 20; // The list of timestamps associated to the checkboxes clicked
+    string audio_base64 = 21; // The message sent to the agent in base64 format
 }
 
 // Message sent back by agent.

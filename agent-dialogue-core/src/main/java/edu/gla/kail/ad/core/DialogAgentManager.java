@@ -7,6 +7,7 @@ import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.agents.DialogflowAgent;
 import edu.gla.kail.ad.agents.ModelInteractionAgent;
 import edu.gla.kail.ad.agents.RestSearchAgent;
+import edu.gla.kail.ad.agents.SpeechToTextAgent;
 import edu.gla.kail.ad.agents.WizardAgent;
 import edu.gla.kail.ad.core.Log.RequestLog;
 import edu.gla.kail.ad.core.Log.ResponseLog;
@@ -128,9 +129,9 @@ public class DialogAgentManager {
                         exception.printStackTrace();
                     }
                     break;
-                case MODEL_INFERENCE: 
+                case SPEECH_TO_TEXT: 
                     try {
-                        _agents.add(new ModelInteractionAgent(agent));
+                        _agents.add(new SpeechToTextAgent(agent));
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }

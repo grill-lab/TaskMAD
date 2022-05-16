@@ -1,4 +1,4 @@
-// source: client.proto
+/* eslint-disable */
 /**
  * @fileoverview
  * @enhanceable
@@ -7,8 +7,6 @@
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
-/* eslint-disable */
-// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
@@ -1202,7 +1200,8 @@ proto.edu.gla.kail.ad.InputInteraction.toObject = function(includeInstance, msg)
     loggedUserRecipePageTitleList: jspb.Message.getRepeatedField(msg, 17),
     loggedUserRecipeSectionList: jspb.Message.getRepeatedField(msg, 18),
     loggedUserRecipeSectionValueList: jspb.Message.getRepeatedField(msg, 19),
-    loggedUserRecipeSelectTimestampList: jspb.Message.getRepeatedField(msg, 20)
+    loggedUserRecipeSelectTimestampList: jspb.Message.getRepeatedField(msg, 20),
+    audioBase64: jspb.Message.getFieldWithDefault(msg, 21, "")
   };
 
   if (includeInstance) {
@@ -1318,6 +1317,10 @@ proto.edu.gla.kail.ad.InputInteraction.deserializeBinaryFromReader = function(ms
     case 20:
       var value = /** @type {!Array<number>} */ (reader.readPackedInt64());
       msg.setLoggedUserRecipeSelectTimestampList(value);
+      break;
+    case 21:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAudioBase64(value);
       break;
     default:
       reader.skipField();
@@ -1485,6 +1488,13 @@ proto.edu.gla.kail.ad.InputInteraction.serializeBinaryToWriter = function(messag
   if (f.length > 0) {
     writer.writePackedInt64(
       20,
+      f
+    );
+  }
+  f = message.getAudioBase64();
+  if (f.length > 0) {
+    writer.writeString(
+      21,
       f
     );
   }
@@ -1998,6 +2008,21 @@ proto.edu.gla.kail.ad.InputInteraction.prototype.addLoggedUserRecipeSelectTimest
 
 proto.edu.gla.kail.ad.InputInteraction.prototype.clearLoggedUserRecipeSelectTimestampList = function() {
   this.setLoggedUserRecipeSelectTimestampList([]);
+};
+
+
+/**
+ * optional string audio_base64 = 21;
+ * @return {string}
+ */
+proto.edu.gla.kail.ad.InputInteraction.prototype.getAudioBase64 = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 21, ""));
+};
+
+
+/** @param {string} value */
+proto.edu.gla.kail.ad.InputInteraction.prototype.setAudioBase64 = function(value) {
+  jspb.Message.setProto3StringField(this, 21, value);
 };
 
 

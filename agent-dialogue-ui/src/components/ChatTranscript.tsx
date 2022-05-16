@@ -8,7 +8,7 @@ import { IDialogue } from "./DialogueModel"
 export interface IChatTranscriptProperties {
   dialogue: IDialogue
   us: string
-  them: string[],
+  them: string[]
 }
 
 export class ChatTranscript
@@ -30,18 +30,18 @@ export class ChatTranscript
 
     // Play the last message
     var last_message = this.props.dialogue.messages[this.props.dialogue.messages.length - 1];
-    if(last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.TEXT){
+    if (last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.TEXT) {
       // Play the last message only if it has been sent less than 5 seconds ago. 
-      
-      if(last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5){
-        if(last_message?.text !== undefined && !isStringImagePath(last_message?.text) && !isStringVideoPath(last_message?.text)){
-          playTextToAudio(last_message?.text);  
+
+      if (last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5) {
+        if (last_message?.text !== undefined && !isStringImagePath(last_message?.text) && !isStringVideoPath(last_message?.text)) {
+          playTextToAudio(last_message?.text);
         }
       }
-      
+
     }
-    
-    
+
+
   }
 
   // noinspection JSUnusedGlobalSymbols
