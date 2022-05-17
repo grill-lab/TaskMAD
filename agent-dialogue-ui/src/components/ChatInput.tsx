@@ -19,6 +19,11 @@ interface IChatInputState {
 export class ChatInput
   extends React.Component<IChatInputProperties, IChatInputState> {
 
+  private defaultProps = {
+    hideRecordingButton: true
+
+  }
+
   private mediaService: MediaRecorderAPIService;
 
   constructor(props: IChatInputProperties) {
@@ -73,7 +78,8 @@ export class ChatInput
           disabled={this.state.value.trim().length === 0}
           onClick={this.onCommit}
         />}
-      /><Icon
+      />
+      <div hidden={this.defaultProps.hideRecordingButton}><Icon
         name={this.state.isRecording ? 'stop circle' : "microphone"} inverted circular link red
         color={this.state.isRecording ? 'red' : 'green'}
         className={css.recordingIcon}
@@ -93,7 +99,7 @@ export class ChatInput
 
         }
         }
-      />
+      /></div>
     </div>
   }
 }
