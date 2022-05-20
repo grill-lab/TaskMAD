@@ -12,7 +12,7 @@ export class RecipeService {
 
         var dataJson = undefined;
         try {
-            const response = await fetch('https://storage.googleapis.com/ad-public-bucket/associated_recipes.json', requestOptions);
+            const response = await fetch('https://storage.googleapis.com/taskmad-public-bucket/associated_recipes.json', requestOptions);
             dataJson = await response.json();
 
             if (dataJson !== undefined) {
