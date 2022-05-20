@@ -11,7 +11,7 @@ spec:
   selector:
     app: esp-core
   type: LoadBalancer
-  loadBalancerIP: "34.89.14.169"
+  loadBalancerIP: "34.116.152.174"
 ---
 apiVersion: apps/v1
 kind: Deployment
