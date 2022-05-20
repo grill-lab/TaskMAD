@@ -15,4 +15,4 @@ RUN ["mvn", "install"]
 
 EXPOSE 8070
 
-CMD ["java", "-jar", "target/agent-dialogue-core-0.1-SNAPSHOT.jar", "https://storage.googleapis.com/agent-dialogue-system/agent-dialogue-storage/core-config.json"]
+CMD ["java", "-jar", "target/agent-dialogue-core-0.1-SNAPSHOT.jar", "https://storage.googleapis.com/taskmad-public-bucket/core-config.json"]
