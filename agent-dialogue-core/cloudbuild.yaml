@@ -2,7 +2,7 @@
 steps:
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
