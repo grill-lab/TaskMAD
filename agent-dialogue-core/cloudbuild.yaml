@@ -16,12 +16,21 @@ steps:
   args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
 
 # deploy container image to GKE
-- name: "gcr.io/cloud-builders/gke-deploy"
+# - name: "gcr.io/cloud-builders/gke-deploy"
+#   args:
+#   - run
+#   - --filename=
+#   - --location=${_CLUSTER_LOCATION}
+#   - --cluster=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
   args:
-  - run
-  - --filename=config/${_K8_FILE}
-  - --location=${_CLUSTER_LOCATION}
-  - --cluster=${_CLUSTER_NAME}
+  - apply
+  - -f
+  - config/${_K8_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
