@@ -6,14 +6,14 @@ steps:
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}']
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}']
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
 
 # deploy container image to GKE
 - name: "gcr.io/cloud-builders/gke-deploy"
@@ -24,7 +24,7 @@ steps:
   - --cluster=${_CLUSTER_NAME}
 
 substitutions:
-  _REPOSITORY: agent-dialogue-system 
+  _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
   _IMAGE_VERSION: latest
   _K8_FILE: deployment-envoy.yaml
   _CLUSTER_LOCATION: europe-central2-a

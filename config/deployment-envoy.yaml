@@ -11,7 +11,7 @@ spec:
   selector:
     app: esp-core
   type: LoadBalancer
-  loadBalancerIP: "34.116.147.56"
+  loadBalancerIP: "34.149.206.16"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,13 +35,13 @@ spec:
       containers:
       # [START envoy]
       - name: esp
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/envoy:latest
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/envoy:latest
         # imagePullPolicy: Never
         ports:
           - containerPort: 10000
       # [END envoy]
       - name: core
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/grpc-server:latest
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-server:latest
         # imagePullPolicy: Never
         ports:
           - containerPort: 8070
