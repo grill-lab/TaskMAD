@@ -99,7 +99,7 @@ public class WizardAgent implements AgentInterface {
    * @return
    */
   private CollectionReference getDbCollection(String conversationId) {
-    CollectionReference collectionReference = _database.collection("wizard")
+    CollectionReference collectionReference = _database.collection("TaskMAD")
             .document(_projectId)
             .collection("conversations")
             .document(conversationId)
