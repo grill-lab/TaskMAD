@@ -11,7 +11,7 @@ spec:
   selector:
     app: chat-app
   type: LoadBalancer
-  loadBalancerIP: "34.111.203.239"
+  loadBalancerIP: "34.142.71.52"
 ---
 apiVersion: apps/v1
 kind: Deployment
