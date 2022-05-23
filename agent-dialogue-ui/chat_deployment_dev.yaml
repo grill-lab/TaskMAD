@@ -32,6 +32,7 @@ spec:
       - name: chat
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/chat:latest
         #imagePullPolicy: Never
+        imagePullPolicy: Always
         stdin: true
         ports:
           - containerPort: 3001

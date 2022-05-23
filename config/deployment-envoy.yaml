@@ -36,13 +36,15 @@ spec:
       # [START envoy]
       - name: esp
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/envoy:latest
-        # imagePullPolicy: Never
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
           - containerPort: 10000
       # [END envoy]
       - name: core
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-server:latest
-        # imagePullPolicy: Never
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
           - containerPort: 8070
         volumeMounts:
