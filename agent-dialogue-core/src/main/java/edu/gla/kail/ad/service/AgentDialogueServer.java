@@ -14,10 +14,14 @@ import edu.gla.kail.ad.core.DialogAgentManager;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.LogTurnManagerSingleton;
 import edu.gla.kail.ad.core.PropertiesSingleton;
+import io.grpc.Grpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerCredentials;
+import io.grpc.TlsServerCredentials;
 import io.grpc.stub.StreamObserver;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
@@ -40,8 +44,8 @@ public class AgentDialogueServer {
      *
      * @param port - the integer specifying the port.
      */
-    public AgentDialogueServer(int port) {
-        this(ServerBuilder.forPort(port));
+    public AgentDialogueServer(int port, ServerCredentials creds) {
+        this(Grpc.newServerBuilderForPort(port, creds));
     }
 
     /**
@@ -60,8 +64,11 @@ public class AgentDialogueServer {
         logger.info("Loading config file from:" + args[0]);
         PropertiesSingleton.getPropertiesSingleton(new URL(args[0]));
         logger.info("Configuration loaded: " + PropertiesSingleton.getCoreConfig().toString());
+        File serverCertFile = new File("keys/server-cert.pem");
+        File serverKeyFile = new File("keys/server-key.pem");
+        ServerCredentials creds = TlsServerCredentials.create(serverCertFile, serverKeyFile);
         AgentDialogueServer server = new AgentDialogueServer(PropertiesSingleton.getCoreConfig()
-                .getGrpcServerPort());
+                .getGrpcServerPort(), creds);
         server.start();
         server.blockUntilShutdown();
     }

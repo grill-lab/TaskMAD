@@ -10,8 +10,9 @@ spec:
     name: http
   selector:
     app: chat-app
-  type: LoadBalancer
-  loadBalancerIP: "34.118.4.64"
+  # type: LoadBalancer
+  # loadBalancerIP: "34.118.4.64"
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
