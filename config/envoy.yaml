@@ -38,13 +38,13 @@ static_resources:
           - name: envoy.filters.http.grpc_web
           - name: envoy.filters.http.cors
           - name: envoy.filters.http.router
-      # tls_context:
-      #   common_tls_context:
-      #     tls_certificates:
-      #       - certificate_chain:
-      #           filename: "/etc/envoy/certs/fullchain.pem"
-      #         private_key:
-      #           filename: "/etc/envoy/certs/privkey.pem"
+      tls_context:
+        common_tls_context:
+          tls_certificates:
+            - certificate_chain:
+                filename: "/etc/envoy/certs/fullchain.pem"
+              private_key:
+                filename: "/etc/envoy/certs/privkey.pem"
   clusters:
   - name: ad_service
     connect_timeout: 0.25s
