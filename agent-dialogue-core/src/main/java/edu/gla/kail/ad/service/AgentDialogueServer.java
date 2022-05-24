@@ -44,8 +44,11 @@ public class AgentDialogueServer {
      *
      * @param port - the integer specifying the port.
      */
-    public AgentDialogueServer(int port, ServerCredentials creds) {
-        this(Grpc.newServerBuilderForPort(port, creds));
+    // public AgentDialogueServer(int port, ServerCredentials creds) {
+    //     this(Grpc.newServerBuilderForPort(port, creds));
+    // }
+    public AgentDialogueServer(int port) {
+        this(ServerBuilder.forPort(port));
     }
 
     /**
@@ -68,7 +71,7 @@ public class AgentDialogueServer {
         File serverKeyFile = new File("keys/server-key.pem");
         ServerCredentials creds = TlsServerCredentials.create(serverCertFile, serverKeyFile);
         AgentDialogueServer server = new AgentDialogueServer(PropertiesSingleton.getCoreConfig()
-                .getGrpcServerPort(), creds);
+                .getGrpcServerPort());
         server.start();
         server.blockUntilShutdown();
     }

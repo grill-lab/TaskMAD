@@ -10,8 +10,9 @@ spec:
     name: http
   selector:
     app: esp-core
-  type: LoadBalancer
-  loadBalancerIP: "34.116.152.174"
+  # type: LoadBalancer
+  # loadBalancerIP: "34.116.152.174"
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
