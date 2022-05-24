@@ -47,9 +47,6 @@ static_resources:
             tls_certificates:
               certificate_chain: {filename: "/etc/envoy/certs/fullchain.pem"}
               private_key: {filename: "/etc/envoy/certs/privkey.pem"}
-          alpn_protocols: ["h2,http/1.1"]
-          tls_params:
-            tls_minimum_protocol_version: "TLSv1_2"
   clusters:
   - name: ad_service
     connect_timeout: 0.25s
