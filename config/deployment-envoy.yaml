@@ -14,8 +14,7 @@ spec:
     targetPort: 443
   selector:
     app: esp-core
-  type: LoadBalancer
-  loadBalancerIP: 34.116.151.200
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment

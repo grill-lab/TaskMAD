@@ -72,14 +72,14 @@ static_resources:
           - name: envoy.filters.http.grpc_web
           - name: envoy.filters.http.cors
           - name: envoy.filters.http.router
-      transport_socket:
-        name: envoy.transport_sockets.tls
-        typed_config:
-          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
-          common_tls_context:
-            tls_certificates:
-            - certificate_chain: {filename: "/etc/envoy/certs/fullchain.pem"}
-              private_key: {filename: "/etc/envoy/certs/privkey.pem"}
+      # transport_socket:
+      #   name: envoy.transport_sockets.tls
+      #   typed_config:
+      #     "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+      #     common_tls_context:
+      #       tls_certificates:
+      #       - certificate_chain: {filename: "/etc/envoy/certs/fullchain.pem"}
+      #         private_key: {filename: "/etc/envoy/certs/privkey.pem"}
   clusters:
   - name: ad_service
     connect_timeout: 0.25s
