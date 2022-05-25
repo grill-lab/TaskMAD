@@ -4,13 +4,18 @@ metadata:
   name: esp-core-envoy
 spec:
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: 10000
     protocol: TCP
-    name: http
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
   selector:
     app: esp-core
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 34.116.151.200
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -39,6 +44,7 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 10000
+          - containerPort: 443
       # [END envoy]
       - name: core
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-server:latest
