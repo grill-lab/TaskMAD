@@ -57,7 +57,7 @@ public class AgentDialogueServer {
      * @param serverBuilder - the builder created for a particular port.
      */
     private AgentDialogueServer(ServerBuilder<?> serverBuilder) {
-        _server = serverBuilder.addService(new AgentDialogueService()).build();
+        _server = serverBuilder.addService(new AgentDialogueService()).addService(new GrcpHealthCheck()).build();
     }
 
     public static void main(String[] args) throws Exception {

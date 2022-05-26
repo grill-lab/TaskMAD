@@ -14,8 +14,7 @@ spec:
     targetPort: 443
   selector:
     app: esp-core
-  type: LoadBalancer
-  loadBalancerIP: "34.116.151.200"
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -52,6 +51,14 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8070
+        readinessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:8070"]
+            initialDelaySeconds: 5
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8070"]
+          initialDelaySeconds: 10
         volumeMounts:
           - mountPath: "code/keys"
             name: disk-core-volume 
