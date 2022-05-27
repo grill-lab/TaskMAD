@@ -11,4 +11,4 @@ ENV PATH="/usr/local/bin/grpc_health_proxy:$PATH"
 
 EXPOSE 8080
 
-CMD grpc_health_proxy --http-listen-addr localhost:8080 --grpcaddr localhost:8070 --logtostderr=1 -v 1
+CMD grpc_health_proxy --http-listen-addr 0.0.0.0:8080 --grpcaddr 0.0.0.0:8070 --logtostderr=1 -v 1
