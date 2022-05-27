@@ -23,9 +23,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}']
 
-  
-
-# deploy container image to GKE
+# Deploy container image to GKE
 
 # Configure service backend 
 - name: 'gcr.io/cloud-builders/kubectl'
@@ -33,6 +31,9 @@ steps:
   - apply
   - -f
   - agent-dialogue-core/deployment_config/${_K8_BACKEND_CONFIG_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 # Deploy service and pods
 - name: 'gcr.io/cloud-builders/kubectl'
@@ -40,6 +41,9 @@ steps:
   - apply
   - -f
   - config/${_K8_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 # Deploy Ingress
 - name: 'gcr.io/cloud-builders/kubectl'
@@ -47,7 +51,6 @@ steps:
   - apply
   - -f
   - agent-dialogue-core/deployment_config/${_K8_INGRESS_FILE}
-
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
