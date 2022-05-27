@@ -48,9 +48,9 @@ steps:
   - -f
   - agent-dialogue-core/deployment_config/${_K8_INGRESS_FILE}
 
-env:
-- CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
-- CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
