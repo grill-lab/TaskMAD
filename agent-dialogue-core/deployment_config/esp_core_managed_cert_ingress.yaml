@@ -5,11 +5,16 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: esp-core-ip
     # Enable this flag if we want to use the self-managed certificate
-    # networking.gke.io/managed-certificates: esp-core-managed-cert
+    networking.gke.io/managed-certificates: esp-core-managed-cert
     kubernetes.io/ingress.class: "gce"
 spec:
-  defaultBackend:
-    service:
-      name: esp-core-envoy
-      port:
-        number: 80
+  rules:
+    - http:
+        paths:
+        - path: /*
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name:  esp-core-envoy
+              port:
+                number: 80

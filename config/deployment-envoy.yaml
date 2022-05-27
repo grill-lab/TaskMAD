@@ -2,16 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: esp-core-envoy
+  annotations:
+    beta.cloud.google.com/backend-config: '{"ports": {"80":"esp-core-backend-config"}}'
 spec:
   ports:
   - name: http
     port: 80
     targetPort: 10000
     protocol: TCP
-  - name: https
-    protocol: TCP
-    port: 443
-    targetPort: 443
   selector:
     app: esp-core
   type: NodePort
@@ -43,7 +41,6 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 10000
-          - containerPort: 443
       # [END envoy]
       - name: core
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-server:latest
@@ -52,13 +49,19 @@ spec:
         ports:
           - containerPort: 8070
         readinessProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:8070"]
-            initialDelaySeconds: 5
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8070", "-connect-timeout=100ms", "-rpc-timeout=150ms"]
+          initialDelaySeconds: 5
         livenessProbe:
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:8070"]
-          initialDelaySeconds: 10
+            command: ["/bin/grpc_health_probe", "-addr=:8070", "-connect-timeout=100ms", "-rpc-timeout=150ms"]
+          initialDelaySeconds: 15
         volumeMounts:
           - mountPath: "code/keys"
             name: disk-core-volume 
+      - name: grpc-health-proxy
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-health-proxy:latest
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
