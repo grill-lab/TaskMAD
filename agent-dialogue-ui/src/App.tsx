@@ -57,7 +57,7 @@ class App extends Component<{}, IAppState> {
         <div className={css.overlayLayer}>
           <header className={css.appHeader}>
             <img src={logo} className={css.appLogo} alt="logo" />
-            <h1 className={css.appTitle}>Cooking Masterclass</h1>
+            <h1 className={css.appTitle}>TaskMAD</h1>
           </header>
           {/* <Tab className={css.mainTab}
               menu={{

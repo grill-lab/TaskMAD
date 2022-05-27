@@ -8,13 +8,8 @@ metadata:
     networking.gke.io/managed-certificates: esp-core-managed-cert
     kubernetes.io/ingress.class: "gce"
 spec:
-  rules:
-    - http:
-        paths:
-        - path: /*
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name:  esp-core-envoy
-              port:
-                number: 80
+  defaultBackend:
+    service:
+      name: esp-core-envoy
+      port:
+        number: 80

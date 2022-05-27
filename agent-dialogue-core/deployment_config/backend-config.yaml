@@ -4,7 +4,10 @@ metadata:
   name: esp-core-backend-config
 spec:
   healthCheck:
+    # The health of the service is based on 
+    # the health of the grpc-health-proxy 
+    # which supports http on port 8080
     checkIntervalSec: 15
-    port: 80
+    port: 8080
     type: HTTP
-    requestPath: /healthz
+    requestPath: /

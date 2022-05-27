@@ -4,6 +4,7 @@ metadata:
   name: esp-core-envoy
   annotations:
     beta.cloud.google.com/backend-config: '{"ports": {"80":"esp-core-backend-config"}}'
+    cloud.google.com/neg: '{"ingress": true}'
 spec:
   ports:
   - name: http
@@ -48,14 +49,6 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8070
-        readinessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:8070", "-connect-timeout=100ms", "-rpc-timeout=150ms"]
-          initialDelaySeconds: 5
-        livenessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:8070", "-connect-timeout=100ms", "-rpc-timeout=150ms"]
-          initialDelaySeconds: 15
         volumeMounts:
           - mountPath: "code/keys"
             name: disk-core-volume 
