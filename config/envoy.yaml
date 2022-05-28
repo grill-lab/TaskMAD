@@ -49,6 +49,8 @@ static_resources:
   - name: ad_service
     connect_timeout: 0.25s
     type: logical_dns
+    common_http_protocol_options:
+        idle_timeout: 7200s
     http2_protocol_options: {}
     lb_policy: round_robin
     load_assignment:
