@@ -14,8 +14,12 @@
 
 .recordingIcon{
   margin-left: 10px !important;
+  position: relative;
+  float: right;
+  top: -33px;
+  right: 35px;
 }
 .chatInput{
-  width: 90% !important;
+  width: 100% !important;
 }
 
