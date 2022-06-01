@@ -9,6 +9,7 @@ import { ControlledInput } from "./ValueInput"
 export interface IChatInputProperties {
   onEnter: (text: string) => void,
   connection?: ADConnection
+  isAudioRecordingEnabled?: boolean
 }
 
 interface IChatInputState {
@@ -19,8 +20,8 @@ interface IChatInputState {
 export class ChatInput
   extends React.Component<IChatInputProperties, IChatInputState> {
 
-  private defaultProps = {
-    hideRecordingButton: false
+  public static defaultProps = {
+    isAudioRecordingEnabled: true
 
   }
 
@@ -79,8 +80,8 @@ export class ChatInput
           onClick={this.onCommit}
         />}
       />
-      <div hidden={this.defaultProps.hideRecordingButton}><Icon
-        name={this.state.isRecording ? 'stop circle' : "microphone"} inverted circular link red
+      <div hidden={!this.props.isAudioRecordingEnabled}><Icon
+        name={this.state.isRecording ? 'stop circle' : "microphone"} inverted circular link
         color={this.state.isRecording ? 'red' : 'green'}
         className={css.recordingIcon}
         onClick={async () => {

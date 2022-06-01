@@ -14,8 +14,8 @@ export class ChatComponent
     const { onEnter, ...transcriptProps } = this.props
 
     return <div className={css.root}>
-      <ChatTranscript {...transcriptProps} />
-      <ChatInput onEnter={onEnter} connection={this.props.connection} />
+      <ChatTranscript {...transcriptProps} isTextToSpeechEnabled={this.props.isTextToSpeechEnabled} />
+      <ChatInput onEnter={onEnter} connection={this.props.connection} isAudioRecordingEnabled={this.props.isAudioRecordingEnabled} />
     </div>
   }
 }

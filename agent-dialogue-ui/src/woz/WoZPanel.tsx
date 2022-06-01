@@ -3,7 +3,7 @@ import React from "react"
 import { Button, Dropdown, DropdownItemProps, DropdownProps, Form, Grid, InputOnChangeData, Segment } from "semantic-ui-react"
 import { StringMap } from "../App"
 import { ADConnection } from "../common/ADConnection"
-import { convertDateToTimestamp, convertTimestampToDate } from "../common/util"
+import { convertDateToTimestamp, convertTimestampToDate, stringToBoolean } from "../common/util"
 import { ChatComponent } from "../components/ChatComponent"
 import { Dialogue } from "../components/DialogueModel"
 import { Message } from "../components/MessageModel"
@@ -29,6 +29,9 @@ interface IWozParams {
   userID: string
   conversationID: string,
   selectedRecipeId: string,
+  isAudioRecordingEnabled?: boolean,
+  isTextToSpeechEnabled?: boolean,
+  isSequentialNavigationEnabled?: boolean
   dropdownRecipes?: object[],
 }
 
@@ -57,6 +60,9 @@ export class WoZPanel
       url: (props.params.url || "").trim(),
       userID: (props.params.userID || "").trim(),
       selectedRecipeId: (props.params.selectedRecipeId || "").trim(),
+      isAudioRecordingEnabled: stringToBoolean(props.params.isAudioRecordingEnabled),
+      isTextToSpeechEnabled: stringToBoolean(props.params.isTextToSpeechEnabled),
+      isSequentialNavigationEnabled: stringToBoolean(props.params.isSequentialNavigationEnabled)
     }
 
     this.state = {
@@ -76,6 +82,10 @@ export class WoZPanel
         userID: this.state.params.userID,
         conversationID: this.state.params.conversationID,
         selectedRecipeId: this.state.params.selectedRecipeId,
+        isAudioRecordingEnabled: this.state.params.isAudioRecordingEnabled,
+        isTextToSpeechEnabled: this.state.params.isTextToSpeechEnabled,
+        isSequentialNavigationEnabled: this.state.params.isSequentialNavigationEnabled
+
       }
     })
   }
@@ -347,7 +357,8 @@ class WoZDialogue
           selectedCheckboxList={this.state.selectedCheckboxList}
           onRecipeSectionButtonClick={this.onRecipeSectionButtonClick}
           dialogue={this.state.dialogue}
-          us={this.props.params.userID}></RecipePageComponent>
+          us={this.props.params.userID}
+          isSequentialNavigationEnabled={this.props.params.isSequentialNavigationEnabled}></RecipePageComponent>
       </Grid.Column>
       <Grid.Column width={8}>
         <ChatComponent
@@ -356,6 +367,8 @@ class WoZDialogue
           them={[]}
           onEnter={this.onEnter}
           connection={this.props.connection}
+          isAudioRecordingEnabled={this.props.params.isAudioRecordingEnabled}
+          isTextToSpeechEnabled={this.props.params.isTextToSpeechEnabled}
         />
       </Grid.Column>
     </Grid>);

@@ -200,3 +200,17 @@ export const playTextToAudio = (text: string, lang = "en-GB", rate = 1.2): void 
   speechSynthesis.speak(utterance)
 }
 
+export const stringToBoolean = (text: string): boolean | undefined => {
+  if(text === undefined || text.trim() === ""){
+    return undefined;
+  } 
+  text = text.trim().toLowerCase();
+  if(text === 'true'){
+    return true;
+  }
+  if(text === "false"){
+    return false;
+  }
+  return undefined;
+}
+

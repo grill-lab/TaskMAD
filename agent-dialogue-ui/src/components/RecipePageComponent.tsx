@@ -16,7 +16,7 @@ interface IRecipePageComponentProperties {
   onRecipeSectionButtonClick: (sectionDescription: string) => void,
   showFullPageCheckList?: boolean
   showCheckBoxes?: boolean,
-  wizardNavigationControl?: boolean
+  isSequentialNavigationEnabled?: boolean
   dialogue?: IDialogue,
   us?: string
 }
@@ -32,7 +32,7 @@ export class RecipePageComponent
   public static defaultProps = {
     showFullPageCheckList: false,
     showCheckBoxes: false,
-    wizardNavigationControl: true
+    isSequentialNavigationEnabled: false
   };
 
 
@@ -51,7 +51,7 @@ export class RecipePageComponent
     // trigger the behaviour when not required)
 
     // We first check if the navigation is controlled by the wizard 
-    if (this.props.wizardNavigationControl) {
+    if (!this.props.isSequentialNavigationEnabled) {
       // If that is the case we get the last message
       var last_message = undefined;
       if (this.props.dialogue?.messages !== undefined && this.props.dialogue.messages.length !== 0) {
@@ -264,7 +264,7 @@ export class RecipePageComponent
 
 
   public render(): React.ReactNode {
-    
+
     // Right before rendering check whether we should update the recipe index or not
     this.wizardNavigationController();
 
@@ -274,7 +274,7 @@ export class RecipePageComponent
       <Container className={css.recipeComponentContainer} textAlign='left'>
         <Header as='h2'>{this.props.recipeObj?.pageTitle}</Header>
         {pageBody.length > 0 ? pageBody : errorMessage}
-        {!this.props.wizardNavigationControl ? this.generateButtonsMenu(this.recipeSectionIndex) : undefined}
+        {this.props.isSequentialNavigationEnabled ? this.generateButtonsMenu(this.recipeSectionIndex) : undefined}
 
       </Container>
     </div>
