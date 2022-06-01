@@ -2,16 +2,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: esp-core-envoy
+  annotations:
+    beta.cloud.google.com/backend-config: '{"ports": {"80":"esp-core-backend-config"}}'
+    cloud.google.com/neg: '{"ingress": true}'
 spec:
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: 10000
     protocol: TCP
-    name: http
   selector:
     app: esp-core
-  type: LoadBalancer
-  loadBalancerIP: "34.116.147.56"
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,16 +37,24 @@ spec:
       containers:
       # [START envoy]
       - name: esp
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/envoy:latest
-        # imagePullPolicy: Never
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/envoy:latest
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
           - containerPort: 10000
       # [END envoy]
       - name: core
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/grpc-server:latest
-        # imagePullPolicy: Never
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-server:latest
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
           - containerPort: 8070
         volumeMounts:
           - mountPath: "code/keys"
             name: disk-core-volume 
+      - name: grpc-health-proxy
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-health-proxy:latest
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080

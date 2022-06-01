@@ -11,7 +11,7 @@ spec:
   selector:
     app: chat-app
   # type: LoadBalancer
-  # loadBalancerIP: "34.111.50.148"
+  # loadBalancerIP: "34.118.4.64"
   type: NodePort
 ---
 apiVersion: apps/v1
@@ -31,8 +31,9 @@ spec:
     spec:
       containers:
       - name: chat
-        image: europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system/chat:latest
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/chat:latest
         #imagePullPolicy: Never
+        imagePullPolicy: Always
         stdin: true
         ports:
           - containerPort: 80

@@ -2,31 +2,65 @@
 steps:
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/envoy:${_IMAGE_VERSION}']
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}']
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}']
 
-# deploy container image to GKE
-- name: "gcr.io/cloud-builders/gke-deploy"
+# Build the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}', '-f', 'agent-dialogue-core/grpc_health_proxy.Dockerfile', 'agent-dialogue-core/.']
+
+# Push the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}']
+
+# Deploy container image to GKE
+
+# Configure service backend 
+- name: 'gcr.io/cloud-builders/kubectl'
   args:
-  - run
-  - --filename=config/${_K8_FILE}
-  - --location=${_CLUSTER_LOCATION}
-  - --cluster=${_CLUSTER_NAME}
+  - apply
+  - -f
+  - agent-dialogue-core/deployment_config/${_K8_BACKEND_CONFIG_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+# Deploy service and pods
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
+  - config/${_K8_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+# Deploy Ingress
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
+  - agent-dialogue-core/deployment_config/${_K8_INGRESS_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
-  _REPOSITORY: agent-dialogue-system 
+  _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
   _IMAGE_VERSION: latest
   _K8_FILE: deployment-envoy.yaml
+  _K8_BACKEND_CONFIG_FILE: backend-config.yaml
+  _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
   _CLUSTER_NAME: esp-core-cluster
   

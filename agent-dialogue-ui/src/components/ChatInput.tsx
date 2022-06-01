@@ -20,7 +20,7 @@ export class ChatInput
   extends React.Component<IChatInputProperties, IChatInputState> {
 
   private defaultProps = {
-    hideRecordingButton: true
+    hideRecordingButton: false
 
   }
 

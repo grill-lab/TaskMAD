@@ -1,0 +1,15 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: esp-core-backend-config
+spec:
+  # Connection open for max 3hrs
+  timeoutSec: 10800
+  healthCheck:
+    # The health of the service is based on 
+    # the health of the grpc-health-proxy 
+    # which supports http on port 8080
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /
