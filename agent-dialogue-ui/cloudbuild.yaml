@@ -13,6 +13,15 @@ steps:
   args:
   - apply
   - -f
+  - ${_ROOT_FOLDER}/${_FRONTEND_CONFIG_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
   - ${_ROOT_FOLDER}/${_K8_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
@@ -32,6 +41,7 @@ substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository
   _IMAGE_NAME: chat
   _IMAGE_VERSION: latest
+  _FRONTEND_CONFIG_FILE: frontend_config.yaml
   _K8_FILE: chat_deployment_nginx.yaml
   _INGRESS_FILE: chat_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
