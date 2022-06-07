@@ -35,6 +35,16 @@ steps:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
+# Configure frontend
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - apply
+  - -f
+  - agent-dialogue-core/deployment_config/${_FRONTEND_CONFIG_FILE}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
 # Deploy service and pods
 - name: 'gcr.io/cloud-builders/kubectl'
   args:
@@ -58,6 +68,7 @@ steps:
 substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
   _IMAGE_VERSION: latest
+  _FRONTEND_CONFIG_FILE: frontend_config.yaml
   _K8_FILE: deployment-envoy.yaml
   _K8_BACKEND_CONFIG_FILE: backend-config.yaml
   _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml

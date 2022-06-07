@@ -7,6 +7,7 @@ metadata:
     # Enable this flag if we want to use the self-managed certificate
     networking.gke.io/managed-certificates: core-managed-cert
     kubernetes.io/ingress.class: "gce"
+    networking.gke.io/v1beta1.FrontendConfig: redirect-http-to-https
 spec:
   defaultBackend:
     service:
