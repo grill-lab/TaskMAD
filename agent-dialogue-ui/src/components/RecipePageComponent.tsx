@@ -17,6 +17,7 @@ interface IRecipePageComponentProperties {
   showFullPageCheckList?: boolean
   showCheckBoxes?: boolean,
   isSequentialNavigationEnabled?: boolean
+  isTextToSpeechEnabled: boolean
   dialogue?: IDialogue,
   us?: string
 }
@@ -32,7 +33,8 @@ export class RecipePageComponent
   public static defaultProps = {
     showFullPageCheckList: false,
     showCheckBoxes: false,
-    isSequentialNavigationEnabled: false
+    isSequentialNavigationEnabled: false,
+    isTextToSpeechEnabled: true
   };
 
 
@@ -83,8 +85,10 @@ export class RecipePageComponent
 
             // Once we move the a new section we also need to read section title and provide prompt 
             // to the user 
-            var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
-            playTextToAudio(textString);
+            if (this.props.isTextToSpeechEnabled) {
+              var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
+              playTextToAudio(textString);
+            }
 
             // At the end of the interaction we notify the Wizard of the actual change happening 
             this.props.onRecipeSectionButtonClick(this.recipeSections[this.recipeSectionIndex])

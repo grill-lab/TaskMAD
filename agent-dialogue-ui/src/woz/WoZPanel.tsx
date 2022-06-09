@@ -358,7 +358,8 @@ class WoZDialogue
           onRecipeSectionButtonClick={this.onRecipeSectionButtonClick}
           dialogue={this.state.dialogue}
           us={this.props.params.userID}
-          isSequentialNavigationEnabled={this.props.params.isSequentialNavigationEnabled}></RecipePageComponent>
+          isSequentialNavigationEnabled={this.props.params.isSequentialNavigationEnabled}
+          isTextToSpeechEnabled={this.props.params.isTextToSpeechEnabled}></RecipePageComponent>
       </Grid.Column>
       <Grid.Column width={8}>
         <ChatComponent
