@@ -34,7 +34,7 @@ export class RecipePageComponent
     showFullPageCheckList: false,
     showCheckBoxes: false,
     isSequentialNavigationEnabled: false,
-    isTextToSpeechEnabled: true
+    isTextToSpeechEnabled: false
   };
 
 

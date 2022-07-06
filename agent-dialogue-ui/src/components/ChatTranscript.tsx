@@ -18,7 +18,7 @@ export class ChatTranscript
   private messageList?: HTMLDivElement
 
   public static defaultProps = {
-    isTextToSpeechEnabled: true
+    isTextToSpeechEnabled: false
 
   }
 

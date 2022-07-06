@@ -21,8 +21,7 @@ export class ChatInput
   extends React.Component<IChatInputProperties, IChatInputState> {
 
   public static defaultProps = {
-    isAudioRecordingEnabled: true
-
+    isAudioRecordingEnabled: false
   }
 
   private mediaService: MediaRecorderAPIService;
