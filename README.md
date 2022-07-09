@@ -12,23 +12,23 @@ It is possible to test both the Chat and Wizard interfaces by using the urls pro
 
 ## Chat Interface
 
-To access to the chat interface simply visit the following url [http://chat-uog.online](http://chat-uog.online)
+To access to the chat interface simply visit the following url [https://chat-uog.online](https://chat-uog.online)
 
 In order to effectively connect the Chat interface with the backend server it is required to provide the configurations outlined below: 
 
-* **Host Url:** http://35.241.45.255
+* **Host Url:** [https://backend-server.online](https://backend-server.online)
 * **User ID:** user
 * **Conversation ID:** *Any conversation ID of personal choice i.e. conv1*
 * **Select Recipe:** *Pick any recipe of personal choice*
 
 ## Wizard Interface 
 
-To access the Wizard interface simply visit the following url [http://woz-uog.online](http://woz-uog.online)
+To access the Wizard interface simply visit the following url [https://woz-uog.online](https://woz-uog.online)
 
 In order to effectively connect the Wizard interface with the backend server it is required to provide the configurations outlined below: 
 
 * First of all, from the **Selected Connector** section select the **Agent Dialogue** option. Here specify the following: 
-	* **Server Url:** http://35.241.45.255
+	* **Server Url:** [https://backend-server.online](https://backend-server.online)
 	* **User ID:** wizard
 	* **Conversation ID:** *The same conversation ID of specified for the chat*
 * Tick the checkbox **Show chat transcript**
