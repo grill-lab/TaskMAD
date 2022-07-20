@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from spacy.lang.en import English
 import hashlib
 from abc import ABC, abstractmethod
