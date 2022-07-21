@@ -21,19 +21,17 @@ if __name__ == '__main__':
         start = time.time()
 
         ###### START CONVERTERS ######
-        # seriousEatsToAnseriniConverter.convert_and_write_data_to_anserini_json(
-        #     input_file="", output_file="")
+        seriousEatsToAnseriniConverter.convert_and_write_data_to_anserini_json(
+            input_file="", output_file="")
 
-        # seriousEatsRecipesToAnseriniConverter.convert_and_write_data_to_anserini_json(
-        #     input_file="", output_file="")
+        seriousEatsRecipesToAnseriniConverter.convert_and_write_data_to_anserini_json(
+            input_file="", output_file="")
 
         wikipediaToAnseriniConverter.convert_and_write_data_to_anserini_json(
             input_file="", output_file="")
 
-        # stackExchangeToAnseriniConverter.convert_and_write_data_to_anserini_json(
-        #     input_file=
-        #     "/Users/alessandrospeggiorin/Downloads/stack_exchange_cooking_data.json",
-        #     output_file="test.jsonl")
+        stackExchangeToAnseriniConverter.convert_and_write_data_to_anserini_json(
+            input_file="", output_file="")
 
         ###### END CONVERTERS ######
 
