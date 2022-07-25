@@ -25,10 +25,20 @@ All the compulsory attributes are listed below:
     "source_id": "(string) -> Source ID of the document this passage came from. This field is simply there to help map back the passage to its original datasource",
     "source_url": "(string) -> Source Url of the document this passage came from. This field is simply there to help map back the passage to its original datasource"
 }
-
 ```
 
 **It is essential to mention that the filed `id` has to be an integer of increasing value. Moreover, related and successive passages MUST have successive ids so that it will be possible to retrieve all passages belonging to a page by simply iterating with a counter.**
+
+### Contextual Sequential Data
+
+TaskMAD, also provides the functionality of showing contextual sequential information to to user (in the chat interface). If the Anserini file we are generating is of that type, we also needd to add the following **compulsory** attributes
+
+```json
+{
+    "steps_sentences": "(List[List[string]]) -> A list of lists containing all the sentences per step (in order i.e. step at index 0 is the first one)",
+    "steps_images": "(List[List[string]]) -> A list of lists containing all the urls of the images per step. Here, if there are no images per step, we still have to place an empty list []"
+}
+```
 
 ## Converting your dataset to Anserini Format
 

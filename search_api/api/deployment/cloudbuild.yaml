@@ -1,0 +1,30 @@
+# File need for CD
+steps:
+# Build the chat image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/${_IMAGE_NAME}:${_IMAGE_VERSION}', '${_ROOT_FOLDER}/.']
+
+# Push the image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/${_IMAGE_NAME}:${_IMAGE_VERSION}']
+
+# deploy container image to GKE
+- name: "gcr.io/cloud-builders/gke-deploy"
+  args:
+  - run
+  - --filename=${_ROOT_FOLDER}/${_K8_FILE}
+  - --image=europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/${_IMAGE_NAME}:${_IMAGE_VERSION}
+  - --location=${_CLUSTER_LOCATION}
+  - --cluster=${_CLUSTER_NAME}
+
+substitutions:
+  _ROOT_FOLDER: api
+  _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
+  _IMAGE_NAME: search-api
+  _IMAGE_VERSION: latest
+  _K8_FILE: api_deployment.yaml
+  _CLUSTER_LOCATION: europe-central2-b
+  _CLUSTER_NAME: search-api-cluster
+
+# Time out after 30 minutes
+timeout: 1800s

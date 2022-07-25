@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-api-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 5050
+    protocol: TCP
+    name: http
+  selector:
+    app: search-api-app
+  type: LoadBalancer
+  loadBalancerIP: "34.118.117.33"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-api-app
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: search-api-custom
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: search-api-app
+        app.kubernetes.io/name: search-api-custom
+    spec:
+      volumes:
+        - name: disk-indexes-volume
+          persistentVolumeClaim:
+            claimName: disk-indexes-claim
+      containers:
+      - name: search-api
+        image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/search-api:latest
+        #imagePullPolicy: Never
+        imagePullPolicy: Always
+        stdin: true
+        ports:
+          - containerPort: 5050
+        volumeMounts:
+          - mountPath: "usr/api/data"
+            name: disk-indexes-volume
+

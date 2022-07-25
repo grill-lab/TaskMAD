@@ -15,17 +15,16 @@ class SeriousEatsConverter(AnseriniConverterAbstract):
         self.__documentType: CustomDocumentTypeManager = CustomDocumentTypeManager(
         )
 
-    """
-        Function used to parse custom tagged text and return a list of 
-        headings and paragraphs if present in the tagged text. 
-    """
-
     def __parse_tagged_text(
         self,
         tagged_text: str,
         headings: List[Union[str, None]] = [],
         paragraphs: List[List[str]] = []
     ) -> Tuple[List[Union[str, None]], List[List[str]]]:
+        """
+            Function used to parse custom tagged text and return a list of 
+            headings and paragraphs if present in the tagged text. 
+        """
         # Find first occurence of defined tags
         par_index = tagged_text.find('<par>')
         heading_index = tagged_text.find('<head>')
