@@ -10,7 +10,7 @@
   right: 0;
   bottom: 0;
   height: calc(100% - var(--header-height) + 14px);
-  top: var(--header-height);
+  overflow: auto;
 }
 
 #appGroupId {
@@ -21,6 +21,7 @@
 #appGroupId > * {
   padding-left: 0;
   padding-right: 0;
+  padding-top: 0;
 }
 
 .gridColumn{
