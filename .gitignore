@@ -477,7 +477,7 @@ Temporary Items
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 
 ### VisualStudioCode ###
-.vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -925,7 +925,7 @@ FodyWeavers.xsd
 */gradlew
 */gradle
 */.gradle
-/agent-dialogue-core/dependency-reduced-pom.xml
+/core/dependency-reduced-pom.xml
 /log-replayer/src/main/resources/
 /log-replayer/dependency-reduced-pom.xml
 /simulator/target/
@@ -941,8 +941,8 @@ agent-dialogue-ui/dist
 /.vscode/*
 
 # CORE
-agent-dialogue-core/keys/*
-!agent-dialogue-core/keys/.gitkeep
+core/deployment_config/keys/*
+!core/deployment_config/keys/.gitkeep
 
 # SEARCH API
 /search_api/api/data/*

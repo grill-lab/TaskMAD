@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: esp-core-envoy
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 10000
+    protocol: TCP
+  selector:
+    app: esp-core
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: esp-core
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: esp-core-custom
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: esp-core
+        app.kubernetes.io/name: esp-core-custom
+    spec:
+      containers:
+      - name: esp
+        image: envoy:latest
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 10000
+      - name: core
+        image: grpc-server:latest
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8070
+      - name: grpc-health-proxy
+        image: grpc-health-proxy:latest
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8080
