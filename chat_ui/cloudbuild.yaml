@@ -37,7 +37,7 @@ steps:
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
-  _ROOT_FOLDER: agent-dialogue-ui
+  _ROOT_FOLDER: chat_ui
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository
   _IMAGE_NAME: chat
   _IMAGE_VERSION: latest

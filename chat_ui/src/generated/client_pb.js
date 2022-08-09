@@ -12,8 +12,8 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
-var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
-var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
+var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb');
+var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb');
 goog.exportSymbol('proto.edu.gla.kail.ad.ClientConversation', null, global);
 goog.exportSymbol('proto.edu.gla.kail.ad.ClientId', null, global);
 goog.exportSymbol('proto.edu.gla.kail.ad.ClientTurn', null, global);

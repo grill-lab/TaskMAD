@@ -933,7 +933,7 @@ FodyWeavers.xsd
 /simulator/package-lock.json
 /simulator/node_modules/
 /simulator/Logs/
-agent-dialogue-ui/dist
+chat_ui/dist
 *.iws
 *.classpath
 *.project
