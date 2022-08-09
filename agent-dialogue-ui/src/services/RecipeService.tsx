@@ -36,11 +36,10 @@ export class RecipeService {
                 Struct.fromJavaScript({
                     "service_name": "search_api",
                     "api_endpoint": "recipe",
-                    "request_type": "GET",
                     "request_body": {
                         "recipe_id": recipeId
                     }
-                }), "SearchAPI"
+                }), "ExternalServices"
             );
 
             // Check if the response returned something 

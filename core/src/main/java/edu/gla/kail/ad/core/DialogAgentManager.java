@@ -5,8 +5,7 @@ import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.agents.DialogflowAgent;
-import edu.gla.kail.ad.agents.ModelInteractionAgent;
-import edu.gla.kail.ad.agents.RestSearchAgent;
+import edu.gla.kail.ad.agents.ExternalServicesAgent;
 import edu.gla.kail.ad.agents.SpeechToTextAgent;
 import edu.gla.kail.ad.agents.WizardAgent;
 import edu.gla.kail.ad.core.Log.RequestLog;
@@ -122,9 +121,9 @@ public class DialogAgentManager {
                         exception.printStackTrace();
                     }
                     break;
-                case SEARCH:
+                case EXTERNAL_SERVICES:
                     try {
-                        _agents.add(new RestSearchAgent(agent));
+                        _agents.add(new ExternalServicesAgent(agent));
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }

@@ -1,6 +1,10 @@
 package edu.gla.kail.ad.agents;
 
 import java.io.FileInputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
 import com.google.auth.oauth2.ServiceAccountCredentials;
 
 import edu.gla.kail.ad.Client;
@@ -14,6 +18,7 @@ import edu.gla.kail.ad.core.AgentInterface;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.Log.SystemAct;
 import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
+import edu.gla.kail.ad.service.Utils;
 import edu.gla.kail.ad.service.speechToText.SpeechToTextGoogleAPI;
 import io.grpc.stub.StreamObserver;
 
@@ -27,6 +32,8 @@ public class SpeechToTextAgent implements AgentInterface{
 
     private ServiceAccountCredentials googleCredentials = null;
 
+    private String _logs_folder = null;
+
     public SpeechToTextAgent(AgentConfig agent) throws Exception {
         this._agent = agent;
         this._agentId = _agent.getProjectId();
@@ -39,7 +46,19 @@ public class SpeechToTextAgent implements AgentInterface{
      * @throws Exception
      */
     private void initAgent() throws Exception {
-        this.googleCredentials = ServiceAccountCredentials.fromStream(new FileInputStream(_agent.getConfigurationFileURL()));
+        if(this.isAgentConfigFileValid(this._agent)){
+
+            JSONObject agentConfiguration = new JSONObject(
+            IOUtils.toString(new FileInputStream(this._agent.getConfigurationFileURL()), "UTF-8"));
+
+            String credentialsFile = agentConfiguration.getString("key");
+            this._logs_folder = agentConfiguration.getString("logs_folder");
+            
+            this.googleCredentials = ServiceAccountCredentials.fromStream(new FileInputStream(credentialsFile));
+        }else{
+            throw new Exception("Speech-To-Text Agent Config file in the wrong format");
+        }
+        
     }
 
     @Override
@@ -76,6 +95,29 @@ public class SpeechToTextAgent implements AgentInterface{
     public void streamingResponseFromAgent(InteractionRequest interactionRequest,
             StreamObserver<InteractionResponse> responseObserver) throws Exception {
 
+    }
+
+    @Override
+    public boolean isAgentConfigFileValid(AgentConfig config) {
+        if(config != null && config.getConfigurationFileURL() != null && !Utils.isBlank(config.getConfigurationFileURL())){
+            // Get the agent specific configuration 
+            JSONObject agentConfiguration;
+            try {
+              agentConfiguration = new JSONObject(
+                IOUtils.toString(new FileInputStream(config.getConfigurationFileURL()), "UTF-8"));
+              // Custom Checks for this specific config file
+              if(agentConfiguration.has("key") && agentConfiguration.has("logs_folder")){
+                if(agentConfiguration.getString("key") != null && !Utils.isBlank(agentConfiguration.getString("key"))
+                && agentConfiguration.getString("logs_folder") != null && !Utils.isBlank(agentConfiguration.getString("logs_folder"))){
+                  return true;
+                }
+              }
+              
+            } catch (Exception e) {
+              return false;
+            }
+        }
+        return false;
     }
 
 }

@@ -20,4 +20,4 @@ RUN ["mvn", "install"]
 
 EXPOSE 8070
 
-CMD ["java", "-jar", "target/core-0.1-SNAPSHOT.jar", "https://storage.googleapis.com/taskmad-public-bucket/core-config_v2.json"]
+CMD ["java", "-jar", "target/core-0.1-SNAPSHOT.jar", "https://storage.googleapis.com/taskmad-public-bucket/core-config_v3.json"]

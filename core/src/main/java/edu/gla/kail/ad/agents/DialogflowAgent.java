@@ -242,4 +242,10 @@ public class DialogflowAgent implements AgentInterface {
                                     StreamObserver<Client.InteractionResponse> responseObserver) throws Exception {
         responseObserver.onError(new NotImplementedException());
     }
+
+@Override
+public boolean isAgentConfigFileValid(AgentConfig config) {
+        // TODO Auto-generated method stub
+        return false;
+}
 }

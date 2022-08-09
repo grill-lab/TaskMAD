@@ -18,12 +18,16 @@ import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
 import edu.gla.kail.ad.core.AgentInterface;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
+import edu.gla.kail.ad.service.Utils;
 import edu.gla.kail.ad.core.Log.SystemAct;
 import io.grpc.stub.StreamObserver;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +37,8 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * This is a Wizard-of-Oz agent created for experiments. It allows multiple users to chat
@@ -57,6 +63,8 @@ public class WizardAgent implements AgentInterface {
 
   // Gold the hardcoded agent ID.
   private String _agentId = null;
+  private String _logs_folder = null;
+  private String _firebaseCollection = null;
 
   /**
    * Construct a new WizardAgent.
@@ -77,29 +85,41 @@ public class WizardAgent implements AgentInterface {
    * @throws Exception
    */
   private void initAgent() throws Exception {
-    //URL configFileURL = new URL(_agent.getConfigurationFileURL());
-    GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(_agent.getConfigurationFileURL()));
-    checkNotNull(credentials, "Credentials used to initialise FireStore are null.");
+    
 
-    FirebaseOptions options = new FirebaseOptions.Builder()
-            .setCredentials(credentials)
-            .build();
-    if (FirebaseApp.getApps().isEmpty()) {
-      FirebaseApp.initializeApp(options);
+    if(this.isAgentConfigFileValid(_agent)){
+
+      JSONObject agentConfiguration = new JSONObject(
+          IOUtils.toString(new FileInputStream(this._agent.getConfigurationFileURL()), "UTF-8"));
+
+      String credentialsFile = agentConfiguration.getString("key");
+      this._logs_folder = agentConfiguration.getString("logs_folder");
+      this._firebaseCollection = agentConfiguration.getString("firebase_collection");
+
+      GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsFile));
+      checkNotNull(credentials, "Credentials used to initialise FireStore are null.");
+
+      FirebaseOptions options = new FirebaseOptions.Builder()
+              .setCredentials(credentials)
+              .build();
+      if (FirebaseApp.getApps().isEmpty()) {
+        FirebaseApp.initializeApp(options);
+      }
+      _database = FirestoreClient.getFirestore();
+    }else{
+      throw new Exception("Wizard Agent Config file in the wrong format");
     }
-    _database = FirestoreClient.getFirestore();
   }
 
   /**
    * Specify the firestore configuration where messages will be read / written.
    * <p>
-   * TODO(Jeff): Make the db location configurable from an agent config file.
    *
    * @param conversationId
    * @return
    */
   private CollectionReference getDbCollection(String conversationId) {
-    CollectionReference collectionReference = _database.collection("TaskMAD")
+    CollectionReference collectionReference = _database.collection(this._firebaseCollection)
             .document(_projectId)
             .collection("conversations")
             .document(conversationId)
@@ -363,6 +383,31 @@ public class WizardAgent implements AgentInterface {
     data.put("logged_user_recipe_select_timestamp", interactionRequest.getInteraction().getLoggedUserRecipeSelectTimestampList());
     chatReference.set(data);
     return chatReference;
+  }
+
+  @Override
+  public boolean isAgentConfigFileValid(AgentConfig config) {
+
+    if(config != null && config.getConfigurationFileURL() != null && !Utils.isBlank(config.getConfigurationFileURL())){
+      // Get the agent specific configuration 
+      JSONObject agentConfiguration;
+      try {
+        agentConfiguration = new JSONObject(
+          IOUtils.toString(new FileInputStream(config.getConfigurationFileURL()), "UTF-8"));
+        // Custom Checks for this specific config file
+        if(agentConfiguration.has("key") && agentConfiguration.has("logs_folder") && agentConfiguration.has("firebase_collection")){
+          if(agentConfiguration.getString("key") != null && !Utils.isBlank(agentConfiguration.getString("key"))
+          && agentConfiguration.getString("logs_folder") != null && !Utils.isBlank(agentConfiguration.getString("logs_folder"))
+          && agentConfiguration.getString("firebase_collection") != null && !Utils.isBlank(agentConfiguration.getString("firebase_collection"))){
+            return true;
+          }
+        }
+        
+      } catch (Exception e) {
+        return false;
+      }
+    }
+    return false;
   }
 
 }

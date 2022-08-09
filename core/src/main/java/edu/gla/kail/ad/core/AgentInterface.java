@@ -2,6 +2,7 @@ package edu.gla.kail.ad.core;
 
 import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
+import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import io.grpc.stub.StreamObserver;
@@ -36,4 +37,14 @@ public interface AgentInterface {
      */
     void streamingResponseFromAgent(InteractionRequest interactionRequest,
                                 StreamObserver<Client.InteractionResponse> responseObserver) throws Exception;
+
+    
+    /**
+     * Specific method designed to evaluate whether a configuration file is valid for a specific agent 
+     * 
+     * @param config - Specific agent config for this agent
+     * @return Returns true or false based on whether the file is valid or not 
+     */
+    boolean isAgentConfigFileValid(AgentConfig config);
+    
 }
