@@ -75,22 +75,7 @@ message InputInteraction {
     InteractionType type = 4;
     string device_type = 5; // The type of the device the request is sent from.
     string language_code = 6; // The language code, e.g. "en-US".
-    repeated string logged_search_queries = 7; // The list of search queries associated to this message
-    repeated int64 logged_search_queries_timestamp = 8; // The list of search queries timestamp associated to this message
-    repeated string logged_page_ids = 9; // The list of page ids associated to the buttons clicked to generate this message
-    repeated string logged_paragraph_ids = 10; // The list of paragraphs ids associated to the buttons clicked to generate this message
-    repeated string logged_paragraph_texts = 11; // The list of the paragraphs text associated to the buttons clicked to generate this message
-    repeated string logged_page_origins = 12; // The list of page origins associated to the buttons clicked to generate this message
-    repeated string logged_page_titles = 13; // The list of page titles associated to the buttons clicked to generate this message
-    repeated string logged_section_titles = 14; // The list of section titles associated to the buttons clicked to generate this message
-    repeated int64 logged_paragraph_timestamp = 15; // The list timestamps associated to the buttons clicked to generate this message
-
-    // User side recipe logged actions
-    repeated string logged_user_recipe_page_ids = 16; // The list of recipe page ids associated to the checkboxes clicked 
-    repeated string logged_user_recipe_page_title = 17; // The list of recipe page titles associated to the checkboxes clicked
-    repeated string logged_user_recipe_section = 18; // The list the sections associated to the checkboxes clicked
-    repeated string logged_user_recipe_section_value = 19; // The list of checkboxes text associated to the checboxes clicked
-    repeated int64 logged_user_recipe_select_timestamp = 20; // The list of timestamps associated to the checkboxes clicked
+    InteractionLogs interaction_logs = 7;
     string audio_base64 = 21; // The message sent to the agent in base64 format
 }
 
@@ -112,4 +97,25 @@ message Result {
     string title = 4;
     string short_description = 5;
     string full_text = 6;
+}
+
+message InteractionLogs{
+
+    message SearchQuery{
+        string query = 1;
+        int64 event_timestamp = 2;
+    }
+
+    message InteractionSource{
+        string page_id = 1;
+        string page_origin = 2;
+        string page_title = 3;
+        string section_title = 4;
+        string paragraph_id = 5;
+        string paragraph_text = 6;
+        int64 event_timestamp = 7;
+    }
+
+    repeated SearchQuery search_queries = 1;
+    repeated InteractionSource interaction_sources = 2;
 }

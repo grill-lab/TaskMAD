@@ -8,10 +8,14 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.Value;
+import com.google.protobuf.util.JsonFormat;
+
 import edu.gla.kail.ad.Client;
+import edu.gla.kail.ad.Client.InteractionLogs;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.InteractionType;
 import edu.gla.kail.ad.Client.OutputInteraction;
+import edu.gla.kail.ad.Client.InteractionLogs.InteractionSource;
 import edu.gla.kail.ad.Client.OutputInteraction.Builder;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
@@ -366,21 +370,16 @@ public class WizardAgent implements AgentInterface {
     data.put("interaction_action_list", interactionRequest.getInteraction().getActionList
             ().toString());
     data.put("timestamp", com.google.cloud.Timestamp.now());
-    data.put("logged_search_queries", interactionRequest.getInteraction().getLoggedSearchQueriesList());
-    data.put("logged_search_queries_timestamp", interactionRequest.getInteraction().getLoggedSearchQueriesTimestampList());
-    data.put("logged_page_ids", interactionRequest.getInteraction().getLoggedPageIdsList());
-    data.put("logged_paragraph_ids", interactionRequest.getInteraction().getLoggedParagraphIdsList());
-    data.put("logged_paragraph_texts", interactionRequest.getInteraction().getLoggedParagraphTextsList());
-    data.put("logged_page_origins", interactionRequest.getInteraction().getLoggedPageOriginsList());
-    data.put("logged_page_titles", interactionRequest.getInteraction().getLoggedPageTitlesList());
-    data.put("logged_section_titles", interactionRequest.getInteraction().getLoggedSectionTitlesList());
-    data.put("logged_paragraph_timestamp", interactionRequest.getInteraction().getLoggedParagraphTimestampList());
 
-    data.put("logged_user_recipe_page_ids", interactionRequest.getInteraction().getLoggedUserRecipePageIdsList());
-    data.put("logged_user_recipe_page_title", interactionRequest.getInteraction().getLoggedUserRecipePageTitleList());
-    data.put("logged_user_recipe_section", interactionRequest.getInteraction().getLoggedUserRecipeSectionList());
-    data.put("logged_user_recipe_section_value", interactionRequest.getInteraction().getLoggedUserRecipeSectionValueList());
-    data.put("logged_user_recipe_select_timestamp", interactionRequest.getInteraction().getLoggedUserRecipeSelectTimestampList());
+    try {
+      String logsJsonString = JsonFormat.printer()
+      .preservingProtoFieldNames().print(interactionRequest.getInteraction().getInteractionLogs());
+      HashMap<String, Object> logsHashMap = Utils.jsonStringToHashMap(logsJsonString);
+      data.put("interaction_logs", logsHashMap);
+    } catch (Exception e) {
+      data.put("interaction_logs", new HashMap<String,Object>());
+    }
+
     chatReference.set(data);
     return chatReference;
   }
