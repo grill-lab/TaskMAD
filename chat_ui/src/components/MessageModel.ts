@@ -1,22 +1,16 @@
 import * as uuid from "uuid"
 import {PartialBy} from "../common/util"
-import { InteractionType } from "../generated/client_pb"
+import { InteractionAction, InteractionLogs, InteractionType } from "../generated/client_pb"
 
 export interface IMessage {
   id: string
   text: string
   time: Date
   userID?: string
-
-  loggedUserRecipePageIds?: Array<string>
-  loggedUserRecipePageTitle?: Array<string>
-  loggedUserRecipeSection?: Array<string>
-  loggedUserRecipeSectionValue?: Array<string>
-  loggedUserRecipeSelectTimestamp?: Array<number>
-
+  interactionLogs?: InteractionLogs
   // Specific type of this message
   messageType?: InteractionType
-  actions?: Array<string>
+  actions?: Array<InteractionAction>
 }
 
 export const ourUserID = "us"
@@ -61,17 +55,7 @@ export class Message implements IMessage {
   // noinspection JSUnusedGlobalSymbols
   public readonly userID?: string
 
-  // For each clicked checkbox we log the page Id 
-  public readonly loggedUserRecipePageIds?: Array<string>
-  // For each clicked checkbox we log the page title
-  public readonly loggedUserRecipePageTitle?: Array<string>
-  // For each clicked checkbox we log specific section where it comes from in the page
-  public readonly loggedUserRecipeSection?: Array<string>
-  // For each clicked checkbox we log the value associated to the checkbox
-  public readonly loggedUserRecipeSectionValue?: Array<string>
-  // For each clicked checkbox we log the timestamp of when the checkbox has been clicked
-  public readonly loggedUserRecipeSelectTimestamp?: Array<number>
-
+  public readonly interactionLogs?: InteractionLogs
   public readonly messageType?: InteractionType
-  public readonly actions?: Array<string>
+  public readonly actions?: Array<InteractionAction>
 }

@@ -5195,10 +5195,10 @@
   dependencies:
     "node-forge" "^1.3.1"
 
-"google-protobuf@3.12.4":
-  "integrity" "sha512-ItTn8YepDQMHEMHloUPH+FDaTPiHTnbsMvP50aXfbI65IK3AA5+wXlHSygJH8xz+h1g4gu7V+CK5X1/SaGITsA=="
-  "resolved" "https://registry.npmjs.org/google-protobuf/-/google-protobuf-3.12.4.tgz"
-  "version" "3.12.4"
+"google-protobuf@^3.14.0":
+  "integrity" "sha512-byR7MBTK4tZ5PZEb+u5ZTzpt4SfrTxv5682MjPlHN16XeqgZE2/8HOIWeiXe8JKnT9OVbtBGhbq8mtvkK8cd5g=="
+  "resolved" "https://registry.npmjs.org/google-protobuf/-/google-protobuf-3.21.0.tgz"
+  "version" "3.21.0"
 
 "graceful-fs@^4.1.11", "graceful-fs@^4.1.15", "graceful-fs@^4.1.2", "graceful-fs@^4.1.6", "graceful-fs@^4.2.0", "graceful-fs@^4.2.2":
   "integrity" "sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw=="

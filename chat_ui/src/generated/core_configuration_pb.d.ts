@@ -48,6 +48,9 @@ export class AgentConfig extends jspb.Message {
   getConfigurationFileUrl(): string;
   setConfigurationFileUrl(value: string): AgentConfig;
 
+  getDatabaseReference(): string;
+  setDatabaseReference(value: string): AgentConfig;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AgentConfig.AsObject;
   static toObject(includeInstance: boolean, msg: AgentConfig): AgentConfig.AsObject;
@@ -61,6 +64,7 @@ export namespace AgentConfig {
     serviceProvider: ServiceProvider,
     projectId: string,
     configurationFileUrl: string,
+    databaseReference: string,
   }
 }
 
@@ -68,6 +72,6 @@ export enum ServiceProvider {
   UNRECOGNISED = 0,
   DIALOGFLOW = 1,
   WIZARD = 2,
-  SEARCH = 3,
+  EXTERNAL_SERVICES = 3,
   SPEECH_TO_TEXT = 5,
 }

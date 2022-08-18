@@ -121,7 +121,7 @@ public class DialogflowAgent implements AgentInterface {
                 }
                 break;
             case ACTION:
-                if (checkNotNull(inputInteraction.getActionList(), String.format(ERROR_MESSAGE,
+                if (checkNotNull(inputInteraction.getActionTypeList(), String.format(ERROR_MESSAGE,
                         "ACTION", "a null", "action")).isEmpty()) {
                     throw new IllegalArgumentException(String.format(ERROR_MESSAGE, "ACTION",
                             "an empty", "action"));

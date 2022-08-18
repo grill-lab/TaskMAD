@@ -8,7 +8,7 @@ import { ChatComponent } from "../components/ChatComponent"
 import { Dialogue } from "../components/DialogueModel"
 import { Message } from "../components/MessageModel"
 import { RecipePageComponent } from "../components/RecipePageComponent"
-import { InteractionType } from "../generated/client_pb"
+import { InteractionLogs, InteractionType } from "../generated/client_pb"
 import { RecipeCheckboxModel } from "../models/RecipeCheckboxModel"
 import { RecipeModel } from "../models/RecipeModel"
 import { RecipeService } from "../services/RecipeService"
@@ -74,7 +74,7 @@ export class WoZPanel
 
   public async componentDidMount() {
     // Retrieve all the selected recipes the user can choose from 
-    var recipes = await RecipeService.getAllRecipes()
+    let recipes = await RecipeService.getAllRecipes()
     this.setState({
       params: {
         dropdownRecipes: recipes === undefined ? [] : recipes,
@@ -143,9 +143,9 @@ class WoZParamForm extends React.Component<IWoZParamFormProperties, IWozParams> 
   // that can be shown in the dropdown 
   private convertToDropdownOptions = (): DropdownItemProps[] => {
 
-    var counter = 0
+    let counter = 0
     let options = this.props.params.dropdownRecipes?.map((recipe: object) => {
-      var recipe_obj = JSON.parse(JSON.stringify(recipe))
+      let recipe_obj = JSON.parse(JSON.stringify(recipe))
       counter += 1;
       return {
         key: counter,
@@ -218,7 +218,13 @@ class WoZDialogue
       onResponse: ((response) => {
         // console.log("response: ", response)
         const reply = response.asTextResponse()
-        const message = new Message({ ...reply, id: reply.responseID, messageType: response.getInteractionList()[0].getType(), actions: response.getInteractionList()[0].getActionList(), time: convertTimestampToDate(response.getInteractionList()[0].getInteractionTime()) })
+        const message = new Message({
+          ...reply,
+          id: reply.responseID,
+          messageType: response.getInteractionList()[0].getType(),
+          actions: response.getInteractionList()[0].getActionTypeList(),
+          time: convertTimestampToDate(response.getInteractionList()[0].getInteractionTime())
+        })
         this._append(message)
       }),
       userID: this.props.params.userID,
@@ -227,7 +233,7 @@ class WoZDialogue
 
   public async componentDidMount() {
 
-    var recipe = await RecipeService.getRecipeById(this.props.params.selectedRecipeId, this.props.connection);
+    let recipe = await RecipeService.getRecipeById(this.props.params.selectedRecipeId, this.props.connection);
 
     if (recipe !== undefined) {
       this.setState({
@@ -238,39 +244,31 @@ class WoZDialogue
   }
 
   private onEnter = (text: string, messageTypeParam = InteractionType.TEXT) => {
+    // Generate the interaction logs object for the selected 
+    let interactionLogs: InteractionLogs = new InteractionLogs();
+    if (this.state.selectedCheckboxList !== undefined) {
+      for (let selectedCheckbox of this.state.selectedCheckboxList) {
+        let userInteractionSelection = new InteractionLogs.UserInteractionSelection();
+        userInteractionSelection.setPageId(selectedCheckbox.pageId);
+        userInteractionSelection.setPageTitle(selectedCheckbox.pageTitle);
+        userInteractionSelection.setSectionTitle(selectedCheckbox.section);
+        userInteractionSelection.setParagraphText(selectedCheckbox.sectionValue);
+        userInteractionSelection.setEventTimestamp(convertDateToTimestamp(selectedCheckbox.clickedTimestamp!));
+
+        interactionLogs.addUserInteractionSelections(userInteractionSelection);
+      }
+
+    }
+
+
+
     // We need to create the message object with all the relevant and required properties
     const message = new Message({
       userID: this.props.params.userID,
       text,
       messageType: messageTypeParam,
-      loggedUserRecipePageIds: this.state.selectedCheckboxList !== undefined ? this.state.selectedCheckboxList.map((selectedCheckbox) => {
-        return selectedCheckbox.pageId !== undefined ? selectedCheckbox.pageId : ''
-      }).filter((el) => {
-        return el !== ''
-      }) : [],
-      loggedUserRecipePageTitle: this.state.selectedCheckboxList !== undefined ? this.state.selectedCheckboxList.map((selectedCheckbox) => {
-        return selectedCheckbox.pageTitle !== undefined ? selectedCheckbox.pageTitle : ''
-      }).filter((el) => {
-        return el !== ''
-      }) : [],
-      loggedUserRecipeSection: this.state.selectedCheckboxList !== undefined ? this.state.selectedCheckboxList.map((selectedCheckbox) => {
-        return selectedCheckbox.section !== undefined ? selectedCheckbox.section : ''
-      }).filter((el) => {
-        return el !== ''
-      }) : [],
-      loggedUserRecipeSectionValue: this.state.selectedCheckboxList !== undefined ? this.state.selectedCheckboxList.map((selectedCheckbox) => {
-        return selectedCheckbox.sectionValue !== undefined ? selectedCheckbox.sectionValue : ''
-      }).filter((el) => {
-        return el !== ''
-      }) : [],
-      loggedUserRecipeSelectTimestamp: this.state.selectedCheckboxList !== undefined ? this.state.selectedCheckboxList.map((selectedCheckbox) => {
-        return selectedCheckbox.clickedTimestamp !== undefined ? convertDateToTimestamp(selectedCheckbox.clickedTimestamp) : convertDateToTimestamp(new Date())
-      }).filter((el) => {
-        return el !== null
-      }) : [],
-
+      interactionLogs: interactionLogs
     })
-
 
     this.props.connection.send(message, {
       conversationID: this.props.params.conversationID,
@@ -288,8 +286,6 @@ class WoZDialogue
   }
 
   private _append = (message: Message) => {
-    //if (message.text.trim().length === 0) { return }
-
     this.setState((prev) => {
       return { dialogue: prev.dialogue.appending(message, 300) }
     })
@@ -299,7 +295,7 @@ class WoZDialogue
   private onSelectCheckbox = (selectedCheckbox: RecipeCheckboxModel) => {
 
     // Flag used in order to detect whether we are checking or unchecking a recipe
-    var flagCheckboxRemoved = false;
+    let flagCheckboxRemoved = false;
 
     // Check if the checkbox is already in the list 
     if ((this.state.selectedCheckboxList.filter(checkbox => checkbox.isEqual(selectedCheckbox))).length === 1) {
@@ -324,8 +320,8 @@ class WoZDialogue
     // We need now to send a message to the wizad. This message will be of type status and the user won't be able to see it. 
     // It will only be used by the wizard to know which parts of the interface the user is looking at. 
     // However we first need to generate the specific message text for the wizar 
-    var labelRemoveOrAdded = flagCheckboxRemoved ? 'removed' : 'added';
-    var messageText = 'User ' + labelRemoveOrAdded + ' "' + selectedCheckbox.sectionValue + '" from section "' + selectedCheckbox.section + '".'
+    let labelRemoveOrAdded = flagCheckboxRemoved ? 'removed' : 'added';
+    let messageText = 'User ' + labelRemoveOrAdded + ' "' + selectedCheckbox.sectionValue + '" from section "' + selectedCheckbox.section + '".'
 
     this.onEnter(messageText, InteractionType.STATUS);
   }
@@ -339,7 +335,7 @@ class WoZDialogue
     // However we first need to generate the specific message text for the wizard
 
     if (sectionKey !== undefined && sectionKey.trim().length !== 0) {
-      var messageText = 'User moved to section "' + sectionKey + '".'
+      let messageText = 'User moved to section "' + sectionKey + '".'
       this.onEnter(messageText, InteractionType.STATUS);
     }
 

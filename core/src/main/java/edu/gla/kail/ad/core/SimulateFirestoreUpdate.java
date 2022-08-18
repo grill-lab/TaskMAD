@@ -88,7 +88,7 @@ public class SimulateFirestoreUpdate {
     data.put("interaction_text", interactionRequest.getInteraction().getText());
     data.put("interaction_audio_bytes", interactionRequest.getInteraction().getAudioBytes
             ());
-    data.put("interaction_action_list", interactionRequest.getInteraction().getActionList
+    data.put("interaction_action_list", interactionRequest.getInteraction().getActionTypeList
             ().toString());
     ApiFuture<DocumentReference> chatReference = getDbCollection().add(data);
     return chatReference.get();

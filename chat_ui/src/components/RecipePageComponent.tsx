@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Button, Checkbox, Container, Header, Icon, Message } from "semantic-ui-react"
 import { diffSecondsBetweenDates, isStringImagePath, playTextToAudio } from "../common/util";
-import { InteractionType } from "../generated/client_pb";
+import { InteractionAction, InteractionType } from "../generated/client_pb";
 import { RecipeCheckboxModel } from "../models/RecipeCheckboxModel";
 import { RecipeModel } from "../models/RecipeModel";
 import { IDialogue } from "./DialogueModel";
@@ -55,10 +55,12 @@ export class RecipePageComponent
     // We first check if the navigation is controlled by the wizard 
     if (!this.props.isSequentialNavigationEnabled) {
       // If that is the case we get the last message
-      var last_message = undefined;
+      let last_message = undefined;
       if (this.props.dialogue?.messages !== undefined && this.props.dialogue.messages.length !== 0) {
         last_message = this.props.dialogue.messages[this.props.dialogue.messages.length - 1];
       }
+      console.log(last_message);
+
 
       // Here we check if the last message has been sent by the wizard and if the message is of type action 
       if (last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.ACTION) {
@@ -67,16 +69,16 @@ export class RecipePageComponent
         if (last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5) {
 
           // We extract the actions
-          var actions = last_message.actions;
+          let actions = last_message.actions;
           if (actions !== undefined && actions.length !== 0) {
             // Here we handle the page reload based on the current step we are in 
-            if (actions[0] === 'prev') {
+            if (actions[0] === InteractionAction.PREVIOUS_STEP) {
               // Update the recipeSectionIndex only if we are not at step 0
               if (this.recipeSectionIndex !== 0) {
                 this.recipeSectionIndex -= 1;
               }
             }
-            if (actions[0] === 'next') {
+            if (actions[0] === InteractionAction.NEXT_STEP) {
               // Update the recipeSectionIndex only if we are not at the end of the list
               if (this.recipeSectionIndex < this.recipeSections.length - 1) {
                 this.recipeSectionIndex += 1;
@@ -86,7 +88,7 @@ export class RecipePageComponent
             // Once we move the a new section we also need to read section title and provide prompt 
             // to the user 
             if (this.props.isTextToSpeechEnabled) {
-              var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
+              let textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
               playTextToAudio(textString);
             }
 
@@ -103,7 +105,7 @@ export class RecipePageComponent
   // Method used in order to generate the page body associated to this recipe
   private generatePageRecipeCheckboxModel(): Map<string, RecipeCheckboxModel[]> {
     let tempRecipeModel = this.props.recipeObj;
-    var resultMap = new Map<string, RecipeCheckboxModel[]>()
+    let resultMap = new Map<string, RecipeCheckboxModel[]>()
     if (tempRecipeModel !== undefined) {
 
 
@@ -170,8 +172,8 @@ export class RecipePageComponent
   // Method used to generate the page body
   private generatePageBodyFullPage(): JSX.Element[] {
     let recipeMap = this.generatePageRecipeCheckboxModel();
-    var pageBody: JSX.Element[] = []
-    var counter = 0
+    let pageBody: JSX.Element[] = []
+    let counter = 0
 
     if (recipeMap.size > 0) {
       recipeMap.forEach((value, key) => {
@@ -183,7 +185,7 @@ export class RecipePageComponent
           return isStringImagePath(el.sectionValue) ? <img src={el.sectionValue} className={css.recipeStepImage}></img> : <div>{checkboxJsxElement}<div className={css.checkBoxLabel}>{this.props.showCheckBoxes ? undefined : "- "}{el.sectionValue}</div></div>
         });
         if (sectionCheckboxes.length !== 0) {
-          var section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{key}</Header>{sectionCheckboxes}</div>)
+          let section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{key}</Header>{sectionCheckboxes}</div>)
           pageBody.push(section);
         }
 
@@ -200,8 +202,8 @@ export class RecipePageComponent
   // Method used to generate the page body
   private generatePageBodySingleSection(displaySection: number = 0): JSX.Element[] {
     let recipeMap = this.generatePageRecipeCheckboxModel();
-    var pageBody: JSX.Element[] = []
-    var counter = 0
+    let pageBody: JSX.Element[] = []
+    let counter = 0
 
 
     if (recipeMap.size > 0) {
@@ -217,7 +219,7 @@ export class RecipePageComponent
           return isStringImagePath(el.sectionValue) ? <img src={el.sectionValue} className={css.recipeStepImage}></img> : <div>{checkboxJsxElement}<div className={css.checkBoxLabel}>{this.props.showCheckBoxes ? undefined : "- "}{el.sectionValue}</div></div>
         });
         if (sectionCheckboxes.length !== 0) {
-          var section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{currentSectionKey}</Header>{sectionCheckboxes}</div>)
+          let section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{currentSectionKey}</Header>{sectionCheckboxes}</div>)
           pageBody.push(section);
         }
 
@@ -234,7 +236,7 @@ export class RecipePageComponent
   // The method also takes the current section to displat as input 
   // So that we know exaclty if we need to show the previous and next buttons
   private generateButtonsMenu(displaySection: number = 0): JSX.Element[] {
-    var result: JSX.Element[] = []
+    let result: JSX.Element[] = []
     // We show the buttons only if we don't have the full page flag enabled
     if (!this.props.showFullPageCheckList) {
       // We show the previous button only if we are not at the first section

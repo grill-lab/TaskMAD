@@ -5,7 +5,7 @@ import * as grpcWeb from "grpc-web"
 import {Omit} from "./util"
 import {IMessage} from "../components/MessageModel"
 import {
-  ClientId, InputInteraction, InteractionRequest,
+  ClientId, InputInteraction, InteractionAction, InteractionLogs, InteractionRequest,
   InteractionResponse,
   InteractionType,
 } from "../generated/client_pb"
@@ -15,12 +15,8 @@ export interface IInputInteractionArguments {
   languageCode?: string
   text?: string
   messageType?: InteractionType
-  actions?: Array<string>
-  loggedUserRecipePageIds?: Array<string>
-  loggedUserRecipePageTitle?: Array<string>
-  loggedUserRecipeSection?: Array<string>
-  loggedUserRecipeSectionValue?: Array<string>
-  loggedUserRecipeSelectTimestamp?: Array<number>
+  actions?: Array<InteractionAction>
+  interactionLogs?: InteractionLogs
 
 }
 
@@ -125,19 +121,14 @@ export class ADConnection {
       : InputInteraction => {
       
     // tslint:disable-next-line:new-parens
-    const input = new InputInteraction()
-    input.setText(args.text || "")
-    input.setLanguageCode(args.languageCode || "en-US")    
-    input.setType(args.messageType || InteractionType.TEXT)
-    input.setActionList(args.actions || []);
-    // Set the fields for the loggin functionalities
-    input.setLoggedUserRecipePageIdsList(args.loggedUserRecipePageIds || []);
-    input.setLoggedUserRecipePageTitleList(args.loggedUserRecipePageTitle || []);
-    input.setLoggedUserRecipeSectionList(args.loggedUserRecipeSection || []);
-    input.setLoggedUserRecipeSectionValueList(args.loggedUserRecipeSectionValue || []);
-    input.setLoggedUserRecipeSelectTimestampList(args.loggedUserRecipeSelectTimestamp || []);
+    const input = new InputInteraction();
+    input.setText(args.text || "");
+    input.setLanguageCode(args.languageCode || "en-US"); 
+    input.setType(args.messageType || InteractionType.TEXT);
+    input.setActionTypeList(args.actions || []);    
+    input.setInteractionLogs(args.interactionLogs);
     
-    return input
+    return input;
   }
 
   // noinspection SpellCheckingInspection
@@ -197,8 +188,9 @@ export class ADConnection {
   private getClient = (): AgentDialogueClient => {
     if (this._client !== undefined) { return this._client }
     // noinspection SpellCheckingInspection
-    return this._client = new AgentDialogueClient(
-        this._hostURL, null)
+    this._client = new AgentDialogueClient(
+      this._hostURL, null)
+    return this._client
   }
 
 
@@ -258,8 +250,8 @@ export class ADConnection {
       request.setChosenAgentsList([agent])
       request.setAgentRequestParameters(requestBody);
 
-      var response: { [key: string]: JavaScriptValue; };
-      var callback = (_err: grpcWeb.Error,
+      let response: { [key: string]: JavaScriptValue; };
+      let callback = (_err: grpcWeb.Error,
         _response: InteractionResponse,) => {
 
         // If the response is successfull        
@@ -309,7 +301,7 @@ export class ADConnection {
       // Specify that the request is for the SearchAPI agent
       request.setChosenAgentsList(['SpeechToText'])
 
-      var callback = (_err: grpcWeb.Error,
+      let callback = (_err: grpcWeb.Error,
         _response: InteractionResponse,) => {
 
         // If the response is successfull        
