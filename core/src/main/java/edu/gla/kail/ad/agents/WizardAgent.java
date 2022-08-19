@@ -6,11 +6,13 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.protobuf.Message;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.Value;
 import com.google.protobuf.util.JsonFormat;
 
 import edu.gla.kail.ad.Client;
+import edu.gla.kail.ad.AgentsConfig.WizardConfig;
 import edu.gla.kail.ad.Client.InteractionAction;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.InteractionType;
@@ -26,7 +28,6 @@ import edu.gla.kail.ad.core.Log.SystemAct;
 import io.grpc.stub.StreamObserver;
 
 import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,8 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This is a Wizard-of-Oz agent created for experiments. It allows multiple
@@ -51,22 +54,19 @@ public class WizardAgent implements AgentInterface {
     private static final Logger logger = LoggerFactory.getLogger(WizardAgent.class);
 
     // The firestore database connection.
-    private Firestore _database;
+    private Firestore database;
 
     // Analogous to the "wizard project" - something like a project id in a
     // dialogflow agent.
-    private String _projectId;
-
-    // Default timeout to wait for a response in seconds.
-    private static final long DEFAULT_TIMEOUT_SECONDS = 60;
+    private String projectId;
 
     // Hold the wizard agent's configuration, including necessary db credentials.
-    private AgentConfig _agent;
+    private AgentConfig agent;
 
     // Gold the hardcoded agent ID.
-    private String _agentId = null;
-    private String _logs_folder = null;
-    private String _firebaseCollection = null;
+    private String agentId;
+    private String sessionId;
+    private WizardConfig wizardConfig;
 
     /**
      * Construct a new WizardAgent.
@@ -75,10 +75,30 @@ public class WizardAgent implements AgentInterface {
      * @throws Exception
      */
     public WizardAgent(String sessionId, AgentConfig agent) throws Exception {
-        _agent = agent;
-        _projectId = _agent.getProjectId();
-        _agentId = _agent.getProjectId();
+        this.agent = agent;
+        this.projectId = agent.getProjectId();
+        this.agentId = agent.getProjectId();
+        this.sessionId = sessionId;
         initAgent();
+    }
+
+    private WizardConfig buildWizardConfig(String filePath) throws IOException {
+        WizardConfig.Builder wizardConfigBuilder = WizardConfig.newBuilder();
+        String jsonText = IOUtils.toString(new FileInputStream(filePath), StandardCharsets.UTF_8);
+        JsonFormat.parser().merge(jsonText, wizardConfigBuilder);
+        return wizardConfigBuilder.build();
+    }
+
+    private GoogleCredentials getGoogleCredentials(String credentialsFile) throws IOException {
+        return GoogleCredentials.fromStream(new FileInputStream(credentialsFile));
+    }
+
+    private Firestore getFirestoreDatabase(GoogleCredentials googleCredentials) {
+        FirebaseOptions options = new FirebaseOptions.Builder().setCredentials(googleCredentials).build();
+        if (FirebaseApp.getApps().isEmpty()) {
+            FirebaseApp.initializeApp(options);
+        }
+        return FirestoreClient.getFirestore();
     }
 
     /**
@@ -87,27 +107,18 @@ public class WizardAgent implements AgentInterface {
      * @throws Exception
      */
     private void initAgent() throws Exception {
-
-        if (this.isAgentConfigFileValid(_agent)) {
-
-            JSONObject agentConfiguration = new JSONObject(
-                    IOUtils.toString(new FileInputStream(this._agent.getConfigurationFileURL()), "UTF-8"));
-
-            String credentialsFile = agentConfiguration.getString("key");
-            this._logs_folder = agentConfiguration.getString("logs_folder");
-            this._firebaseCollection = agentConfiguration.getString("firebase_collection");
-
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsFile));
-            checkNotNull(credentials, "Credentials used to initialise FireStore are null.");
-
-            FirebaseOptions options = new FirebaseOptions.Builder().setCredentials(credentials).build();
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
+        this.wizardConfig = this.buildWizardConfig(this.agent.getConfigurationFileURL());
+        if (this.isAgentConfigFileValid(wizardConfig)) {
+            GoogleCredentials credentials = this.getGoogleCredentials(this.wizardConfig.getServerKey());
+            if (credentials == null) {
+                throw new Exception("Credentials used to initialise FireStore are null.");
             }
-            _database = FirestoreClient.getFirestore();
+            this.database = this.getFirestoreDatabase(credentials);
+
         } else {
             throw new Exception("Wizard Agent Config file in the wrong format");
         }
+
     }
 
     /**
@@ -118,19 +129,18 @@ public class WizardAgent implements AgentInterface {
      * @return
      */
     private CollectionReference getDbCollection(String conversationId) {
-        CollectionReference collectionReference = _database.collection(this._firebaseCollection).document(_projectId)
+        return this.database.collection(this.wizardConfig.getServerCollection()).document(this.projectId)
                 .collection("conversations").document(conversationId).collection("messages");
-        return collectionReference;
     }
 
     @Override
     public String getAgentId() {
-        return _agentId;
+        return this.agentId;
     }
 
     @Override
     public ServiceProvider getServiceProvider() {
-        return _agent.getServiceProvider();
+        return this.agent.getServiceProvider();
     }
 
     @Override
@@ -155,13 +165,12 @@ public class WizardAgent implements AgentInterface {
                     "Request must specify the conversationId in the agent request parameters.");
         }
         String conversationId = fieldsMap.get("conversationId").getStringValue();
-        Client.ClientId clientId = interactionRequest.getClientId();
 
         CollectionReference conversationCollection = getDbCollection(conversationId);
 
         // Wait for a response after the current time (filter out past messages).
         Query query = conversationCollection;
-        logger.debug("Waiting on listener: " + query.toString());
+        logger.debug(String.format("Waiting on listener: %s", query.toString()));
         WizardChatResponseListener wizardChatResponseListener = new WizardChatResponseListener(observer);
         ListenerRegistration registration = query.addSnapshotListener(wizardChatResponseListener);
         wizardChatResponseListener.setRegistration(registration);
@@ -360,33 +369,14 @@ public class WizardAgent implements AgentInterface {
     }
 
     @Override
-    public boolean isAgentConfigFileValid(AgentConfig config) {
-
-        if (config != null && config.getConfigurationFileURL() != null
-                && !Utils.isBlank(config.getConfigurationFileURL())) {
-            // Get the agent specific configuration
-            JSONObject agentConfiguration;
-            try {
-                agentConfiguration = new JSONObject(
-                        IOUtils.toString(new FileInputStream(config.getConfigurationFileURL()), "UTF-8"));
-                // Custom Checks for this specific config file
-                if (agentConfiguration.has("key") && agentConfiguration.has("logs_folder")
-                        && agentConfiguration.has("firebase_collection")) {
-                    if (agentConfiguration.getString("key") != null
-                            && !Utils.isBlank(agentConfiguration.getString("key"))
-                            && agentConfiguration.getString("logs_folder") != null
-                            && !Utils.isBlank(agentConfiguration.getString("logs_folder"))
-                            && agentConfiguration.getString("firebase_collection") != null
-                            && !Utils.isBlank(agentConfiguration.getString("firebase_collection"))) {
-                        return true;
-                    }
-                }
-
-            } catch (Exception e) {
-                return false;
-            }
+    public boolean isAgentConfigFileValid(Message agentConfig) {
+        if (agentConfig instanceof WizardConfig) {
+            WizardConfig wizardConfigObj = (WizardConfig) agentConfig;
+            return !Utils.isBlank(wizardConfigObj.getServerKey())
+                    && !Utils.isBlank(wizardConfigObj.getServerCollection());
         }
         return false;
+
     }
 
 }

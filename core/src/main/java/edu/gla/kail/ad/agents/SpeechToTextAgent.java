@@ -1,13 +1,19 @@
 package edu.gla.kail.ad.agents;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 
 import edu.gla.kail.ad.Client;
+import edu.gla.kail.ad.AgentsConfig.SpeechToTextConfig;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.InteractionResponse;
 import edu.gla.kail.ad.Client.InteractionType;
@@ -22,22 +28,33 @@ import edu.gla.kail.ad.service.Utils;
 import edu.gla.kail.ad.service.speechToText.SpeechToTextGoogleAPI;
 import io.grpc.stub.StreamObserver;
 
+public class SpeechToTextAgent implements AgentInterface {
 
-public class SpeechToTextAgent implements AgentInterface{
+    private static final Logger logger = LoggerFactory.getLogger(SpeechToTextAgent.class);
 
     // Hold the wizard agent's configuration, including necessary db credentials.
-    private AgentConfig _agent;
+    private AgentConfig agent;
     // Gold the hardcoded agent ID.
-    private String _agentId = null;
+    private String agentId;
 
-    private ServiceAccountCredentials googleCredentials = null;
-
-    private String _logs_folder = null;
+    private ServiceAccountCredentials googleCredentials;
+    private SpeechToTextConfig speechToTextConfig;
 
     public SpeechToTextAgent(AgentConfig agent) throws Exception {
-        this._agent = agent;
-        this._agentId = _agent.getProjectId();
+        this.agent = agent;
+        this.agentId = this.agent.getProjectId();
         initAgent();
+    }
+
+    private SpeechToTextConfig buildSpeechToTextConfig(String filePath) throws IOException {
+        SpeechToTextConfig.Builder speechToTextConfigBuilder = SpeechToTextConfig.newBuilder();
+        String jsonText = IOUtils.toString(new FileInputStream(filePath), StandardCharsets.UTF_8);
+        JsonFormat.parser().merge(jsonText, speechToTextConfigBuilder);
+        return speechToTextConfigBuilder.build();
+    }
+
+    private ServiceAccountCredentials getServiceAccountCredentials(String credentialsFile) throws IOException {
+        return ServiceAccountCredentials.fromStream(new FileInputStream(credentialsFile));
     }
 
     /**
@@ -46,47 +63,44 @@ public class SpeechToTextAgent implements AgentInterface{
      * @throws Exception
      */
     private void initAgent() throws Exception {
-        if(this.isAgentConfigFileValid(this._agent)){
 
-            JSONObject agentConfiguration = new JSONObject(
-            IOUtils.toString(new FileInputStream(this._agent.getConfigurationFileURL()), "UTF-8"));
+        this.speechToTextConfig = this.buildSpeechToTextConfig(this.agent.getConfigurationFileURL());
+        if (this.isAgentConfigFileValid(this.speechToTextConfig)) {
 
-            String credentialsFile = agentConfiguration.getString("key");
-            this._logs_folder = agentConfiguration.getString("logs_folder");
-            
-            this.googleCredentials = ServiceAccountCredentials.fromStream(new FileInputStream(credentialsFile));
-        }else{
+            this.googleCredentials = this.getServiceAccountCredentials(this.speechToTextConfig.getServerKey());
+        } else {
             throw new Exception("Speech-To-Text Agent Config file in the wrong format");
         }
-        
+
     }
 
     @Override
     public ServiceProvider getServiceProvider() {
-        return _agent.getServiceProvider();
+        return this.agent.getServiceProvider();
     }
 
     @Override
     public String getAgentId() {
-        return _agentId;
+        return this.agentId;
     }
 
     @Override
     public ResponseLog getResponseFromAgent(InteractionRequest interactionRequest) throws Exception {
-       
+
         String resultText = "";
-        try  {
+        try {
             SpeechToTextGoogleAPI speechToTextClient = new SpeechToTextGoogleAPI(this.googleCredentials);
             resultText = speechToTextClient.speechToText(interactionRequest.getInteraction().getAudioBase64());
-        }catch(Exception e){
-            System.out.println(e);
+        } catch (Exception e) {
+            logger.error(e.toString());
         }
-          
+
         // Return a ResponseLog object
         return ResponseLog.newBuilder().setClientId(Client.ClientId.EXTERNAL_APPLICATION)
                 .setServiceProvider(ServiceProvider.SPEECH_TO_TEXT).setMessageStatus(MessageStatus.SUCCESSFUL)
-                .setRawResponse(resultText).addAction(SystemAct.newBuilder().setInteraction(OutputInteraction.newBuilder()
-                        .setType(InteractionType.TEXT).setText(resultText).build()))
+                .setRawResponse(resultText)
+                .addAction(SystemAct.newBuilder().setInteraction(
+                        OutputInteraction.newBuilder().setType(InteractionType.TEXT).setText(resultText).build()))
                 .build();
 
     }
@@ -98,26 +112,13 @@ public class SpeechToTextAgent implements AgentInterface{
     }
 
     @Override
-    public boolean isAgentConfigFileValid(AgentConfig config) {
-        if(config != null && config.getConfigurationFileURL() != null && !Utils.isBlank(config.getConfigurationFileURL())){
-            // Get the agent specific configuration 
-            JSONObject agentConfiguration;
-            try {
-              agentConfiguration = new JSONObject(
-                IOUtils.toString(new FileInputStream(config.getConfigurationFileURL()), "UTF-8"));
-              // Custom Checks for this specific config file
-              if(agentConfiguration.has("key") && agentConfiguration.has("logs_folder")){
-                if(agentConfiguration.getString("key") != null && !Utils.isBlank(agentConfiguration.getString("key"))
-                && agentConfiguration.getString("logs_folder") != null && !Utils.isBlank(agentConfiguration.getString("logs_folder"))){
-                  return true;
-                }
-              }
-              
-            } catch (Exception e) {
-              return false;
-            }
+    public boolean isAgentConfigFileValid(Message agentConfig) {
+        if (agentConfig instanceof SpeechToTextConfig) {
+            SpeechToTextConfig speechToTextConfigObj = (SpeechToTextConfig) agentConfig;
+            return !Utils.isBlank(speechToTextConfigObj.getServerKey());
         }
         return false;
+
     }
 
 }

@@ -1,45 +1,57 @@
 {
-    "search_api":{
-        "root_url": "http://34.118.117.33",
-        "api_endpoints": {
-            "query_documents": {
-                "request_method": "POST",
-                "endpoint": "/search"
-            },
-            "page": {
-                "request_method": "POST",
-                "endpoint": "/extract_page"
-            },
-            "recipe": {
-                "request_method": "POST",
-                "endpoint": "/recipe"
-            }
+    "external_services": [
+        {
+            "name": "search_api",
+            "root_url": "http://34.118.117.33",
+            "api_endpoints": [
+                {
+                    "name": "query_documents",
+                    "request_method": "POST",
+                    "endpoint": "/search"
+                },
+                {
+                    "name": "page",
+                    "request_method": "POST",
+                    "endpoint": "/extract_page"
+               },
+               { 
+                    "name": "recipe",
+                    "request_method": "POST",
+                    "endpoint": "/recipe"
+                }
+                
+            ],
+            "logs_folder": "search_api"
+            
         },
-        "logs_folder": "search_api"
-    },
-    "cast_api":{
-        "root_url": "http://54.236.60.171:5000",
-        "api_endpoints": {
-            "search": {
-                "request_method": "POST",
-                "endpoint": "/search"
-            },
-            "rewrite": {
-                "request_method": "POST",
-                "endpoint": "/rewrite"
-            }
+        {
+            "name": "cast_api",
+            "root_url": "http://54.236.60.171:5000",
+            "api_endpoints": [
+                {
+                    "name": "search",
+                    "request_method": "POST",
+                    "endpoint": "/search"
+                },
+                {
+                    "name": "rewrite",
+                    "request_method": "POST",
+                    "endpoint": "/rewrite"
+               }
+            ],
+            "logs_folder": "cast_api"
         },
-        "logs_folder": "cast_api"
-    },
-    "internal_grill" : 
-    {
-        "root_url": "http://172.30.146.197:9999",
-        "api_endpoints": {
-            "inference": {
-                "request_method": "POST",
-                "endpoint": "/run"
-            }
-        },
-        "logs_folder": "internal_grill"
-    }
+        {
+            "name": "internal_grill",
+            "root_url": "http://172.30.146.197:9999",
+            "api_endpoints": [
+                {
+                    "name": "inference",
+                    "request_method": "POST",
+                    "endpoint": "/run"
+                }
+            ],
+            "logs_folder": "internal_grill"
+        }
+    ]
 }

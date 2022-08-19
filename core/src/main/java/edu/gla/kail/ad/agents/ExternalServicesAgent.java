@@ -8,27 +8,25 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.api.core.SettableApiFuture;
-import com.google.gson.JsonObject;
+import com.google.protobuf.Message;
 import com.google.protobuf.Struct;
-import com.google.protobuf.Timestamp;
 import com.google.protobuf.Value;
 import com.google.protobuf.util.JsonFormat;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import edu.gla.kail.ad.Client;
+import edu.gla.kail.ad.AgentsConfig.ExternalServicesConfig;
+import edu.gla.kail.ad.AgentsConfig.ExternalServicesConfig.ApiEndpoint;
+import edu.gla.kail.ad.AgentsConfig.ExternalServicesConfig.ApiRequestMethod;
+import edu.gla.kail.ad.AgentsConfig.ExternalServicesConfig.ExternalService;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.InteractionResponse;
 import edu.gla.kail.ad.Client.InteractionType;
 import edu.gla.kail.ad.Client.OutputInteraction;
-import edu.gla.kail.ad.Client.InteractionResponse.ClientMessageStatus;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
 import edu.gla.kail.ad.core.AgentInterface;
@@ -45,16 +43,22 @@ public class ExternalServicesAgent implements AgentInterface {
     private static final Logger logger = LoggerFactory.getLogger(ExternalServicesAgent.class);
 
     // Hold the wizard agent's configuration, including necessary db credentials.
-    private AgentConfig _agent;
+    private AgentConfig agent;
     // Gold the hardcoded agent ID.
-    private String _agentId = null;
-
-    private JSONObject _supportedAPiEndpoints = null;
+    private String agentId;
+    private ExternalServicesConfig externalServicesConfig;
 
     public ExternalServicesAgent(AgentConfig agent) throws Exception {
-        this._agent = agent;
-        this._agentId = _agent.getProjectId();
+        this.agent = agent;
+        this.agentId = this.agent.getProjectId();
         initAgent();
+    }
+
+    private ExternalServicesConfig buildExternalServicesConfig(String filePath) throws IOException {
+        ExternalServicesConfig.Builder externalServicesConfigBuilder = ExternalServicesConfig.newBuilder();
+        String jsonText = IOUtils.toString(new FileInputStream(filePath), StandardCharsets.UTF_8);
+        JsonFormat.parser().merge(jsonText, externalServicesConfigBuilder);
+        return externalServicesConfigBuilder.build();
     }
 
     /**
@@ -64,24 +68,38 @@ public class ExternalServicesAgent implements AgentInterface {
      */
     private void initAgent() throws Exception {
 
-        if(this.isAgentConfigFileValid(_agent)){
-
-            FileInputStream file = new FileInputStream(this._agent.getConfigurationFileURL()); 
-            this._supportedAPiEndpoints = new JSONObject(
-                IOUtils.toString(file, "UTF-8"));
-        }else{
+        this.externalServicesConfig = this.buildExternalServicesConfig(this.agent.getConfigurationFileURL());
+        if (!this.isAgentConfigFileValid(this.externalServicesConfig)) {
             throw new Exception("External Services Agent Config file in the wrong format");
         }
     }
 
     @Override
     public ServiceProvider getServiceProvider() {
-        return _agent.getServiceProvider();
+        return this.agent.getServiceProvider();
     }
 
     @Override
     public String getAgentId() {
-        return _agentId;
+        return this.agentId;
+    }
+
+    private ExternalService getExternalServiceByName(String name) {
+        for (ExternalService es : this.externalServicesConfig.getExternalServicesList()) {
+            if (es.getName().equals(name)) {
+                return es;
+            }
+        }
+        return null;
+    }
+
+    private ApiEndpoint getServiceApiEndpointByName(ExternalService ea, String name) {
+        for (ApiEndpoint aep : ea.getApiEndpointsList()) {
+            if (aep.getName().equals(name)) {
+                return aep;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -89,42 +107,49 @@ public class ExternalServicesAgent implements AgentInterface {
         // We need to perform a call based on the request specified.
         // The function handles any type of specific call. The only three parameters
         // that must be specified as agentRequestParameters are:
-        // 1) service_name: which specifies which service should be called. The name is 
-        //                  specific to the one that we specified in search_api_config.json
-        // 2) api_endpoint: The api endpoint that we want to call 
+        // 1) service_name: which specifies which service should be called. The name is
+        // specific to the one that we specified in search_api_config.json
+        // 2) api_endpoint: The api endpoint that we want to call
         // 3) request_body: the specific request body that need to be passed to the api
 
-// If these two parameters are not specified we return an error
+        // If these two parameters are not specified we return an error
         Map<String, Value> fieldsMap = interactionRequest.getAgentRequestParameters().getFieldsMap();
         String result = "";
-        if (fieldsMap.containsKey("service_name") && fieldsMap.containsKey("api_endpoint") && fieldsMap.containsKey("request_body")) {
+        if (fieldsMap.containsKey("service_name") && fieldsMap.containsKey("api_endpoint")
+                && fieldsMap.containsKey("request_body")) {
             try {
-                // Get the service name 
-                String serviceName = fieldsMap.get("service_name").getStringValue();
-                String apiEndpoint = fieldsMap.get("api_endpoint").getStringValue();
+                // Get the service name
+                String requestServiceName = fieldsMap.get("service_name").getStringValue();
+                String requestApiEndpoint = fieldsMap.get("api_endpoint").getStringValue();
                 String requestBodyString = JsonFormat.printer().preservingProtoFieldNames()
                         .print(fieldsMap.get("request_body").getStructValue());
 
-                // Check that none of the fields is empty and that the model is actually specified in the config file 
-                if(Utils.isBlank(serviceName) || 
-                Utils.isBlank(apiEndpoint) || 
-                Utils.isBlank(requestBodyString) || 
-                !_supportedAPiEndpoints.has(serviceName)) throw  new Exception("Invalid parameters provided");
+                // Check that none of the fields is empty and that the model is actually
+                // specified in the config file
+                if (Utils.isBlank(requestServiceName) || Utils.isBlank(requestApiEndpoint)
+                        || Utils.isBlank(requestBodyString))
+                    throw new Exception("Invalid parameters provided");
 
+                // We now need to extract the selected service name
+                ExternalService externalService = this.getExternalServiceByName(requestServiceName);
+                if (externalService == null) {
+                    throw new Exception("Invalid service name provided");
+                }
 
-                // Get the specific service configuration
-                JSONObject modelConfig = _supportedAPiEndpoints.getJSONObject(serviceName);
+                // Now we need to extract the api endpoint
+                ApiEndpoint apiEndpoint = this.getServiceApiEndpointByName(externalService, requestApiEndpoint);
+                if (apiEndpoint == null) {
+                    throw new Exception("Invalid api endpoint provided");
+                }
 
                 // Construct the url where to perform the request
-                URL url = new URL(modelConfig.getString("root_url")
-                        + modelConfig.getJSONObject("api_endpoints").getJSONObject(apiEndpoint).getString("endpoint"));
+                URL url = new URL(externalService.getRootUrl() + apiEndpoint.getEndpoint());
 
-                String request_method = modelConfig.getJSONObject("api_endpoints").getJSONObject(apiEndpoint).getString("request_method").toUpperCase();
+                String requestMethod = apiEndpoint.getRequestMethod().name();
 
-
-                // Start the connection 
+                // Start the connection
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod(request_method);
+                conn.setRequestMethod(requestMethod);
                 conn.setRequestProperty("Content-Type", "application/json");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setDoOutput(true);
@@ -134,20 +159,15 @@ public class ExternalServicesAgent implements AgentInterface {
                 wr.write(requestBody.toString());
                 wr.flush();
 
-                
-
                 // If the response is not successful we raise an error
                 if (conn.getResponseCode() != 200) {
-                    System.out.println(conn.getResponseMessage());
-                    System.out.println(url.toString());
+                    logger.error(conn.getResponseMessage());
                     throw new Exception("Failed : HTTP error code : " + conn.getResponseCode());
                 }
 
                 // We need now to parse the returned message from the API
                 BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
                 result = br.lines().collect(Collectors.joining());
-
                 conn.disconnect();
 
             } catch (MalformedURLException e) {
@@ -183,52 +203,31 @@ public class ExternalServicesAgent implements AgentInterface {
     }
 
     @Override
-    public boolean isAgentConfigFileValid(AgentConfig config) {
-        if(config != null && config.getConfigurationFileURL() != null && !Utils.isBlank(config.getConfigurationFileURL())){
-            // Get the agent specific configuration 
-            JSONObject agentConfiguration;
-            try {
-              agentConfiguration = new JSONObject(
-                IOUtils.toString(new FileInputStream(config.getConfigurationFileURL()), "UTF-8"));
-                    // Custom Checks for this specific config file
-                    for(String key: agentConfiguration.keySet()){
-                        // Extract the service and check if it's in the valid format.
-                        JSONObject service = agentConfiguration.getJSONObject(key);
-                        // Independently from the service, and external service must have
-                        // 1. A root_url
-                        // 2. On or more api_endpoints 
-                        // 3. A logs_folder
-                        if(service.has("root_url") && service.getString("root_url") != null && !Utils.isBlank(service.getString("root_url"))){
-                            // Get the API endpoints
-                            if(service.has("api_endpoints")){
-                                JSONObject apiEndpoints = service.getJSONObject("api_endpoints");
-                                // Check for each endpoint if they have a request method and specific endpoint path
-                                for(String apiEndpointStr: apiEndpoints.keySet()){
-                                    JSONObject apiEnpointOjb = apiEndpoints.getJSONObject(apiEndpointStr);
-                                    if(!apiEnpointOjb.has("request_method") || !apiEnpointOjb.has("endpoint") 
-                                    || apiEnpointOjb.getString("request_method") == null || apiEnpointOjb.getString("endpoint") == null
-                                    || Utils.isBlank(apiEnpointOjb.getString("request_method")) || Utils.isBlank(apiEnpointOjb.getString("endpoint"))){
-                                        return false;
-                                    }            
-                                }
-                                // Lastly check if we have the logs_folder
-                                if(service.has("logs_folder") && service.getString("logs_folder") != null && !Utils.isBlank(service.getString("logs_folder"))){
-                                    return true;
-                                }
+    public boolean isAgentConfigFileValid(Message agentConfig) {
 
-                            }else{
-                                return false;
-                            }
-                        }else{
+        if (agentConfig instanceof ExternalServicesConfig) {
+            // Now we need to check that all the external services are valid
+            ExternalServicesConfig externalServicesConfigObj = (ExternalServicesConfig) agentConfig;
+            List<ExternalService> externalServices = externalServicesConfigObj.getExternalServicesList();
+            // Validate all the external services
+            for (ExternalService ea : externalServices) {
+                if (!Utils.isBlank(ea.getName()) && !Utils.isBlank(ea.getRootUrl())) {
+                    // Check all the apiEndpoints
+                    List<ApiEndpoint> apiEndpoints = ea.getApiEndpointsList();
+                    for (ApiEndpoint aep : apiEndpoints) {
+                        if (Utils.isBlank(aep.getName()) || Utils.isBlank(aep.getEndpoint())
+                                || !(aep.getRequestMethod() instanceof ApiRequestMethod)) {
+                            // If any of these conditions is false it means the file is not valid so we
+                            // return
                             return false;
                         }
                     }
+                    return true;
                 }
-            catch (Exception e) {
-              return false;
             }
-          }
-          return false;
+        }
+        return false;
+
     }
 
 }

@@ -1,5 +1,7 @@
 package edu.gla.kail.ad.core;
 
+import com.google.protobuf.Message;
+
 import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
@@ -8,7 +10,8 @@ import edu.gla.kail.ad.core.Log.ResponseLog;
 import io.grpc.stub.StreamObserver;
 
 /**
- * Agent interface is a common interface to different dialogue framework implementations.
+ * Agent interface is a common interface to different dialogue framework
+ * implementations.
  */
 public interface AgentInterface {
     ServiceProvider _serviceProvider = null; // Specifies the dialogue framework implementation.
@@ -21,30 +24,33 @@ public interface AgentInterface {
     /**
      * Return a response for a request.
      *
-     * @param interactionRequest - A data structure (implemented in log.proto) holding the
-     *         incoming interaction that is being sent to an agent.
-     * @return ResponseLog - The response from the agent, must be non-null. ResponseLog is a data
-     *         structure implemented in log.proto.
+     * @param interactionRequest - A data structure (implemented in log.proto)
+     *                           holding the incoming interaction that is being sent
+     *                           to an agent.
+     * @return ResponseLog - The response from the agent, must be non-null.
+     *         ResponseLog is a data structure implemented in log.proto.
      * @throws Exception
      */
     ResponseLog getResponseFromAgent(InteractionRequest interactionRequest) throws Exception;
 
     /**
-     * Create a streaming response setup for the agent. Messages will be written to the observer.
+     * Create a streaming response setup for the agent. Messages will be written to
+     * the observer.
      *
-     * @param interactionRequest - Initial setup to setup a streaming response pipeline.
+     * @param interactionRequest - Initial setup to setup a streaming response
+     *                           pipeline.
      * @throws Exception
      */
     void streamingResponseFromAgent(InteractionRequest interactionRequest,
-                                StreamObserver<Client.InteractionResponse> responseObserver) throws Exception;
+            StreamObserver<Client.InteractionResponse> responseObserver) throws Exception;
 
-    
     /**
-     * Specific method designed to evaluate whether a configuration file is valid for a specific agent 
+     * Specific method designed to evaluate whether a configuration file is valid
+     * for a specific agent
      * 
      * @param config - Specific agent config for this agent
-     * @return Returns true or false based on whether the file is valid or not 
+     * @return Returns true or false based on whether the file is valid or not
      */
-    boolean isAgentConfigFileValid(AgentConfig config);
-    
+    boolean isAgentConfigFileValid(Message agentConfig);
+
 }

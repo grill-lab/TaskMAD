@@ -1,4 +1,4 @@
 {
-    "key": "deployment_config/keys/agentdialogue-2cd4b-1d980a0505b4.json",
+    "server_key": "deployment_config/keys/agentdialogue-2cd4b-1d980a0505b4.json",
     "logs_folder": "speech_to_text"
 }

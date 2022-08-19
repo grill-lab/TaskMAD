@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package edu.gla.kail.ad;
+
+option java_package = "edu.gla.kail.ad";
+
+message WizardConfig {
+    string server_key = 1;
+    string server_collection = 2;
+    string logs_folder = 3;
+}
+
+message SpeechToTextConfig {
+    string server_key = 1;
+    string logs_folder = 3;
+}
+
+message ExternalServicesConfig {
+
+    enum ApiRequestMethod{
+        POST = 0;
+        GET = 1;
+        PUT = 2;
+        DELETE = 3;
+    }
+
+    message ApiEndpoint{
+        string name = 1;
+        ApiRequestMethod request_method = 2;
+        string endpoint = 3;
+    }
+
+    message ExternalService {
+        string name = 1;
+        string root_url = 2;
+        repeated ApiEndpoint api_endpoints = 3;
+        string logs_folder = 4;
+
+    }
+
+    repeated ExternalService external_services = 1;
+}
