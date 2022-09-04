@@ -2,14 +2,14 @@
 steps:
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', '${_ENVOY_ROOT_FOLDER}/envoy.Dockerfile', '${_ENVOY_ROOT_FOLDER}/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}']
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', 'agent-dialogue-core/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-server:${_IMAGE_VERSION}', '${_CORE_ROOT_FOLDER}/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
@@ -17,7 +17,7 @@ steps:
 
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}', '-f', 'agent-dialogue-core/grpc_health_proxy.Dockerfile', 'agent-dialogue-core/.']
+  args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}', '-f', '${_HEALTH_ROOT_FOLDER}/grpc_health_proxy.Dockerfile', '${_HEALTH_ROOT_FOLDER}/.']
 
 # Push the image
 - name: 'gcr.io/cloud-builders/docker'
@@ -30,7 +30,7 @@ steps:
   args:
   - apply
   - -f
-  - agent-dialogue-core/deployment_config/${_K8_BACKEND_CONFIG_FILE}
+  - ${_CORE_ROOT_FOLDER}/${_CONFIG_PATH}/${_K8_BACKEND_CONFIG_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -40,7 +40,7 @@ steps:
   args:
   - apply
   - -f
-  - agent-dialogue-core/deployment_config/${_FRONTEND_CONFIG_FILE}
+  - ${_CORE_ROOT_FOLDER}/${_CONFIG_PATH}/${_FRONTEND_CONFIG_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -50,7 +50,7 @@ steps:
   args:
   - apply
   - -f
-  - config/${_K8_FILE}
+  - ${_CORE_ROOT_FOLDER}/${_CONFIG_PATH}/${_K8_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -60,20 +60,24 @@ steps:
   args:
   - apply
   - -f
-  - agent-dialogue-core/deployment_config/${_K8_INGRESS_FILE}
+  - ${_CORE_ROOT_FOLDER}/${_CONFIG_PATH}/${_K8_INGRESS_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository 
-  _IMAGE_VERSION: latest
-  _FRONTEND_CONFIG_FILE: frontend_config.yaml
-  _K8_FILE: core_deployment.yaml
-  _K8_BACKEND_CONFIG_FILE: backend_config.yaml
-  _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
   _CLUSTER_NAME: esp-core-cluster
+  _IMAGE_VERSION: latest
+  _CORE_ROOT_FOLDER: core
+  _ENVOY_ROOT_FOLDER: envoy
+  _HEALTH_ROOT_FOLDER: grpc_health_proxy
+  _CONFIG_PATH: deployment_config/cloud
+  _FRONTEND_CONFIG_FILE: frontend_config.yaml
+  _K8_BACKEND_CONFIG_FILE: backend_config.yaml
+  _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml
+  _K8_FILE: core_deployment.yaml
   
 # Timeout for 30 mins
 timeout: 1800s

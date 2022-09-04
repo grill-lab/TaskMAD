@@ -17,7 +17,7 @@
 
 // Class used in order to keep track of the different checkboxes associated 
 // to the different parts of a recipe
-export interface IRecipeCheckboxModel {
+export interface ISequentialPageCheckboxModel {
     readonly id: string
     readonly hashedId: string
     readonly pageId: string
@@ -27,8 +27,9 @@ export interface IRecipeCheckboxModel {
     clickedTimestamp?: Date
 }
 
-export class RecipeCheckboxModel implements IRecipeCheckboxModel {
-    constructor(model: IRecipeCheckboxModel) {
+
+export class SequentialPageCheckboxModel implements ISequentialPageCheckboxModel {
+    constructor(model: ISequentialPageCheckboxModel) {
         this.id = model.id;
         this.hashedId = model.hashedId;
         this.pageId = model.pageId;
@@ -45,13 +46,13 @@ export class RecipeCheckboxModel implements IRecipeCheckboxModel {
     readonly sectionValue: string
     clickedTimestamp?: Date
 
-    public isEqual = (model: RecipeCheckboxModel):boolean => {
-        return this.id === model.id 
-        && this.hashedId === model.hashedId
-        && this.pageId === model.pageId
-        && this.pageTitle === model.pageTitle
-        && this.section === model.section
-        && this.sectionValue === model.sectionValue
+    public isEqual = (model: SequentialPageCheckboxModel): boolean => {
+        return this.id === model.id
+            && this.hashedId === model.hashedId
+            && this.pageId === model.pageId
+            && this.pageTitle === model.pageTitle
+            && this.section === model.section
+            && this.sectionValue === model.sectionValue
     }
 }
 

@@ -6,7 +6,7 @@
   overflow-y: scroll;
   padding: var(--chat-container-top);
 }
-.recipeCheckbox{
+.sequentialCheckbox{
   float: left;
 }
 
@@ -15,11 +15,11 @@
   margin-bottom: 5px;
 }
 
-.recipeSectionDiv{
+.sectionDiv{
   margin-bottom: 15px;
 }
 
-.recipeStepImage{
+.stepImage{
   height: auto;
   width: 60%;
   border-radius: 1em;
@@ -36,7 +36,7 @@
   color: white !important;
 }
 
-.recipeComponentContainer{
+.componentContainer{
   background-color: var(--chat-container-background);
   padding: var(--chat-container-top);
   border-radius: var(--chat-container-border-radius);

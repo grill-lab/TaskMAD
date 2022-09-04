@@ -1,6 +1,8 @@
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { ADConnection } from "../common/ADConnection";
 import { RecipeModel } from "../models/RecipeModel";
+import { ISequentialPageModel } from "../models/SequentialPageModel";
+
 
 // Class used in order to manage the retrieval of recipes
 export class RecipeService {
@@ -10,7 +12,7 @@ export class RecipeService {
             headers: { 'Content-Type': 'application/json', 'Origin': '*' },
         };
 
-        var dataJson = undefined;
+        let dataJson = undefined;
         try {
             const response = await fetch('https://storage.googleapis.com/taskmad-public-bucket/associated_recipes.json', requestOptions);
             dataJson = await response.json();
@@ -28,7 +30,7 @@ export class RecipeService {
     }
 
     // Retrieve a recipe based on the id passed
-    public static getRecipeById = async (recipeId: string, connection: ADConnection | undefined): Promise<RecipeModel | undefined> => {
+    public static getRecipeById = async (recipeId: string, connection: ADConnection | undefined): Promise<ISequentialPageModel | undefined> => {
 
         if (connection !== undefined) {
 
@@ -52,8 +54,10 @@ export class RecipeService {
                     // Get the documents
                     let document: Object = Object.getOwnPropertyDescriptor(apiResponse, 'document')?.value || "";
 
+                    console.log(document);
+
                     if (document !== undefined && document !== "") {
-                        return RecipeModel.jsonToRecipeModel(document);
+                        return RecipeModel.jsonToSequentialPageModel(document);
                     }
 
                 }
