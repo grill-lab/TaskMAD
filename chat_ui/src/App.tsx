@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import css from "./App.module.css"
 import { ChatConfigs } from "./common/chat_ui_configs"
-import logo from "./resources/img/agent_logo.png"
+import logo from "./resources/img/chat_ui_logo.png"
 import { WoZPanel } from "./woz/WoZPanel"
 
 // tslint:disable-next-line:interface-name
