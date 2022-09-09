@@ -1,46 +1,5 @@
 # File need for CD
 steps:
-# ============================== CLEANING STEPS ==============================
-- name: 'gcr.io/cloud-builders/kubectl'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    kubectl delete services ${_CORE_SERVICE_NAME} || exit 0
-  env:
-  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
-  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
-
-- name: 'gcr.io/cloud-builders/kubectl'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    kubectl delete deployments ${_CORE_DEPLOYMENT_NAME} || exit 0
-  env:
-  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
-  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
-
-- name: 'gcr.io/cloud-builders/kubectl'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    kubectl delete ingress ${_CORE_INGRESS_NAME} || exit 0
-  env:
-  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
-  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
-
-- name: 'gcr.io/cloud-builders/kubectl'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    kubectl delete backendconfig ${_CORE_BACKENDCONFIG_NAME} || exit 0
-  env:
-  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
-  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
-
 # ============================== BUILDING STEPS ==============================
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
@@ -117,11 +76,6 @@ substitutions:
   _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
   _CLUSTER_NAME: esp-core-cluster
-  _CORE_SERVICE_NAME: esp-core-envoy
-  _CORE_DEPLOYMENT_NAME: esp-core
-  _CORE_INGRESS_NAME: esp-core-managed-cert-ingress
-  _CORE_BACKENDCONFIG_NAME: esp-core-backend-config
-
   
 # Timeout for 30 mins
 timeout: 1800s
