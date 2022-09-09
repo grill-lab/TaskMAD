@@ -2,37 +2,41 @@
 steps:
 # ============================== CLEANING STEPS ==============================
 - name: 'gcr.io/cloud-builders/kubectl'
+  entrypoint: 'bash'
   args:
   - delete
   - services
-  - ${_CORE_SERVICE_NAME} || echo 'Deleting core service...'
+  - ${_CORE_SERVICE_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 - name: 'gcr.io/cloud-builders/kubectl'
+  entrypoint: 'bash'
   args:
   - delete
   - deployments
-  - ${_CORE_DEPLOYMENT_NAME} || echo 'Deleting core deployment...'
+  - ${_CORE_DEPLOYMENT_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 - name: 'gcr.io/cloud-builders/kubectl'
+  entrypoint: 'bash'
   args:
   - delete
   - ingress
-  - ${_CORE_INGRESS_NAME} || echo 'Deleting core ingress...'
+  - ${_CORE_INGRESS_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 - name: 'gcr.io/cloud-builders/kubectl'
+  entrypoint: 'bash'
   args:
   - delete
   - backendconfig
-  - ${_CORE_BACKENDCONFIG_NAME} || echo 'Deleting core backendconfig...'
+  - ${_CORE_BACKENDCONFIG_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
