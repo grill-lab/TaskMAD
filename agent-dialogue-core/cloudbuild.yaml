@@ -6,7 +6,7 @@ steps:
   args:
   - '-c'
   - |
-    delete services ${_CORE_SERVICE_NAME} || exit 0
+    kubectl delete services ${_CORE_SERVICE_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -16,7 +16,7 @@ steps:
   args:
   - '-c'
   - |
-    delete deployments ${_CORE_DEPLOYMENT_NAME} || exit 0
+    kubectl delete deployments ${_CORE_DEPLOYMENT_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -26,7 +26,7 @@ steps:
   args:
   - '-c'
   - |
-    delete ingress ${_CORE_INGRESS_NAME} || exit 0
+    kubectl delete ingress ${_CORE_INGRESS_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -36,7 +36,7 @@ steps:
   args:
   - '-c'
   - |
-    delete backendconfig ${_CORE_BACKENDCONFIG_NAME} || exit 0
+    kubectl delete backendconfig ${_CORE_BACKENDCONFIG_NAME} || exit 0
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
