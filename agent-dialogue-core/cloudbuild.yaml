@@ -1,5 +1,43 @@
 # File need for CD
 steps:
+# ============================== CLEANING STEPS ==============================
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - delete
+  - services
+  - ${_CORE_SERVICE_NAME}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - delete
+  - deployments
+  - ${_CORE_DEPLOYMENT_NAME}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - delete
+  - ingress
+  - ${_CORE_INGRESS_NAME}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  args:
+  - delete
+  - backendconfig
+  - ${_CORE_BACKENDCONFIG_NAME}
+  env:
+  - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
+  - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
+
+# ============================== BUILDING STEPS ==============================
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
@@ -23,6 +61,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}']
 
+# ============================== DEPLOYMENT STEPS ==============================
 # Deploy container image to GKE
 
 # Configure service backend 
@@ -74,6 +113,11 @@ substitutions:
   _K8_INGRESS_FILE: esp_core_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
   _CLUSTER_NAME: esp-core-cluster
+  _CORE_SERVICE_NAME: esp-core-envoy
+  _CORE_DEPLOYMENT_NAME: esp-core
+  _CORE_INGRESS_NAME: esp-core-managed-cert-ingress
+  _CORE_BACKENDCONFIG_NAME: esp-core-backend-config
+
   
 # Timeout for 30 mins
 timeout: 1800s
