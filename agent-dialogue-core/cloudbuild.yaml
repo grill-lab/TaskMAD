@@ -5,7 +5,7 @@ steps:
   args:
   - delete
   - services
-  - ${_CORE_SERVICE_NAME}
+  - ${_CORE_SERVICE_NAME} || echo 'Deleting core service...'
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -14,7 +14,7 @@ steps:
   args:
   - delete
   - deployments
-  - ${_CORE_DEPLOYMENT_NAME}
+  - ${_CORE_DEPLOYMENT_NAME} || echo 'Deleting core deployment...'
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -23,7 +23,7 @@ steps:
   args:
   - delete
   - ingress
-  - ${_CORE_INGRESS_NAME}
+  - ${_CORE_INGRESS_NAME} || echo 'Deleting core ingress...'
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -32,7 +32,7 @@ steps:
   args:
   - delete
   - backendconfig
-  - ${_CORE_BACKENDCONFIG_NAME}
+  - ${_CORE_BACKENDCONFIG_NAME} || echo 'Deleting core backendconfig...'
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
