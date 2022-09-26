@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-import { RecipeCheckboxModel } from "./RecipeCheckboxModel";
+import { SequentialPageCheckboxModel } from "./SequentialPageCheckboxModel"
+import { ISequentialPageModel } from "./SequentialPageModel"
 
-export interface IRecipeModel {
+export class RecipeModel implements ISequentialPageModel {
+
     readonly id: string
     readonly hashedId: string
     readonly pageId: string
@@ -25,78 +27,67 @@ export interface IRecipeModel {
     readonly durationMinutesPrep: number
     readonly durationMinutesTotal: number
     readonly requiredEquipment: string[]
-    readonly requiredIngredient: string[]
+    readonly requiredIngredients: string[]
     readonly sentences: string[]
     readonly stepsSentences: string[][]
     readonly stepsImages: string[][]
     stepsSentencesWithImages: string[][]
-}
 
-export class RecipeModel implements IRecipeModel {
-    constructor(model: IRecipeModel) {
+    constructor(model: ISequentialPageModel,
+        durationMinutesCooking: number,
+        durationMinutesPrep: number,
+        durationMinutesTotal: number,
+        requiredEquipment: string[],
+        requiredIngredients: string[]) {
         this.id = model.id;
         this.hashedId = model.hashedId;
         this.pageId = model.pageId;
         this.pageTitle = model.pageTitle;
-        this.durationMinutesCooking = model.durationMinutesCooking
-        this.durationMinutesPrep = model.durationMinutesPrep
-        this.durationMinutesTotal = model.durationMinutesTotal
-        this.requiredEquipment = model.requiredEquipment
-        this.requiredIngredient = model.requiredIngredient
+        this.durationMinutesCooking = durationMinutesCooking
+        this.durationMinutesPrep = durationMinutesPrep
+        this.durationMinutesTotal = durationMinutesTotal
+        this.requiredEquipment = requiredEquipment
+        this.requiredIngredients = requiredIngredients
         this.sentences = model.sentences
         this.stepsSentences = model.stepsSentences
         this.stepsImages = model.stepsImages
         this.stepsSentencesWithImages = model.stepsSentencesWithImages
     }
 
-    readonly id: string
-    readonly hashedId: string
-    readonly pageId: string
-    readonly pageTitle: string
-    readonly durationMinutesCooking: number
-    readonly durationMinutesPrep: number
-    readonly durationMinutesTotal: number
-    readonly requiredEquipment: string[]
-    readonly requiredIngredient: string[]
-    readonly sentences: string[]
-    readonly stepsSentences: string[][]
-    readonly stepsImages: string[][]
-    stepsSentencesWithImages: string[][]
 
-    public static jsonToRecipeModel = (jsonRecipe: object): RecipeModel => {
-        let jsonObj = JSON.parse(JSON.stringify(jsonRecipe))
-        
+    static jsonToSequentialPageModel = (jsonObject: object): ISequentialPageModel => {
+        let jsonObj = JSON.parse(JSON.stringify(jsonObject))
+
         let recipeModelObj = new RecipeModel({
             id: jsonObj['id'],
             hashedId: jsonObj['hashed_id'],
             pageId: jsonObj['page_id'],
             pageTitle: jsonObj['page_title'],
-            durationMinutesCooking: jsonObj['duration_minutes_cooking'],
-            durationMinutesPrep: jsonObj['duration_minutes_prep'],
-            durationMinutesTotal: jsonObj['duration_minutes_total'],
-            requiredEquipment: jsonObj['required_equipment'],
-            requiredIngredient: jsonObj['required_ingredient'],
             sentences: jsonObj['sentences'],
             stepsSentences: jsonObj['steps_sentences'],
             stepsImages: jsonObj['steps_images'],
-            stepsSentencesWithImages: []
-        });
+            stepsSentencesWithImages: [],
+        },
+            jsonObj['duration_minutes_cooking'],
+            jsonObj['duration_minutes_prep'],
+            jsonObj['duration_minutes_total'],
+            jsonObj['required_equipment'],
+            jsonObj['required_ingredient']);
 
         // Generate the field with sentences and images
-        if(recipeModelObj.stepsSentences !== undefined && recipeModelObj.stepsImages !== undefined){
-            var tempStepsSentencesWithImages = recipeModelObj.stepsSentences.map(function(el, index) {
-                var mergedArrays = el.concat(recipeModelObj.stepsImages[index]);
-                return mergedArrays;
-              });
-              recipeModelObj.stepsSentencesWithImages = tempStepsSentencesWithImages;
-              
+        if (recipeModelObj.stepsSentences !== undefined && recipeModelObj.stepsImages !== undefined) {
+            let tempStepsSentencesWithImages = recipeModelObj.stepsSentences.map(function (el, index) {
+                return el.concat(recipeModelObj.stepsImages[index]);
+            });
+            recipeModelObj.stepsSentencesWithImages = tempStepsSentencesWithImages;
+
         }
 
         return recipeModelObj;
     }
 
-    public recipeModelToRecipeCheckboxModel = (section: string, sectionValue: string): RecipeCheckboxModel =>{
-        let tempRecipeCheckboxModel = new RecipeCheckboxModel({
+    sequentialPageModelToSequentialPageCheckboxModel = (section: string, sectionValue: string): SequentialPageCheckboxModel => {
+        return new SequentialPageCheckboxModel({
             id: this.id,
             hashedId: this.hashedId,
             pageId: this.pageId,
@@ -105,6 +96,5 @@ export class RecipeModel implements IRecipeModel {
             sectionValue: sectionValue
 
         });
-        return tempRecipeCheckboxModel;
     }
 }

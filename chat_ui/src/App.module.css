@@ -3,7 +3,6 @@
 
 
 :root{
-  --main-background-image: url("https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2370&q=80");
   --header-height: 60px;
   --logo-height: 40px;
   --main-title-font-size: 40px;
@@ -21,14 +20,12 @@
   position: absolute;
   display: flex;
   flex-direction: column;
-  background-image: var(--main-background-image);
   background-size: cover;
 }
 
 .appHeader {
   background-color: var(--header-top);
   height: var(--header-height);
-  background-color: black;
 }
 
 .appLogo {

@@ -13,7 +13,7 @@ steps:
   args:
   - apply
   - -f
-  - ${_ROOT_FOLDER}/${_FRONTEND_CONFIG_FILE}
+  - ${_ROOT_FOLDER}/${_CONFIG_PATH}/${_FRONTEND_CONFIG_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -22,7 +22,7 @@ steps:
   args:
   - apply
   - -f
-  - ${_ROOT_FOLDER}/${_K8_FILE}
+  - ${_ROOT_FOLDER}/${_CONFIG_PATH}/${_K8_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
@@ -31,21 +31,22 @@ steps:
   args:
   - apply
   - -f
-  - ${_ROOT_FOLDER}/${_INGRESS_FILE}
+  - ${_ROOT_FOLDER}/${_CONFIG_PATH}/${_INGRESS_FILE}
   env:
   - CLOUDSDK_COMPUTE_REGION=${_CLUSTER_LOCATION}
   - CLOUDSDK_CONTAINER_CLUSTER=${_CLUSTER_NAME}
 
 substitutions:
-  _ROOT_FOLDER: chat_ui
   _ARTIFACT_REGISTRY_REPOSITORY: task-mad-images-repository
-  _IMAGE_NAME: chat
-  _IMAGE_VERSION: latest
-  _FRONTEND_CONFIG_FILE: frontend_config.yaml
-  _K8_FILE: chat_deployment_nginx.yaml
-  _INGRESS_FILE: chat_managed_cert_ingress.yaml
   _CLUSTER_LOCATION: europe-central2-a
   _CLUSTER_NAME: chat-cluster
+  _IMAGE_NAME: chat
+  _IMAGE_VERSION: latest
+  _ROOT_FOLDER: chat_ui
+  _CONFIG_PATH: deployment_config/cloud
+  _FRONTEND_CONFIG_FILE: frontend_config.yaml
+  _INGRESS_FILE: chat_managed_cert_ingress.yaml
+  _K8_FILE: chat_deployment.yaml
   
     
 # Time out after 30 minutes

@@ -1,8 +1,7 @@
 import React, { Component } from "react"
 import css from "./App.module.css"
-// import {HomePanel} from "./home/HomePanel"
-// import {RatingsPanel} from "./ratings/RatingsPanel"
-import logo from "./resources/img/uog_logo.png"
+import { ChatConfigs } from "./common/chat_ui_configs"
+import logo from "./resources/img/chat_ui_logo.png"
 import { WoZPanel } from "./woz/WoZPanel"
 
 // tslint:disable-next-line:interface-name
@@ -18,12 +17,14 @@ class App extends Component<{}, IAppState> {
     super(props)
 
     const params: StringMap = {
-      conversationID: "test",
-      url: "https://backend-server.online",
-      userID: "user",
-      isAudioRecordingEnabled: '',
-      isTextToSpeechEnabled: '',
-      isSequentialNavigationEnabled: ''
+      conversationID: ChatConfigs.conversation_id,
+      url: ChatConfigs.url,
+      userID: ChatConfigs.userID,
+      isAudioRecordingEnabled: ChatConfigs.isAudioRecordingEnabled,
+      isTextToSpeechEnabled: ChatConfigs.isTextToSpeechEnabled,
+      isSequentialNavigationEnabled: ChatConfigs.isSequentialNavigationEnabled,
+      isSequentialComponentFullPage: ChatConfigs.isSequentialComponentFullPage,
+      showSequentialPageCheckboxes: ChatConfigs.showSequentialPageCheckboxes
     }
     new URL(window.location.href)
       .searchParams.forEach((value, key) => {
@@ -38,39 +39,14 @@ class App extends Component<{}, IAppState> {
 
   public render() {
 
-    // const panes = [
-    //   {
-    //     menuItem: "Home",
-    //     render: () => <Tab.Pane
-    //         className={css.mainTabPane} attached><HomePanel/></Tab.Pane>,
-    //   },
-    //   { menuItem: "Offline MT Ratings",
-    //     render: () => <Tab.Pane
-    //         className={css.mainTabPane} attached><RatingsPanel/></Tab.Pane>,
-    //   },
-    //   { menuItem: "TaskMAD",
-    //     render: () => <Tab.Pane
-    //         className={css.mainTabPane} attached>
-    //       <WoZPanel params={this.state.params}/></Tab.Pane>,
-    //   },
-    // ]
-
     return (
-      <div className={css.app}>
+      <div className={css.app} style={{ backgroundImage: `url(${ChatConfigs.chat_ui_background_image})` }}>
         <div className={css.overlayLayer}>
-          <header className={css.appHeader}>
+          <header className={css.appHeader} style={{ backgroundColor: ChatConfigs.chat_ui_header_color }}>
             <img src={logo} className={css.appLogo} alt="logo" />
-            <h1 className={css.appTitle}>TaskMAD</h1>
+            <h1 className={css.appTitle}>{ChatConfigs.chat_ui_title}</h1>
           </header>
-          {/* <Tab className={css.mainTab}
-              menu={{
-                attached: true,
-                color: "orange",
-                inverted: true,
-                tabular: false }}
-              panes={panes} /> */}
           <WoZPanel params={this.state.params} />
-          <a className={css.appFooter} href="https://www.flaticon.com/free-icons/chatbot" title="chatbot icons"></a>
         </div>
       </div>
     )

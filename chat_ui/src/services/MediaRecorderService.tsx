@@ -61,13 +61,12 @@ export class MediaRecorderAPIService implements IMediaRecorderService {
     }
 
     private createMediaBlob(): Blob {
-        const blob = new Blob(
+        return new Blob(
             this.mediaChunks, {
             'type': this.videoConstraints ?
                 this.videoFormat : this.audioFormat,
 
         });
-        return blob;
     }
 
 

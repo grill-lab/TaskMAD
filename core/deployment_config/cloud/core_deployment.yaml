@@ -48,7 +48,7 @@ spec:
         ports:
           - containerPort: 8070
         volumeMounts:
-          - mountPath: "code/keys"
+          - mountPath: "code/deployment_config/keys"
             name: disk-core-volume 
       - name: grpc-health-proxy
         image: europe-west2-docker.pkg.dev/agentdialogue-2cd4b/task-mad-images-repository/grpc-health-proxy:latest

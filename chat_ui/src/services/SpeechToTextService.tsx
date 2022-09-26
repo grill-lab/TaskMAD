@@ -7,7 +7,7 @@ interface ISpeechToTextService {
 export class GoogleAPISpeechToTextService implements ISpeechToTextService {
     public async base64StringToText(base64String: string, connection: ADConnection): Promise<string> {
 
-        var speechToText: string = await connection.agentSpeechToTextInteractionApi(base64String);
+        let speechToText: string = await connection.agentSpeechToTextInteractionApi(base64String);
 
         return speechToText;
     }

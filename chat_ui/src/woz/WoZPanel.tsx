@@ -7,10 +7,10 @@ import { convertDateToTimestamp, convertTimestampToDate, stringToBoolean } from 
 import { ChatComponent } from "../components/ChatComponent"
 import { Dialogue } from "../components/DialogueModel"
 import { Message } from "../components/MessageModel"
-import { RecipePageComponent } from "../components/RecipePageComponent"
+import { SequentialPageComponent } from "../components/SequentialPageComponent"
 import { InteractionLogs, InteractionType } from "../generated/client_pb"
-import { RecipeCheckboxModel } from "../models/RecipeCheckboxModel"
-import { RecipeModel } from "../models/RecipeModel"
+import { SequentialPageCheckboxModel } from "../models/SequentialPageCheckboxModel"
+import { ISequentialPageModel } from "../models/SequentialPageModel"
 import { RecipeService } from "../services/RecipeService"
 import css from "./WoZPanel.module.css"
 
@@ -32,6 +32,8 @@ interface IWozParams {
   isAudioRecordingEnabled?: boolean,
   isTextToSpeechEnabled?: boolean,
   isSequentialNavigationEnabled?: boolean
+  isSequentialComponentFullPage?: boolean
+  showSequentialPageCheckboxes?: boolean
   dropdownRecipes?: object[],
 }
 
@@ -62,7 +64,9 @@ export class WoZPanel
       selectedRecipeId: (props.params.selectedRecipeId || "").trim(),
       isAudioRecordingEnabled: stringToBoolean(props.params.isAudioRecordingEnabled),
       isTextToSpeechEnabled: stringToBoolean(props.params.isTextToSpeechEnabled),
-      isSequentialNavigationEnabled: stringToBoolean(props.params.isSequentialNavigationEnabled)
+      isSequentialNavigationEnabled: stringToBoolean(props.params.isSequentialNavigationEnabled),
+      isSequentialComponentFullPage: stringToBoolean(props.params.isSequentialComponentFullPage),
+      showSequentialPageCheckboxes: stringToBoolean(props.params.showSequentialPageCheckboxes),
     }
 
     this.state = {
@@ -84,7 +88,9 @@ export class WoZPanel
         selectedRecipeId: this.state.params.selectedRecipeId,
         isAudioRecordingEnabled: this.state.params.isAudioRecordingEnabled,
         isTextToSpeechEnabled: this.state.params.isTextToSpeechEnabled,
-        isSequentialNavigationEnabled: this.state.params.isSequentialNavigationEnabled
+        isSequentialNavigationEnabled: this.state.params.isSequentialNavigationEnabled,
+        isSequentialComponentFullPage: this.state.params.isSequentialComponentFullPage,
+        showSequentialPageCheckboxes: this.state.params.showSequentialPageCheckboxes
 
       }
     })
@@ -195,8 +201,8 @@ interface IWoZDialogueProperties {
 
 interface IWoZDialogueState {
   dialogue: Dialogue,
-  selectedCheckboxList: RecipeCheckboxModel[]
-  selectedRecipe?: RecipeModel
+  selectedCheckboxList: SequentialPageCheckboxModel[]
+  selectedSequentialPage?: ISequentialPageModel
 }
 
 class WoZDialogue
@@ -204,8 +210,6 @@ class WoZDialogue
 
   constructor(props: IWoZDialogueProperties) {
     super(props)
-
-    // console.log(this.props)
 
     this.state = {
       dialogue: props.dialogue === undefined
@@ -216,7 +220,6 @@ class WoZDialogue
     this.props.connection.subscribe({
       conversationID: this.props.params.conversationID,
       onResponse: ((response) => {
-        // console.log("response: ", response)
         const reply = response.asTextResponse()
         const message = new Message({
           ...reply,
@@ -237,7 +240,7 @@ class WoZDialogue
 
     if (recipe !== undefined) {
       this.setState({
-        selectedRecipe: recipe
+        selectedSequentialPage: recipe
       });
     }
 
@@ -292,7 +295,7 @@ class WoZDialogue
   }
 
   // Method used in order to keep track of the pressed buttons
-  private onSelectCheckbox = (selectedCheckbox: RecipeCheckboxModel) => {
+  private onSelectCheckbox = (selectedCheckbox: SequentialPageCheckboxModel) => {
 
     // Flag used in order to detect whether we are checking or unchecking a recipe
     let flagCheckboxRemoved = false;
@@ -329,7 +332,7 @@ class WoZDialogue
 
   // Method used to send a message to the Wizard when the user navigates to a new
   // section 
-  private onRecipeSectionButtonClick = (sectionKey: string) => {
+  private onSectionButtonClick = (sectionKey: string) => {
     // We need now to send a message to the wizad. This message will be of type status and the user won't be able to see it. 
     // It will only be used by the wizard to know which parts of the interface the user is looking at. 
     // However we first need to generate the specific message text for the wizard
@@ -347,15 +350,17 @@ class WoZDialogue
 
     return (<Grid id={css.appGroupId}>
       <Grid.Column width={8} className={css.gridColumn}>
-        <RecipePageComponent
-          recipeObj={this.state.selectedRecipe}
+        <SequentialPageComponent
+          sequentialPageObj={this.state.selectedSequentialPage}
           onSelectCheckbox={this.onSelectCheckbox}
           selectedCheckboxList={this.state.selectedCheckboxList}
-          onRecipeSectionButtonClick={this.onRecipeSectionButtonClick}
+          onSectionButtonClick={this.onSectionButtonClick}
           dialogue={this.state.dialogue}
           us={this.props.params.userID}
           isSequentialNavigationEnabled={this.props.params.isSequentialNavigationEnabled}
-          isTextToSpeechEnabled={this.props.params.isTextToSpeechEnabled}></RecipePageComponent>
+          isTextToSpeechEnabled={this.props.params.isTextToSpeechEnabled}
+          isSequentialComponentFullPage={this.props.params.isSequentialComponentFullPage}
+          showSequentialPageCheckboxes={this.props.params.showSequentialPageCheckboxes}></SequentialPageComponent>
       </Grid.Column>
       <Grid.Column width={8}>
         <ChatComponent
@@ -368,6 +373,6 @@ class WoZDialogue
           isTextToSpeechEnabled={this.props.params.isTextToSpeechEnabled}
         />
       </Grid.Column>
-    </Grid>);
+    </Grid >);
   }
 }
