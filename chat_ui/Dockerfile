@@ -10,6 +10,7 @@ RUN npm install
 # add app
 COPY . ./
 # start app
+RUN chmod +x /app/node_modules/.bin/react-scripts
 RUN npm run build
 
 FROM nginx:latest
