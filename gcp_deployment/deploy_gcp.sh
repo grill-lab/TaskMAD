@@ -232,43 +232,61 @@ build_and_push_local_images() {
     echo_color "> All images built and pushed to remote repo!\n"
 }
 
+format_disk() {
+    # Format a newly-created gcloud disk so it can be used as backing
+    # for a volume (they can't be auto-formatted if used in ReadOnly mode
+    # it seems)
+    #
+    #  $1 = disk name
+    #
+    # Return value: ignored (should exit on error)
+
+    # There isn't a simple command to format a disk, so the best way I've been
+    # able to find is to create a small VM instance, attach the disk, format it
+    # through that, and then detach it and dispose of the VM again...
+
+    # creating a basic VM
+    echo_color " - Creating a VM to format the new disk...\n"
+    gcloud compute instances create "${vm_name}" --image-family=debian-11 --image-project=debian-cloud --machine-type=f1-micro --network-tier=STANDARD 2>/dev/null
+
+    # attach the newly created disk
+    echo_color " - Attaching disk...\n"
+    gcloud compute instances attach-disk "${vm_name}" --disk "${1}" 2>/dev/null
+
+    # check SSH access works (and generate a key silently with --quiet)
+    gcloud compute ssh "${vm_name}" --command "ls /" --quiet >/dev/null 2>&1
+
+    # the disk should now be mounted at /dev/sdb, format it
+    # TODO does the disk name show up in the OS so the device can be confirmed?
+    echo_color " - Formatting the disk...\n"
+    gcloud compute ssh "${vm_name}" --command "sudo /sbin/mkfs.ext4 -q /dev/sdb"
+
+    # detach the disk from the VM
+    echo_color " - Detaching disk and deleting VM...\n"
+    gcloud compute instances detach-disk "${vm_name}" --disk "${1}" 2>/dev/null
+
+    # dispose of VM
+    gcloud compute instances delete "${vm_name}" --quiet 2>/dev/null
+
+    echo_color " - Disk was successfully formatted!\n"
+}
+
+copy_keys_to_disk() {
+    # TODO 
+    # copying keys could be done something like this while the disk is attached to a VM
+    #
+    # gcloud compute ssh testvm --command "sudo mkdir /mnt/pd && sudo mount /dev/sdb /mnt/pd && sudo chmod -R a+rwx /mnt/pd"
+    # gcloud compute scp server-cert.pem server-key.pem tempvm:/mnt/pd/keys
+    # gcloud compute ssh testvm --command "sudo chmod a+r /mnt/pd/* && umount /mnt/pd"
+    0
+}
+
 setup_disks() {
     # Creates (if necessary) the disks used to back the persistent volumes for 
     # the deployments
     #
     # Return value: ignored (should exit on error)
 
-    # TODO this also needs to format the created disk somehow, i think by 
-    # creating a VM and then using it to format??? 
-    # https://gist.github.com/pydevops/cffbd3c694d599c6ca18342d3625af97#0165-ssh--scp
-
-    # ensure we have an SSH key without prompting for a passphrase by adding --quiet
-    #gcloud compute ssh testvm --command "ls /" --quiet
-
-    # creating a VM
-    # gcloud compute instances create tempvm --image-family=debian-11 --image-project=debian-cloud --machine-type=f1-micro --network-tier=STANDARD 
-
-    # create a disk as usual
-    # gcloud compute disks create testdisk --size 10GB
-
-    # attach to VM
-    # gcloud compute instances attach-disk testvm --disk testdisk
-
-    # disk should now be /dev/sdb
-    # format with ext4
-    # gcloud compute ssh testvm --command "sudo /sbin/mkfs.ext4 -q /dev/sdb"
-    
-    # setup and copy keys
-    # gcloud compute ssh testvm --command "sudo mkdir /mnt/pd && sudo mount /dev/sdb /mnt/pd && sudo chmod -R a+rwx /mnt/pd"
-    # gcloud compute scp server-cert.pem server-key.pem tempvm:/mnt/pd/keys
-    # gcloud compute ssh testvm --command "sudo chmod a+r /mnt/pd/* && umount /mnt/pd"
-
-    # deattach disk
-    # gcloud compute instances detach-disk testvm --disk testdisk
-
-    # dispose of VM
-    # gcloud compute instances delete testvm --quiet
-    
     echo_color "> Creating disks (if necessary)\n"
     for d in "${deployments[@]}"
     do
@@ -285,6 +303,8 @@ setup_disks() {
             else
                 echo_color " - Creating disk ${!disk_name} with size ${!disk_size}GB\n"
                 gcloud compute disks create "${!disk_name}" --size="${!disk_size}GB" --zone="${zone}" >/dev/null 2>&1 
+
+                format_disk "${!disk_name}"
             fi
         fi
     done
@@ -438,6 +458,7 @@ cleanup_resources() {
     #  - delete the disk used for persistent storage
     #  - delete artifact repo to get rid of the images inside
     #  - delete the reserved IPs 
+    #  - delete the temporary VM used to format disks (might be left running if an error occurs)
 
     echo_color "*** WARNING: this will attempt to delete the following resources\n" "${RED}"
     echo_color " - Repository:\t ${repo_name}\n" "${YELLOW}"
@@ -453,6 +474,7 @@ cleanup_resources() {
         fi
         echo_color " - Static IP:\t ${!ip}\n" "${YELLOW}"
     done
+    echo_color " - VM instance:\t ${vm_name}\n" "${YELLOW}"
 
     echo ""
     read -p "Do you wish to continue (y/n)? " -n 1 -r
@@ -497,6 +519,12 @@ cleanup_resources() {
         if ! gcloud artifacts repositories delete "${repo_name}" --location="${region}" --quiet 2> /dev/null
         then
             echo_color "> Failed to delete artifact repo (may already have been deleted)\n" "${YELLOW}"
+        fi
+
+        echo_color "> Deleting temporary VM instances ${vm_name}\n"
+        if ! gcloud compute instances delete "${vm_name}" --quiet 2> /dev/null
+        then
+            echo_color "> Failed to delete VM instance (may already have been deleted)\n" "${YELLOW}"
         fi
     else
         echo_color "No resources have been deleted.\n"
