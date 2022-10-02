@@ -1,0 +1,146 @@
+# TaskMAD Google Cloud deployment parameters
+
+# Cross-deployment parameters
+# ===========================
+# compute region for the deployment, e.g. europe-west2. Different zones may have different
+# costs associated with them
+declare -r region="europe-west2"
+# compute zone for the deployment (this should be a zone within the above region, e.g. europe-west2-a)
+declare -r zone="europe-west2-a"
+# the names of the services that are required for the deployments:
+# - Kubernetes Engine API
+# - Artifact Registry API
+# - Compute Engine API
+declare -a required_services=( container.googleapis.com artifactregistry.googleapis.com compute.googleapis.com )
+# label used to identify the artifact repository created to store the Docker images required
+# by the Kubernetes deployment
+declare -r repo_name="taskmad-repo"
+# deployment names for use by the script (should match the names used below)
+# can be overridden with DEPLOYMENTS env var if needed
+declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
+# URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
+declare -a config_url=( "http://dcs.gla.ac.uk/~adr/taskmad.json" )
+
+# Parameters for the core deployment 
+# ==================================
+declare -A core
+# machine-type for the Kubernetes cluster nodes. These are described at https://cloud.google.com/compute/docs/machine-types
+# and significantly affect the pricing of the cluster.
+core[machine_type]="g1-small"
+# number of nodes in the cluster node pool. Increasing this will increase costs.
+core[node_count]=1
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+core[boot_disk_size_gb]=32
+# disk size in gigabytes for the persistent disk used for the PVC
+core[disk_size_gb]=10
+# label for the reserved static IP for the deployment
+core[ip]="ip-core"
+# cluster name
+core[cluster_name]="esp-core-cluster"
+# deployment name
+core[deployment_name]="esp-core"
+# persistent volume claim name (blank if none required)
+core[pvc_name]="disk-core-claim"
+# disk label for the disk backing the PV (blank if none required)
+core[disk_name]="testdisk" # TODO disk-core-disk
+# path to script to generate a deployment 
+core[deployment_script]="./create_core_deployment.sh"
+# name of service for accessing the deployment
+core[service_name]="esp-core-envoy"
+# path to PVC/PV template file (blank if none required)
+core[pvc_file]="../agent-dialogue-core/persistent_volume_k8s.yaml"
+# Docker build command
+core[docker_build_script]="./build_images_core.sh"
+
+# Parameters for the chat deployment 
+# ==================================
+declare -A chat
+# machine-type for the Kubernetes cluster nodes. These are described at https://cloud.google.com/compute/docs/machine-types
+# and significantly affect the pricing of the cluster.
+chat[machine_type]="g1-small"
+# number of nodes in the cluster node pool. Increasing this will increase costs.
+chat[node_count]=1
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+chat[boot_disk_size_gb]=32
+# disk size in gigabytes for the persistent disk used for the PVC
+chat[disk_size_gb]=0
+# label for the reserved static IP for the deployment
+chat[ip]="ip-chat"
+# cluster name
+chat[cluster_name]="chat-cluster"
+# deployment name
+chat[deployment_name]="esp-chat"
+# persistent volume claim name (blank if none required)
+chat[pvc_name]=""
+# disk label for the disk backing the PV (blank if none required)
+chat[disk_name]=""
+# path to script to generate a deployment 
+chat[deployment_script]="./create_chat_deployment.sh"
+# name of service for accessing the deployment
+chat[service_name]="chat-app" # TODO
+# path to PVC/PV template file (blank if none required)
+chat[pvc_file]=""
+# Docker build command
+chat[docker_build_script]="./build_images_chatui.sh"
+
+# Parameters for the Search API deployment 
+# ==================================
+declare -A search
+# machine-type for the Kubernetes cluster nodes. These are described at https://cloud.google.com/compute/docs/machine-types
+# and significantly affect the pricing of the cluster.
+search[machine_type]="e2-standard-4"
+# number of nodes in the cluster node pool. Increasing this will increase costs.
+search[node_count]=1
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+search[boot_disk_size_gb]=100
+# disk size in gigabytes for the persistent disk used for the PVC
+search[disk_size_gb]=100
+# label for the reserved static IP for the deployment
+search[ip]="ip-search"
+# cluster name
+search[cluster_name]="search-cluster"
+# deployment name
+search[deployment_name]="search-api-app"
+# persistent volume claim name (blank if none required)
+search[pvc_name]="disk-indexes-claim"
+# disk label for the disk backing the PV (blank if none required)
+search[disk_name]="disk-indexes-disk"
+# path to script to generate a deployment 
+search[deployment_script]=""
+# name of service for accessing the deployment
+search[service_name]="" # TODO
+# path to PVC/PV template file (blank if none required)
+search[pvc_file]="" # TODO
+# Docker build command
+search[docker_build_script]="./build_images_searchapi.sh" 
+
+# Parameters for the WOz deployment 
+# ==================================
+declare -A woz
+# machine-type for the Kubernetes cluster nodes. These are described at https://cloud.google.com/compute/docs/machine-types
+# and significantly affect the pricing of the cluster.
+woz[machine_type]="g1-small"
+# number of nodes in the cluster node pool. Increasing this will increase costs.
+woz[node_count]=1
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+woz[boot_disk_size_gb]=32
+# disk size in gigabytes for the persistent disk used for the PVC
+woz[disk_size_gb]=10
+# label for the reserved static IP for the deployment
+woz[ip]="ip-woz"
+# cluster name
+woz[cluster_name]="woz-cluster"
+# deployment name
+woz[deployment_name]="woz-app" 
+# persistent volume claim name (blank if none required)
+woz[pvc_name]=""
+# disk label for the disk backing the PV (blank if none required)
+woz[disk_name]=""
+# path to script to generate a deployment 
+woz[deployment_script]=""
+# name of service for accessing the deployment
+woz[service_name]="" # TODO
+# path to PVC/PV template file (blank if none required)
+woz[pvc_file]=""
+# Docker build command
+woz[docker_build_script]="./build_images_woz.sh"
