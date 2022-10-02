@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: esp-core-managed-cert-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: IP_NAME
+    # Enable this flag if we want to use the self-managed certificate
+    networking.gke.io/managed-certificates: esp-core-managed-cert
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/v1beta1.FrontendConfig: redirect-http-to-https
+spec:
+  defaultBackend:
+    service:
+      name: SERVICE_NAME
+      port:
+        number: 80
