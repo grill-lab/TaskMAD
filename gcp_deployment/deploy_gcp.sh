@@ -267,12 +267,27 @@ format_disk() {
     echo_color " - Creating a VM to format the new disk...\n"
     gcloud compute instances create "${vm_name}" --image-family=debian-11 --image-project=debian-cloud --machine-type=f1-micro --network-tier=STANDARD 2>/dev/null
 
+    # check SSH access works (and generate a key silently with --quiet)
+    # this might fail if the VM is still booting, try a few times with a
+    # delay between attempts
+    declare num_retries=3
+    declare retry_delay=2
+
+    for (( i=1; i<=num_retries; i++ )) 
+    do
+        echo_color " - Generating SSH keys\n"
+        if ! gcloud compute ssh "${vm_name}" --command "ls /" --quiet >/dev/null 2>&1
+        then
+            echo_color "    (retry #${i}/${num_retries})\n" "${YELLOW}"
+            sleep "${retry_delay}"
+        else
+            break
+        fi
+    done
+
     # attach the newly created disk
     echo_color " - Attaching disk...\n"
     gcloud compute instances attach-disk "${vm_name}" --disk "${1}" 2>/dev/null
-
-    # check SSH access works (and generate a key silently with --quiet)
-    gcloud compute ssh "${vm_name}" --command "ls /" --quiet >/dev/null 2>&1
 
     # the disk should now be mounted at /dev/sdb, format it
     # TODO does the disk name show up in the OS so the device can be confirmed?
