@@ -46,7 +46,7 @@ core[pvc_name]="disk-core-claim"
 # persistent volume name (blank if none required)
 core[pv_name]="disk-core"
 # disk label for the disk backing the PV (blank if none required)
-core[disk_name]="testdisk" # TODO disk-core-disk
+core[disk_name]="disk-core-disk"
 # path to script to generate a deployment 
 core[deployment_script]="./create_core_deployment.sh"
 # name of service for accessing the deployment
@@ -81,7 +81,7 @@ chat[disk_name]=""
 # path to script to generate a deployment 
 chat[deployment_script]="./create_chat_deployment.sh"
 # name of service for accessing the deployment
-chat[service_name]="chat-app" # TODO
+chat[service_name]="chat-app"
 # Docker build command
 chat[docker_build_script]="./build_images_chatui.sh"
 
@@ -110,9 +110,9 @@ search[pv_name]="disk-indexes"
 # disk label for the disk backing the PV (blank if none required)
 search[disk_name]="disk-indexes-disk"
 # path to script to generate a deployment 
-search[deployment_script]=""
+search[deployment_script]="./create_search_deployment.sh"
 # name of service for accessing the deployment
-search[service_name]="" # TODO
+search[service_name]="search-api-service" 
 # Docker build command
 search[docker_build_script]="./build_images_searchapi.sh" 
 
