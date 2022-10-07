@@ -43,6 +43,8 @@ core[cluster_name]="esp-core-cluster"
 core[deployment_name]="esp-core"
 # persistent volume claim name (blank if none required)
 core[pvc_name]="disk-core-claim"
+# persistent volume name (blank if none required)
+core[pv_name]="disk-core"
 # disk label for the disk backing the PV (blank if none required)
 core[disk_name]="testdisk" # TODO disk-core-disk
 # path to script to generate a deployment 
@@ -74,6 +76,8 @@ chat[cluster_name]="chat-cluster"
 chat[deployment_name]="esp-chat"
 # persistent volume claim name (blank if none required)
 chat[pvc_name]=""
+# persistent volume name (blank if none required)
+chat[pv_name]=""
 # disk label for the disk backing the PV (blank if none required)
 chat[disk_name]=""
 # path to script to generate a deployment 
@@ -105,6 +109,8 @@ search[cluster_name]="search-cluster"
 search[deployment_name]="search-api-app"
 # persistent volume claim name (blank if none required)
 search[pvc_name]="disk-indexes-claim"
+# persistent volume name (blank if none required)
+search[pv_name]="disk-indexes"
 # disk label for the disk backing the PV (blank if none required)
 search[disk_name]="disk-indexes-disk"
 # path to script to generate a deployment 
@@ -136,6 +142,8 @@ woz[cluster_name]="woz-cluster"
 woz[deployment_name]="woz-app" 
 # persistent volume claim name (blank if none required)
 woz[pvc_name]=""
+# persistent volume name (blank if none required)
+woz[pv_name]=""
 # disk label for the disk backing the PV (blank if none required)
 woz[disk_name]=""
 # path to script to generate a deployment 
