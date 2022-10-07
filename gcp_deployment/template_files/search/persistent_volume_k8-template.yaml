@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: PV_NAME
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadOnlyMany
+  claimRef:
+    namespace: default
+    name: PVC_NAME
+  gcePersistentDisk:
+    pdName: DISK_NAME
+    fsType: ext4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: PVC_NAME
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: DISK_SIZEGi

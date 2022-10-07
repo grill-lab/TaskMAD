@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: SERVICE_NAME
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: DEPLOYMENT_NAME
+  type: LoadBalancer
+  loadBalancerIP: "IP_ADDR"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: DEPLOYMENT_NAME
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: search-api-custom
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: DEPLOYMENT_NAME
+        app.kubernetes.io/name: search-api-custom
+    spec:
+      volumes:
+        - name: disk-indexes-volume
+          persistentVolumeClaim:
+            claimName: PVC_NAME
+      containers:
+      - name: search-api
+        image: IMAGE_REPO/search-api:latest
+        imagePullPolicy: Always
+        stdin: true
+        ports:
+          - containerPort: 5000
+        volumeMounts:
+          - mountPath: "usr/api/data"
+            name: disk-indexes-volume
+
