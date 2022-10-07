@@ -22,6 +22,10 @@ declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 declare -a config_url=( "http://dcs.gla.ac.uk/~adr/taskmad.json" )
 # name of the temporary VM used during deployment to format disks
 declare -a vm_name="tempvm"
+# phases of resource creation the script goes through. These can be 
+# overridden to skip creating unnecessary resources or already-existing resources
+# through the PHASES env var
+declare -a create_phases=( ${PHASES:-services tier repo ips images disks clusters} )
 
 # Parameters for the core deployment 
 # ==================================
