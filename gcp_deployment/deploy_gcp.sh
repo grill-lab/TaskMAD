@@ -37,6 +37,24 @@ echo_color() {
     echo -en "${color}${1}${NC}"
 }
 
+is_phase_enabled() {
+    # Check if a deployment phase is enabled in the current configuration
+    # 
+    # Arguments:
+    #   $1 = name of the phase
+    #
+    # Return value: 0 if the phase is enabled, 1 if not
+    
+    for phase in "${create_phases[@]}"
+    do
+        if [[ "${phase}" == "${1}" ]]
+        then 
+            return 0
+        fi
+    done
+    return 1
+}
+
 is_response_not_empty() {
     # Check if a gcloud response is empty or not
     # 
@@ -633,26 +651,49 @@ then
     setup_deployments
 elif [[ "${1}" == "create" ]]
 then
+    # allow only selected steps to be executed using phases variable
+
     # check for the required GCP services being enabled and enable them if necessary
-    check_and_enable_required_services
+    if is_phase_enabled "services"
+    then
+        check_and_enable_required_services
+    fi
 
     # check the project is set to PREMIUM network tier
-    check_and_update_network_tier
+    if is_phase_enabled "tier"
+    then
+        check_and_update_network_tier
+    fi
 
     # create an artifact repository to host all the deployment Docker images in the desired region
-    setup_artifact_repository "${gcloud_project_id}"
+    if is_phase_enabled "repo"
+    then
+        setup_artifact_repository "${gcloud_project_id}"
+    fi
 
     # create the external IPs required for the deployment in the desired region using the specified network tier
-    setup_external_ips 
+    if is_phase_enabled "ips"
+    then 
+        setup_external_ips 
+    fi
 
     # build all local Docker images and push them to the newly created repo
-    build_and_push_local_images 
+    if is_phase_enabled "images"
+    then
+        build_and_push_local_images 
+    fi
 
     # create the disks required for persistent storage 
-    setup_disks 
+    if is_phase_enabled "disks"
+    then
+        setup_disks 
+    fi
 
     # (if necessary) create a Kubernetes cluster to host each deployment using the supplied parameters
-    setup_clusters 
+    if is_phase_enabled "clusters"
+    then
+        setup_clusters 
+    fi
 else
     echo_color "Unrecognised parameter \"${1}\"\n"
     exit 1
