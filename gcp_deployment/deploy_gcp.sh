@@ -440,10 +440,6 @@ setup_deployment() {
     # 
     # Return value: ignored (should exit on error)
 
-    # # retrieve the IP addresses already created
-    # core_ip_addr=$(get_address_for_ip "${3}")
-    # chat_ip_addr=$(get_address_for_ip "${4}")
-
     declare -r params="${deployments[${1}]}"
     declare -r deployment_name="${params}[deployment_name]"
     declare -r deployment_script="${params}[deployment_script]"
