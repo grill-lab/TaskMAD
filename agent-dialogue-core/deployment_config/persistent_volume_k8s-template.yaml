@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: disk-core
+  name: PV_NAME
 spec:
   storageClassName: standard
   capacity:
@@ -10,7 +10,7 @@ spec:
     - ReadOnlyMany
   claimRef:
     namespace: default
-    name: disk-core-claim
+    name: PVC_NAME
   gcePersistentDisk:
     pdName: DISK_NAME
     fsType: ext4
@@ -18,11 +18,11 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: disk-core-claim
+  name: PVC_NAME
 spec:
   storageClassName: standard
   accessModes:
     - ReadOnlyMany
   resources:
     requests:
-      storage: 10Gi
+      storage: DISK_SIZEGi
