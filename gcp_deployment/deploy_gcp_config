@@ -51,8 +51,6 @@ core[disk_name]="testdisk" # TODO disk-core-disk
 core[deployment_script]="./create_core_deployment.sh"
 # name of service for accessing the deployment
 core[service_name]="esp-core-envoy"
-# path to PVC/PV template file (blank if none required)
-core[pvc_file]="../agent-dialogue-core/persistent_volume_k8s.yaml"
 # Docker build command
 core[docker_build_script]="./build_images_core.sh"
 
@@ -84,8 +82,6 @@ chat[disk_name]=""
 chat[deployment_script]="./create_chat_deployment.sh"
 # name of service for accessing the deployment
 chat[service_name]="chat-app" # TODO
-# path to PVC/PV template file (blank if none required)
-chat[pvc_file]=""
 # Docker build command
 chat[docker_build_script]="./build_images_chatui.sh"
 
@@ -117,8 +113,6 @@ search[disk_name]="disk-indexes-disk"
 search[deployment_script]=""
 # name of service for accessing the deployment
 search[service_name]="" # TODO
-# path to PVC/PV template file (blank if none required)
-search[pvc_file]="" # TODO
 # Docker build command
 search[docker_build_script]="./build_images_searchapi.sh" 
 
@@ -150,7 +144,5 @@ woz[disk_name]=""
 woz[deployment_script]=""
 # name of service for accessing the deployment
 woz[service_name]="" # TODO
-# path to PVC/PV template file (blank if none required)
-woz[pvc_file]=""
 # Docker build command
 woz[docker_build_script]="./build_images_woz.sh"
