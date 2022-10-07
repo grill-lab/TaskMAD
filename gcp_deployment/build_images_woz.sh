@@ -10,13 +10,13 @@ set -o pipefail  # don't hide errors within pipes
 #   $1 = path to full config file
 #   $2 = remote docker repo to tag images for
 
-if [[ $# -ne 1 ]]
+if [[ $# -ne 2 ]]
 then
-    echo "build_images_woz.sh <remote-repo>"
+    echo "build_images_woz.sh <config file path> <remote-repo>"
     exit 1
 fi
 
-# declare -r config_file="${1}"
+declare -r config_file="${1}"
 declare -r remote="${2}"
 
 script_path="$( dirname -- "$0"; )"
