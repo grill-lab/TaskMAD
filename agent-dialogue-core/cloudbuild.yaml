@@ -1,5 +1,6 @@
 # File need for CD
 steps:
+# ============================== BUILDING STEPS ==============================
 # Build the image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/envoy:${_IMAGE_VERSION}', '-f', 'config/envoy_updated.Dockerfile', 'config/.']
@@ -23,6 +24,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'europe-west2-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REGISTRY_REPOSITORY}/grpc-health-proxy:${_IMAGE_VERSION}']
 
+# ============================== DEPLOYMENT STEPS ==============================
 # Deploy container image to GKE
 
 # Configure service backend 
