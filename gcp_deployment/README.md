@@ -30,7 +30,7 @@ Running `./deploy_gcp.sh` will print some usage information. The script has seve
 * `./deploy_gcp.sh create`: create cloud IPs; build all Docker images; push images to GCP repo; create and format disks; create clusters
 * `./deploy_gcp.sh clustercheck`: monitor the status of the created clusters periodically, notify when all are in a running state (this can take some time)
 * `./deploy_gcp.sh deploy`: once all clusters are running, create the deployments 
-* `./deploy_gcp.sh clean`: attempts to delete all deployments, clusters, and other GCP resources
+* `./deploy_gcp.sh cleanup`: attempts to delete all deployments, clusters, and other GCP resources
 
 Additionally the script behaviour can be modified by setting the values of the `DEPLOYMENTS` and `PHASES` environment variables. 
 
@@ -57,8 +57,8 @@ Defaults:
 ./deploy_gcp.sh clustercheck
 #   3. Create the deployments
 ./deploy_gcp.sh deploy
-#   4. Clean up resources
-./deploy_gcp.sh clean
+#   4. Clean up resources when deployment no longer required
+./deploy_gcp.sh cleanup
 ```
 
 Override `DEPLOYMENTS`:
