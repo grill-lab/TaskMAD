@@ -356,7 +356,7 @@ is_cluster_up() {
 }
 
 setup_cluster() {
-# Creates a new K8S cluster on GCP to host a deployment
+    # Creates a new K8S cluster on GCP to host a deployment
     #
     #   $1 = name of deployment 
     #
@@ -631,8 +631,6 @@ source "${script_path}/deploy_gcp_config"
 declare -r docker_repo_id="${region:?}-docker.pkg.dev/${gcloud_project_id}/${repo_name:?}"
 declare -r docker_repo_hostname="${region:?}-docker.pkg.dev"
 
-pushd "${script_path}" > /dev/null
-
 # require a parameter to be passed to perform any actions
 if [[ $# -ne 1 ]]
 then
@@ -649,12 +647,15 @@ then
     exit 0
 fi
 
-# cleanup resources from previous deployments if "cleanup" parameter is used
+pushd "${script_path}" > /dev/null
+
 if [[ "${1}" == "cleanup" ]]
 then
+    # cleanup resources from previous deployments if "cleanup" parameter is used
     cleanup_resources 
 elif [[ "${1}" == "clustercheck" ]]
 then
+    # monitor status of clusters until they're all running
     check_clusters
 elif [[ "${1}" == "deploy" ]]
 then

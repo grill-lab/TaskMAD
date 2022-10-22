@@ -145,8 +145,8 @@ woz[pv_name]=""
 # disk label for the disk backing the PV (blank if none required)
 woz[disk_name]=""
 # path to script to generate a deployment 
-woz[deployment_script]=""
+woz[deployment_script]="./create_woz_deployment.sh"
 # name of service for accessing the deployment
-woz[service_name]="" # TODO
+woz[service_name]="woz-service"
 # Docker build command
 woz[docker_build_script]="./build_images_woz.sh"
