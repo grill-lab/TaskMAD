@@ -57,6 +57,15 @@ core[deployment_script]="./create_core_deployment.sh"
 core[service_name]="esp-core-envoy"
 # Docker build command
 core[docker_build_script]="./build_images_core.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+core[local_files_path]="./core_disk_files"
+# Remote path to copy the local_files into on the remote disk such that when mounted
+# the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
+# is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
+# should be accessible at /mnt/disk/foo/bar by the Pod 
+# (blank if not required, but must be set if local_files_path is set)
+core[remote_files_path]="/TODO"
 
 # Parameters for the chat deployment 
 # ==================================
@@ -88,6 +97,15 @@ chat[deployment_script]="./create_chat_deployment.sh"
 chat[service_name]="chat-app"
 # Docker build command
 chat[docker_build_script]="./build_images_chatui.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+chat[local_files_path]=""
+# Remote path to copy the local_files into on the remote disk such that when mounted
+# the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
+# is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
+# should be accessible at /mnt/disk/foo/bar by the Pod 
+# (blank if not required, but must be set if local_files_path is set)
+chat[remote_files_path]=""
 
 # Parameters for the Search API deployment 
 # ==================================
@@ -119,6 +137,15 @@ search[deployment_script]="./create_search_deployment.sh"
 search[service_name]="search-api-service" 
 # Docker build command
 search[docker_build_script]="./build_images_searchapi.sh" 
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+search[local_files_path]="./search_disk_files"
+# Remote path to copy the local_files into on the remote disk such that when mounted
+# the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
+# is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
+# should be accessible at /mnt/disk/foo/bar by the Pod 
+# (blank if not required, but must be set if local_files_path is set)
+search[remote_files_path]="/TODO"
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -150,3 +177,12 @@ woz[deployment_script]="./create_woz_deployment.sh"
 woz[service_name]="woz-service"
 # Docker build command
 woz[docker_build_script]="./build_images_woz.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+woz[local_files_path]=""
+# Remote path to copy the local_files into on the remote disk such that when mounted
+# the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
+# is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
+# should be accessible at /mnt/disk/foo/bar by the Pod 
+# (blank if not required, but must be set if local_files_path is set)
+woz[remote_files_path]=""
