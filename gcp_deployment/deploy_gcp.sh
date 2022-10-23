@@ -250,70 +250,6 @@ build_and_push_local_images() {
     echo_color "> All images built and pushed to remote repo!\n"
 }
 
-format_disk() {
-    # Format a newly-created gcloud disk so it can be used as backing
-    # for a volume (they can't be auto-formatted if used in ReadOnly mode
-    # it seems)
-    #
-    #  $1 = disk name
-    #
-    # Return value: ignored (should exit on error)
-
-    # There isn't a simple command to format a disk, so the best way I've been
-    # able to find is to create a small VM instance, attach the disk, format it
-    # through that, and then detach it and dispose of the VM again...
-
-    # creating a basic VM
-    echo_color " - Creating a VM to format the new disk...\n"
-    gcloud compute instances create "${vm_name}" --image-family=debian-11 --image-project=debian-cloud --machine-type=f1-micro --network-tier=STANDARD 2>/dev/null
-
-    # check SSH access works (and generate a key silently with --quiet)
-    # this might fail if the VM is still booting, try a few times with a
-    # delay between attempts
-    declare num_retries=3
-    declare retry_delay=2
-
-    for (( i=1; i<=num_retries; i++ )) 
-    do
-        echo_color " - Generating SSH keys\n"
-        if ! gcloud compute ssh "${vm_name}" --command "ls /" --quiet >/dev/null 2>&1
-        then
-            echo_color "    (retry #${i}/${num_retries})\n" "${YELLOW}"
-            sleep "${retry_delay}"
-        else
-            break
-        fi
-    done
-
-    # attach the newly created disk
-    echo_color " - Attaching disk...\n"
-    gcloud compute instances attach-disk "${vm_name}" --disk "${1}" 2>/dev/null
-
-    # the disk should now be mounted at /dev/sdb, format it
-    # TODO does the disk name show up in the OS so the device can be confirmed?
-    echo_color " - Formatting the disk...\n"
-    gcloud compute ssh "${vm_name}" --command "sudo /sbin/mkfs.ext4 -q /dev/sdb"
-
-    # detach the disk from the VM
-    echo_color " - Detaching disk and deleting VM...\n"
-    gcloud compute instances detach-disk "${vm_name}" --disk "${1}" 2>/dev/null
-
-    # dispose of VM
-    gcloud compute instances delete "${vm_name}" --quiet 2>/dev/null
-
-    echo_color " - Disk was successfully formatted!\n"
-}
-
-copy_keys_to_disk() {
-    # TODO 
-    # copying keys could be done something like this while the disk is attached to a VM
-    #
-    # gcloud compute ssh testvm --command "sudo mkdir /mnt/pd && sudo mount /dev/sdb /mnt/pd && sudo chmod -R a+rwx /mnt/pd"
-    # gcloud compute scp server-cert.pem server-key.pem tempvm:/mnt/pd/keys
-    # gcloud compute ssh testvm --command "sudo chmod a+r /mnt/pd/* && umount /mnt/pd"
-    0
-}
-
 setup_disks() {
     # Creates (if necessary) the disks used to back the persistent volumes for 
     # the deployments
@@ -328,17 +264,24 @@ setup_disks() {
         if [[ -n "${!disk_name}" ]]
         then
             disk_size="${d}[disk_size_gb]"
+            local_files_path="${d}[local_files_path]"
+            remote_files_path="${d}[remote_files_path]"
 
             # check if the disk already exists and leave it alone if so
+            local is_new_disk=false
             if does_disk_exist "${!disk_name}" "${zone}"
             then
                 echo_color " - Disk ${!disk_name} already exists\n" "${YELLOW}"
             else
                 echo_color " - Creating disk ${!disk_name} with size ${!disk_size}GB\n"
                 gcloud compute disks create "${!disk_name}" --size="${!disk_size}GB" --zone="${zone}" >/dev/null 2>&1 
-
-                format_disk "${!disk_name}"
+                is_new_disk=true
             fi
+
+            # call out to copy_files_to_gcp_disk.sh to handle the rest of the process.
+            # parameters are: VM name, disk name, zone, source path, remote path, is_new_disk
+            echo_color "> Copying files to new disk...\n"
+            eval ./copy_files_to_gcp_disk.sh "${vm_name}-${d}" "${!disk_name}" "${zone}" "${!local_files_path}" "${!remote_files_path}" "${is_new_disk}"
         fi
     done
 }
@@ -500,10 +443,10 @@ cleanup_resources() {
         if [[ -n "${!disk_name}" ]]
         then
             echo_color " - Disk:\t ${!disk_name}\n" "${YELLOW}"
+            echo_color " - VM instance:\t ${vm_name}-${d}\n" "${YELLOW}"
         fi
         echo_color " - Static IP:\t ${!ip}\n" "${YELLOW}"
     done
-    echo_color " - VM instance:\t ${vm_name}\n" "${YELLOW}"
 
     echo ""
     read -p "Do you wish to continue (y/n)? " -n 1 -r
@@ -542,6 +485,12 @@ cleanup_resources() {
             then 
                 echo_color " ! Failed to delete reserved IP (may already have been deleted)\n" "${YELLOW}"
             fi
+
+            echo_color "> Deleting temporary VM instance ${vm_name}-${d}\n"
+            if ! gcloud compute instances delete "${vm_name}-${d}" --quiet 2> /dev/null
+            then
+                echo_color "> Failed to delete VM instance (may already have been deleted)\n" "${YELLOW}"
+            fi
         done
 
         echo_color "> Deleting artifact repo ${repo_name}\n"
@@ -550,11 +499,6 @@ cleanup_resources() {
             echo_color "> Failed to delete artifact repo (may already have been deleted)\n" "${YELLOW}"
         fi
 
-        echo_color "> Deleting temporary VM instances ${vm_name}\n"
-        if ! gcloud compute instances delete "${vm_name}" --quiet 2> /dev/null
-        then
-            echo_color "> Failed to delete VM instance (may already have been deleted)\n" "${YELLOW}"
-        fi
     else
         echo_color "No resources have been deleted.\n"
         exit 0
@@ -565,7 +509,7 @@ check_gcloud() {
     # check for gcloud binary
     if ! command -v gcloud &> /dev/null 
     then
-        printf "gcloud binary not installed or not on PATH - you might need to install the Google Cloud SDK"
+        echo "gcloud binary not installed or not on PATH - you might need to install the Google Cloud SDK"
         exit 1
     fi
 }
