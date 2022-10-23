@@ -154,7 +154,6 @@ does_disk_exist "${disk_name}" "${zone}"
 echo "> Attaching disk ${disk_name}..."
 gcloud compute instances attach-disk "${vm_name}" --disk "${disk_name}" --device-name="${disk_name}" 2>/dev/null
 
-echo "NEW DISK ${new_disk}"
 if [[ "${new_disk}" = "true" ]]
 then
     echo "> Disk is unformatted, will format and then copy files"
