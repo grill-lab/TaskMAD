@@ -8,6 +8,16 @@ Normally the script will be the simplest and fastest method to use, but the manu
 
 ## Prequisites and initial steps
 
+The current TaskMAD repo only contains 2 of the 4 components that need to be deployed, namely the `core` gRPC server and the `chat` UI. The other 2 components are in separate repos and will need to be cloned to your local machine separately. The expected directory structure is:
+```sh
+<TaskMAD deployment root>
+|--TaskMAD                     # core and chat components
+|--WoZStudy                    # woz component
+|--GroundedKnowledgeInterface  # search component
+```
+
+(future versions of TaskMAD will merge the `woz` and `search` components into the main repo)
+
 Before attempting to deploy TaskMAD to GCP:
 * Follow the documentation on configuring a Firebase instance and creating a JSON configuration file
 * Perform a local deployment with Minikube and check for any initial problems with building and running the various Docker images (`TODO`: the docs won't currently cover the wizard and search API deployments)
