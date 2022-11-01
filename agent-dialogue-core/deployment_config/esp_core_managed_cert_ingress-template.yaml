@@ -5,7 +5,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.global-static-ip-name: IP_NAME
     # Enable this flag if we want to use the self-managed certificate
-    networking.gke.io/managed-certificates: esp-core-managed-cert
+    networking.gke.io/managed-certificates: CERT_NAME
     kubernetes.io/ingress.class: "gce"
     networking.gke.io/v1beta1.FrontendConfig: redirect-http-to-https
 spec:
