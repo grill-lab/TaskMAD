@@ -25,7 +25,7 @@ declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
 # overridden to skip creating unnecessary resources or already-existing resources
 # through the PHASES env var
-declare -a create_phases=( ${PHASES:-services tier repo ips images disks clusters} )
+declare -a create_phases=( ${PHASES:-services tier repo ips images disks clusters certs} )
 
 # Parameters for the core deployment 
 # ==================================
