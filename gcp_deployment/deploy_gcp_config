@@ -70,7 +70,7 @@ core[remote_files_path]="/TODO"
 core[cert_name]="cert-core"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-core[endpoint_url]="TODO" # e.g. https://backend-server.online
+core[domain]="backend-server.online" # e.g. backend-server.online
 
 # Parameters for the chat deployment 
 # ==================================
@@ -115,7 +115,7 @@ chat[remote_files_path]=""
 chat[cert_name]="cert-chat"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-chat[endpoint_url]="TODO" # e.g. https://chat-uog.online
+chat[domain]="chat-uog.online" # e.g. chat-uog.online
 
 # Parameters for the Search API deployment 
 # ==================================
@@ -160,7 +160,7 @@ search[remote_files_path]="/TODO"
 search[cert_name]="cert-search"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-search[endpoint_url]="TODO" # e.g. https://search-api.online
+search[domain]="search-api.online" # e.g. search-api.online
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -205,4 +205,4 @@ woz[remote_files_path]=""
 woz[cert_name]="cert-search"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-woz[endpoint_url]="TODO" # e.g. https://woz-uog.online
+woz[domain]="woz-uog.online" # e.g. woz-uog.online
