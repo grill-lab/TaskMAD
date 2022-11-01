@@ -66,6 +66,11 @@ core[local_files_path]="./core_disk_files"
 # should be accessible at /mnt/disk/foo/bar by the Pod 
 # (blank if not required, but must be set if local_files_path is set)
 core[remote_files_path]="/TODO"
+# name of the Google-managed SSL certificate to create for HTTPS access
+core[cert_name]="cert-core"
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+core[endpoint_url]="TODO" # e.g. https://backend-server.online
 
 # Parameters for the chat deployment 
 # ==================================
@@ -106,6 +111,11 @@ chat[local_files_path]=""
 # should be accessible at /mnt/disk/foo/bar by the Pod 
 # (blank if not required, but must be set if local_files_path is set)
 chat[remote_files_path]=""
+# name of the Google-managed SSL certificate to create for HTTPS access
+chat[cert_name]="cert-chat"
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+chat[endpoint_url]="TODO" # e.g. https://chat-uog.online
 
 # Parameters for the Search API deployment 
 # ==================================
@@ -146,6 +156,11 @@ search[local_files_path]="./search_disk_files"
 # should be accessible at /mnt/disk/foo/bar by the Pod 
 # (blank if not required, but must be set if local_files_path is set)
 search[remote_files_path]="/TODO"
+# name of the Google-managed SSL certificate to create for HTTPS access
+search[cert_name]="cert-search"
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+search[endpoint_url]="TODO" # e.g. https://search-api.online
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -186,3 +201,8 @@ woz[local_files_path]=""
 # should be accessible at /mnt/disk/foo/bar by the Pod 
 # (blank if not required, but must be set if local_files_path is set)
 woz[remote_files_path]=""
+# name of the Google-managed SSL certificate to create for HTTPS access
+woz[cert_name]="cert-search"
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+woz[endpoint_url]="TODO" # e.g. https://woz-uog.online
