@@ -42,6 +42,7 @@ declare -r pv_name="${params}[pv_name]"
 declare -r disk_size_gb="${params}[disk_size_gb]"
 declare -r service_name="${params}[service_name]"
 declare -r disk_name="${params}[disk_name]"
+declare -r cert_name="${params}[cert_name]"
 
 # (based on cloudbuild.yaml)
 declare -r CONFIG_PATH="../agent-dialogue-core/deployment_config"
@@ -80,8 +81,10 @@ sed < "${K8_FILE}" \
 #   Values to substitute in here:
 #    - SERVICE_NAME
 #    - IP_NAME
+#    - CERT_NAME
 sed < "${K8_INGRESS_FILE}" \
     -e "s/SERVICE_NAME/${!service_name}/g" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/IP_NAME/${!ip_name}/g" | kubectl apply -f -
 
 popd > /dev/null

@@ -38,6 +38,7 @@ params="${component_name}"
 declare -r ip_name="${params}[ip]"
 declare -r deployment_name="${params}[deployment_name]"
 declare -r service_name="${params}[service_name]"
+declare -r cert_name="${params}[cert_name]"
 
 # (based on cloudbuild.yaml)
 # declare -r CONFIG_PATH="../../WoZStudy"
@@ -71,8 +72,10 @@ sed < "${K8_FILE}" \
 #   Values to substitute in here:
 #    - SERVICE_NAME
 #    - IP_NAME
+#    - CERT_NAME
 sed < "${K8_INGRESS_FILE}" \
     -e "s/SERVICE_NAME/${!service_name}/g" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/IP_NAME/${!ip_name}/g" | kubectl apply -f -
 
 
