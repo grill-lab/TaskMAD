@@ -202,7 +202,7 @@ woz[local_files_path]=""
 # (blank if not required, but must be set if local_files_path is set)
 woz[remote_files_path]=""
 # name of the Google-managed SSL certificate to create for HTTPS access
-woz[cert_name]="cert-search"
+woz[cert_name]="cert-woz"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
 woz[domain]="woz-uog.online" # e.g. woz-uog.online
