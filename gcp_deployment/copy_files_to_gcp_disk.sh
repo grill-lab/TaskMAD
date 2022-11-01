@@ -82,7 +82,7 @@ configure_ssh() {
 
     for (( i=1; i<=num_retries; i++ )) 
     do
-        echo "> Generating SSH keys"
+        echo "> Generating SSH keys and logging into VM..."
         if ! gcloud compute ssh "${1}" --command "ls /" --quiet >/dev/null 2>&1
         then
             echo "    (retry #${i}/${num_retries})"
