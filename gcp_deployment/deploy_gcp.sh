@@ -128,7 +128,7 @@ does_named_ip_exist() {
     #
     # Return value: 0 if IP exists, 1 if not
 
-    resp=$(gcloud compute addresses list --global 2> /dev/null)
+    resp=$(gcloud compute addresses list --global --filter=name="${1}" 2> /dev/null)
     is_response_not_empty "${resp}"
 }
 
