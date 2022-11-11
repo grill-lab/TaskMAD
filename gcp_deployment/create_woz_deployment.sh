@@ -39,6 +39,7 @@ declare -r ip_name="${params}[ip]"
 declare -r deployment_name="${params}[deployment_name]"
 declare -r service_name="${params}[service_name]"
 declare -r cert_name="${params}[cert_name]"
+declare -r domain="${params}[domain]"
 
 # (based on cloudbuild.yaml)
 # declare -r CONFIG_PATH="../../WoZStudy"
@@ -51,15 +52,21 @@ declare -r FRONTEND_CONFIG_FILE="frontend_config.yaml"
 # everything else
 declare -r K8_FILE="./template_files/woz/woz_deployment_nginx-template.yaml"
 declare -r K8_INGRESS_FILE="./template_files/woz/woz_managed_cert_ingress-template.yaml"
+declare -r CERT_FILE="./template_files/managed_cert.yaml"
+#
+# 1. Managed certificate
+sed < "${CERT_FILE}" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
+    -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
 
 pushd "${CONFIG_PATH}" > /dev/null
 
-# 1. Frontend (no templating required)
+# 2. Frontend (no templating required)
 kubectl apply -f "${FRONTEND_CONFIG_FILE}"
 
 popd > /dev/null
 
-# 2. Service and pods.
+# 3. Service and pods.
 
 # NOTE: in the last expression we're replacing the usual delimiter to avoid having
 # to escape the "/" chars in the image_repo string
@@ -68,7 +75,7 @@ sed < "${K8_FILE}" \
     -e "s/DEPLOYMENT_NAME/${!deployment_name}/g" \
     -e "s|IMAGE_REPO|${image_repo}|g" | kubectl apply -f -
 
-# 3. Ingress
+# 4. Ingress
 #   Values to substitute in here:
 #    - SERVICE_NAME
 #    - IP_NAME

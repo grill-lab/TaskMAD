@@ -43,6 +43,7 @@ declare -r disk_size_gb="${params}[disk_size_gb]"
 declare -r service_name="${params}[service_name]"
 declare -r disk_name="${params}[disk_name]"
 declare -r cert_name="${params}[cert_name]"
+declare -r domain="${params}[domain]"
 
 # (based on cloudbuild.yaml)
 declare -r CONFIG_PATH="../agent-dialogue-core/deployment_config"
@@ -51,23 +52,29 @@ declare -r K8_BACKEND_CONFIG_FILE="backend-config.yaml"
 declare -r K8_INGRESS_FILE="esp_core_managed_cert_ingress-template.yaml"
 declare -r K8_FILE="deployment-envoy-template.yaml"
 declare -r PV_FILE="persistent_volume_k8s-template.yaml"
+declare -r CERT_FILE="./template_files/managed_cert.yaml"
+
+# 1. Managed certificate
+sed < "${CERT_FILE}" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
+    -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
 
 pushd "${CONFIG_PATH}" > /dev/null
 
-# 1. Persistent volume + claim
+# 2. Persistent volume + claim
 sed < "${PV_FILE}" \
     -e "s/DISK_NAME/${!disk_name}/g" \
     -e "s/PVC_NAME/${!pvc_name}/g" \
     -e "s/PV_NAME/${!pv_name}/g" \
     -e "s/DISK_SIZE/${!disk_size_gb}/g" | kubectl apply -f -
 
-# 2. Service backend
+# 3. Service backend
 kubectl apply -f "${K8_BACKEND_CONFIG_FILE}"
 
-# 3. Frontend
+# 4. Frontend
 kubectl apply -f "${FRONTEND_CONFIG_FILE}"
 
-# 4. Service and pods.
+# 5. Service and pods.
 
 # NOTE: in the last expression we're replacing the usual delimiter to avoid having
 # to escape the "/" chars in the image_repo string
@@ -77,7 +84,7 @@ sed < "${K8_FILE}" \
     -e "s/PVC_NAME/${!pvc_name}/g" \
     -e "s|IMAGE_REPO|${image_repo}|g" | kubectl apply -f -
 
-# 5. Ingress
+# 6. Ingress
 #   Values to substitute in here:
 #    - SERVICE_NAME
 #    - IP_NAME
