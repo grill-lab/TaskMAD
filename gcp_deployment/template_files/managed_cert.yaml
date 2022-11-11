@@ -1,0 +1,9 @@
+# File used to manage a certificate with google cloud for https
+# https://cloud.google.com/kubernetes-engine/docs/how-to/managed-certs
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: CERT_NAME
+spec:
+  domains:
+    - DOMAIN
