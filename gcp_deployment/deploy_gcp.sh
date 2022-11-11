@@ -467,7 +467,6 @@ cleanup_resources() {
     #  - delete artifact repo to get rid of the images inside
     #  - delete the reserved IPs 
     #  - delete the temporary VM used to format disks (might be left running if an error occurs)
-    #  - delete the SSL certificates
 
     echo_color "*** WARNING: this will attempt to delete the following resources\n" "${RED}"
     for d in "${deployments[@]}"
@@ -475,7 +474,6 @@ cleanup_resources() {
         cluster_name="${d}[cluster_name]"
         disk_name="${d}[disk_name]"
         ip="${d}[ip]"
-        cert_name="${d}[cert_name]"
 
         echo_color "[${d}]\n"
         echo_color " - Cluster:\t ${!cluster_name}\n" "${YELLOW}"
@@ -485,7 +483,6 @@ cleanup_resources() {
             echo_color " - VM instance:\t ${vm_name}-${d}\n" "${YELLOW}"
         fi
         echo_color " - Static IP:\t ${!ip}\n" "${YELLOW}"
-        echo_color " - SSL cert:\t ${!cert_name}\n" "${YELLOW}"
         echo_color "\n"
     done
     echo_color "[other]\n"
@@ -503,7 +500,6 @@ cleanup_resources() {
             cluster_name="${d}[cluster_name]"
             disk_name="${d}[disk_name]"
             ip="${d}[ip]"
-            cert_name="${d}[cert_name]"
 
             echo_color "> Deleting resources for deployment ${d}...\n"
 
@@ -534,12 +530,6 @@ cleanup_resources() {
             if ! gcloud compute instances delete "${vm_name}-${d}" --quiet 2> /dev/null
             then
                 echo_color " - Failed to delete VM instance (may already have been deleted)\n" "${YELLOW}"
-            fi
-
-            echo_color " - Deleting SSL certificate ${!cert_name}\n"
-            if ! gcloud compute ssl-certificates delete "${!cert_name}" --quiet 2> /dev/null
-            then
-                echo_color " - Failed to delete SSL certificate (may already have been deleted)\n" "${YELLOW}"
             fi
 
             echo_color "\n"
@@ -683,12 +673,6 @@ then
     if is_phase_enabled "ips"
     then 
         setup_external_ips 
-    fi
-
-    # create the Google-managed SSL certificates used by the deployments
-    if is_phase_enabled "certs"
-    then
-        setup_certificates
     fi
 
     # build all local Docker images and push them to the newly created repo
