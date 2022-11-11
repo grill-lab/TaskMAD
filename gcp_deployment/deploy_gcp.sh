@@ -82,7 +82,7 @@ check_and_update_network_tier() {
     #
     # Return value: ignored (should exit on error)
 
-    echo_color "Checking default network tier is PREMIUM..."
+    echo_color "> Checking default network tier is PREMIUM..."
     current_tier=$(gcloud compute project-info describe --format='value(defaultNetworkTier)')
     if [[ "${current_tier}" == "STANDARD" ]]
     then
@@ -102,7 +102,7 @@ check_and_enable_required_services() {
 
     for service in "${required_services[@]}"
     do 
-        echo_color "Checking if service ${service} is enabled..." 
+        echo_color "> Checking if service ${service} is enabled..." 
         if is_gcp_service_enabled "${service}"
         then
             echo_color "already enabled!\n"
@@ -359,7 +359,7 @@ setup_kubectl_for_deployment() {
     #   $3 = zone
     #
     #   Return value: ignored (should exit on error)
-    echo_color "> Configuring kubectl authentication credentials\n"
+    echo_color "> Configuring kubectl authentication credentials for cluster: ${1}\n"
     if [[ -z "${3}" ]]
     then
         gcloud container clusters get-credentials "${1}" --region "${2}"
@@ -382,7 +382,7 @@ setup_deployments() {
         # check the cluster at least is actually available
         if ! is_cluster_up "${!cluster_name}"
         then
-            echo_color "Aborting ${d} deployment, target cluster ${!cluster_name} is not available/does not exist!" "${RED}\n"
+            echo_color "Aborting ${d} deployment, target cluster ${!cluster_name} is not yet available/does not exist!\n" "${RED}"
             exit 1
         fi
 
