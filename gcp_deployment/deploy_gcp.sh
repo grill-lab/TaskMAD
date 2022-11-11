@@ -376,6 +376,8 @@ setup_deployments() {
     for d in "${deployments[@]}"
     do
         cluster_name="${d}[cluster_name]"
+
+        echo_color "> Beginning setup of deployment ${d} on cluster ${!cluster_name}\n"
         
         # check the cluster at least is actually available
         if ! is_cluster_up "${!cluster_name}"
@@ -398,7 +400,7 @@ setup_deployment() {
     # 
     # Return value: ignored (should exit on error)
 
-    declare -r params="${deployments[${1}]}"
+    declare -r params="${1}"
     declare -r deployment_name="${params}[deployment_name]"
     declare -r deployment_script="${params}[deployment_script]"
 
