@@ -518,7 +518,7 @@ cleanup_resources() {
                 echo_color " - Deleting K8S disk ${!disk_name}\n"
                 if ! gcloud compute disks delete "${!disk_name}" --zone="${zone}" --quiet 2> /dev/null
                 then
-                    echo_color " ! Failed to delete disk (may already have been deleted)\n" "${YELLOW}"
+                    echo_color " ! Failed to delete disk (may already have been deleted OR still in use by a cluster!)\n" "${YELLOW}"
                 fi
             else
                 echo_color " - No K8S disk defined for ${d}\n"
