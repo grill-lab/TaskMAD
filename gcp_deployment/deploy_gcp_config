@@ -25,7 +25,7 @@ declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
 # overridden to skip creating unnecessary resources or already-existing resources
 # through the PHASES env var
-declare -a create_phases=( ${PHASES:-services tier repo ips images disks clusters certs} )
+declare -a create_phases=( ${PHASES:-services tier repo ips images disks clusters} )
 
 # Parameters for the core deployment 
 # ==================================
@@ -70,7 +70,7 @@ core[remote_files_path]="/TODO"
 core[cert_name]="cert-core"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-core[domain]="backend-server.online" # e.g. backend-server.online
+core[domain]="taskmad-backend.andrewramsay.net" # e.g. backend-server.online
 
 # Parameters for the chat deployment 
 # ==================================
@@ -115,7 +115,7 @@ chat[remote_files_path]=""
 chat[cert_name]="cert-chat"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-chat[domain]="chat-uog.online" # e.g. chat-uog.online
+chat[domain]="taskmad-chat.andrewramsay.net" # e.g. chat-uog.online
 
 # Parameters for the Search API deployment 
 # ==================================
@@ -160,7 +160,7 @@ search[remote_files_path]="/TODO"
 search[cert_name]="cert-search"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-search[domain]="search-api.online" # e.g. search-api.online
+search[domain]="taskmad-search.andrewramsay.net" # e.g. search-api.online
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -177,7 +177,7 @@ woz[disk_size_gb]=10
 # label for the reserved static IP for the deployment
 woz[ip]="ip-woz"
 # cluster name
-woz[cluster_name]="woz-cluster"
+woz[cluster_name]="search-cluster" # XXX TEMP"woz-cluster" (workaround for GCE quota on clusters per region)
 # deployment name
 woz[deployment_name]="woz-app" 
 # persistent volume claim name (blank if none required)
@@ -205,4 +205,4 @@ woz[remote_files_path]=""
 woz[cert_name]="cert-woz"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-woz[domain]="woz-uog.online" # e.g. woz-uog.online
+woz[domain]="taskmad-woz.andrewramsay.net" # e.g. woz-uog.online
