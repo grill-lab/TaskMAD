@@ -132,21 +132,6 @@ does_named_ip_exist() {
     is_response_not_empty "${resp}"
 }
 
-get_address_for_ip() {
-    # Given a label for a reserved IP, return the actual IP
-    #
-    # $1 = label of a reserved IP
-    #
-    # Return value: string containing raw IP address, exits on error
-    resp=$(gcloud compute addresses list --format='value(address)' --filter=name="${1}")
-
-    if [[ -z "${resp}" ]]
-    then
-        echo_color "> Failed to retrieve address for IP ${1}!\n" "${RED}"
-        exit 1
-    fi
-}
-
 does_disk_exist() {
     # Check if a disk with the given label already exists
     #
@@ -390,6 +375,11 @@ setup_deployments() {
 
         setup_deployment "${d}"
     done
+
+    echo_color "> Selected deployments have been created.\n"
+    echo_color "\n   NOTE: you will need to manually configure DNS records for the domains for each deployment.\n"
+    echo_color "   You can view the static IPs to point the domains at by running the command:\n"
+    echo_color "      ./deploy_gcp.sh domains\n"
 }
 
 setup_deployment() {
@@ -424,37 +414,48 @@ setup_deployment() {
     echo_color "> Deployment of ${!deployment_name} completed!\n"
 }
 
-does_cert_exist () {
-    # Check if a certificate with the given name already exists
+show_domain_info() {
+    # Show IP address and configured domain for each deployment
     #
-    # $1 = name of the certificate
-    #
-    # Return value: 0 if cert exists, 1 if not
-
-    resp=$(gcloud compute ssl-certificates list --filter=name="${1}" 2> /dev/null)
-    is_response_not_empty "${resp}"
-}
-
-setup_certificates() {
-    # Create SSL certificates for the selected deployments
-    # 
     # Return value: ignored (should exit on error)
 
-    echo_color "> Setting up certificates for each deployment\n"
+    # TODO use kubectl config current-context to save and then (below) restore
+    # the current context
+    
     for d in "${deployments[@]}"
     do
-        cert_name="${d}[cert_name]"
-        domain="${d}[domain]"
+        declare ip="${d}[ip]"
+        declare domain="${d}[domain]"
+        declare cluster_name="${d}[cluster_name]"
+        declare cert_name="${d}[cert_name]"
+        declare ip_addr
+        ip_addr=$(gcloud compute addresses list --format='value(address)' --filter=name="${!ip}")
 
-        # check if there's an existing cert already
-        echo_color "> Checking for existing certificate with name ${!cert_name}..."
-        if does_cert_exist "${!cert_name}"
+        if [[ -z "${ip_addr}" ]]
         then
-            echo_color "certificate found!\n"
-        else
-            echo_color "no existing certifcate found, creating one for domain=${!domain})\n"
-            gcloud compute ssl-certificates create --domains="${!domain}" "${!cert_name}"
+            echo_color "> Failed to retrieve address for IP ${!ip}!\n" "${RED}"
+            exit 1
         fi
+
+        setup_kubectl_for_deployment "${!cluster_name}" "${region}" "${zone}"
+    
+        echo_color "> Deployment ${d}\n"
+        echo_color "    Point domain ${YELLOW}'${!domain}'${NC} to ${YELLOW}${ip_addr}${NC}\n"
+        declare cert_status
+        cert_status=$(kubectl get managedcertificate --field-selector metadata.name=="${!cert_name}" --no-headers=true --ignore-not-found | awk '{ print $3; }' 2>&1)
+        if [[ "${cert_status}" == "Active" ]]
+        then
+            echo_color "    Current certificate status: Active (deployment should be accessible through the domain)\n"
+        else
+            if [[ "${cert_status}" == "" ]]
+            then
+                echo_color "    Certificate has not been created yet (is the deployment created?)\n" "${RED}"
+            else
+                echo_color "    ${GREEN}Current certificate status: ${YELLOW}${cert_status} ${GREEN}(check DNS configuration, wait 60 mins from cert creation)\n"
+            fi
+        fi
+
+        echo_color "\n"
     done
 }
 
@@ -618,7 +619,7 @@ declare -r docker_repo_id="${region:?}-docker.pkg.dev/${gcloud_project_id}/${rep
 declare -r docker_repo_hostname="${region:?}-docker.pkg.dev"
 
 # require a parameter to be passed to perform any actions
-if [[ $# -ne 1 ]]
+if [[ $# -lt 1 ]]
 then
     echo "Usage: deploy_gcp.sh <create|clustercheck|deploy|cleanup>"
     echo ""
@@ -629,6 +630,8 @@ then
     echo -e "   ${GREEN}clustercheck${NC}: monitor the status of newly-created clusters until all"
     echo -e "   of them have reaching RUNNING status and are ready for deployments."
     echo -e "   ${GREEN}deploy${NC}: create the various TaskMAD deployments on the clusters."
+    echo -e "   ${GREEN}manage <deployment>${NC}: setup kubectl to interact with the selected deployment."
+    echo -e "   ${GREEN}domains${NC}: display the IPs you will need to point your domains at."
     echo -e "   ${GREEN}cleanup${NC}: delete all created GCP resources."
     exit 0
 fi
@@ -692,6 +695,21 @@ then
     then
         setup_clusters 
     fi
+elif [[ "${1}" == "manage" ]]
+then
+    # manage a cluster with kubectl
+    if [[ $# -ne 2 ]]
+    then
+        echo_color "You must select a deployment to manage, e.g. './deploy_gcp.sh manage core'\n" "${RED}"
+        exit 1
+    fi
+    declare -r params="${2}"
+    declare -r cluster_name="${params}[cluster_name]"
+    
+    setup_kubectl_for_deployment "${!cluster_name}" "${region}" "${zone}"
+elif [[ "${1}" == "domains" ]]
+then
+    show_domain_info
 else
     echo_color "Unrecognised parameter \"${1}\"\n"
     exit 1
