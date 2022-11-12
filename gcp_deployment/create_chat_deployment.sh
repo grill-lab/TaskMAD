@@ -43,17 +43,15 @@ declare -r domain="${params}[domain]"
 
 # (based on cloudbuild.yaml)
 declare -r CONFIG_PATH="../agent-dialogue-ui/"
-declare -r FRONTEND_CONFIG_FILE="frontend_config.yaml"
-declare -r K8_INGRESS_FILE="chat_managed_cert_ingress-template.yaml"
-declare -r K8_FILE="chat_deployment_nginx-template.yaml"
+declare -r FRONTEND_CONFIG_FILE="./template_files/frontend_config.yaml"
+declare -r K8_INGRESS_FILE="${CONFIG_PATH}/chat_managed_cert_ingress-template.yaml"
+declare -r K8_FILE="${CONFIG_PATH}/chat_deployment_nginx-template.yaml"
 declare -r CERT_FILE="./template_files/managed_cert.yaml"
 
 # 1. Managed certificate
 sed < "${CERT_FILE}" \
     -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
-
-pushd "${CONFIG_PATH}" > /dev/null
 
 # 2. Frontend
 kubectl apply -f "${FRONTEND_CONFIG_FILE}"
@@ -76,8 +74,6 @@ sed < "${K8_INGRESS_FILE}" \
     -e "s/SERVICE_NAME/${!service_name}/g" \
     -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/IP_NAME/${!ip_name}/g" | kubectl apply -f -
-
-popd > /dev/null
 
 # wait for the deployment to complete before exiting
 kubectl rollout status deployment/"${!deployment_name}" --watch=true

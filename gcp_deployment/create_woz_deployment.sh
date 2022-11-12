@@ -46,7 +46,7 @@ declare -r domain="${params}[domain]"
 # these are the files still located in the original woz repo as they
 # don't require any templating
 declare -r CONFIG_PATH="../../WoZStudy"
-declare -r FRONTEND_CONFIG_FILE="frontend_config.yaml"
+declare -r FRONTEND_CONFIG_FILE="./template_files/frontend_config.yaml"
 # TODO keeping the "template" versions of these files in the 
 # TaskMAD repo for now so they can be included in the PR with
 # everything else
@@ -59,12 +59,8 @@ sed < "${CERT_FILE}" \
     -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
 
-pushd "${CONFIG_PATH}" > /dev/null
-
 # 2. Frontend (no templating required)
 kubectl apply -f "${FRONTEND_CONFIG_FILE}"
-
-popd > /dev/null
 
 # 3. Service and pods.
 

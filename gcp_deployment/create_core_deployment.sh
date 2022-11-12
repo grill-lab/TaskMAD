@@ -47,19 +47,17 @@ declare -r domain="${params}[domain]"
 
 # (based on cloudbuild.yaml)
 declare -r CONFIG_PATH="../agent-dialogue-core/deployment_config"
-declare -r FRONTEND_CONFIG_FILE="frontend_config.yaml"
-declare -r K8_BACKEND_CONFIG_FILE="backend-config.yaml"
-declare -r K8_INGRESS_FILE="esp_core_managed_cert_ingress-template.yaml"
-declare -r K8_FILE="deployment-envoy-template.yaml"
-declare -r PV_FILE="persistent_volume_k8s-template.yaml"
+declare -r FRONTEND_CONFIG_FILE="./template_files/frontend_config.yaml"
+declare -r K8_BACKEND_CONFIG_FILE="${CONFIG_PATH}/backend-config.yaml"
+declare -r K8_INGRESS_FILE="${CONFIG_PATH}/esp_core_managed_cert_ingress-template.yaml"
+declare -r K8_FILE="${CONFIG_PATH}/deployment-envoy-template.yaml"
+declare -r PV_FILE="${CONFIG_PATH}/persistent_volume_k8s-template.yaml"
 declare -r CERT_FILE="./template_files/managed_cert.yaml"
 
 # 1. Managed certificate
 sed < "${CERT_FILE}" \
     -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
-
-pushd "${CONFIG_PATH}" > /dev/null
 
 # 2. Persistent volume + claim
 sed < "${PV_FILE}" \
@@ -93,8 +91,6 @@ sed < "${K8_INGRESS_FILE}" \
     -e "s/SERVICE_NAME/${!service_name}/g" \
     -e "s/CERT_NAME/${!cert_name}/g" \
     -e "s/IP_NAME/${!ip_name}/g" | kubectl apply -f -
-
-popd > /dev/null
 
 # wait for the deployment to complete before exiting
 kubectl rollout status deployment/"${!deployment_name}" --watch=true
