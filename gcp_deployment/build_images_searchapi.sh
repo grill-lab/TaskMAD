@@ -9,10 +9,11 @@ set -o pipefail  # don't hide errors within pipes
 # Arguments expected:
 #   $1 = path to full config file
 #   $2 = remote docker repo to tag images for
+#   $3 = either "build" to build+push images, or "clean" to remove all local images'
 
-if [[ $# -ne 2 ]]
+if [[ $# -ne 3 ]]
 then
-    echo "build_images_searchapi.sh <config file path> <remote-repo>"
+    echo "build_images_searchapi.sh <config file path> <remote-repo> <build/clean>"
     exit 1
 fi
 
@@ -21,16 +22,23 @@ declare -r remote="${2}"
 
 script_path="$( dirname -- "$0"; )"
 
-docker rmi -f search-api:latest 2> /dev/null
-docker rmi -f "${remote}"/search-api:latest 2> /dev/null
+if [[ "${3}" == "clean" ]]
+then
+    docker rmi -f search-api:latest 2> /dev/null
+    docker rmi -f "${remote}"/search-api:latest 2> /dev/null
+elif [[ "${3}" == "build" ]]
+then
+    # TODO: update when repos are merged
+    # currently assumes TaskMAD and search API repos are in the same parent directory
+    pushd "${script_path}/../../GroundedKnowledgeInterface/api"
 
-# TODO: update when repos are merged
-# currently assumes TaskMAD and search API repos are in the same parent directory
-pushd "${script_path}/../../GroundedKnowledgeInterface/api"
+    docker build -f Dockerfile -t search-api:latest .
+    docker tag search-api:latest "${remote}"/search-api:latest
 
-docker build -f Dockerfile -t search-api:latest .
-docker tag search-api:latest "${remote}"/search-api:latest
+    popd
 
-popd
-
-docker push "${remote}"/search-api:latest
+    docker push "${remote}"/search-api:latest
+else
+    echo "Unknown argument: ${3} (expected either 'build' or 'clean')"
+    exit 1
+fi
