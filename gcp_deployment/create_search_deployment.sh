@@ -36,19 +36,14 @@ source "${config_file}"
 # parameters for this component
 params="${component_name}"
 declare -r ip_name="${params}[ip]"
-declare ip_addr
-ip_addr=$(gcloud compute addresses list --format='value(address)' --filter=name="${!ip_name}")
-if [[ -z "${ip_addr}" ]]
-then
-    echo "ERROR: Failed to retrieve address for IP ${!ip_name}!"
-    exit 1
-fi
 declare -r deployment_name="${params}[deployment_name]"
 declare -r pvc_name="${params}[pvc_name]"
 declare -r pv_name="${params}[pvc_name]"
 declare -r service_name="${params}[service_name]"
 declare -r disk_name="${params}[disk_name]"
 declare -r disk_size_gb="${params}[disk_size_gb]"
+declare -r cert_name="${params}[cert_name]"
+declare -r domain="${params}[domain]"
 
 # (based on cloudbuild.yaml)
 # declare -r CONFIG_PATH="../../GroundedKnowledgeInterface/api"
@@ -57,17 +52,30 @@ declare -r disk_size_gb="${params}[disk_size_gb]"
 # everything else
 declare -r K8_FILE="./template_files/search/api_deployment-template.yaml"
 declare -r PV_FILE="./template_files/search/persistent_volume_k8-template.yaml"
+declare -r FRONTEND_CONFIG_FILE="./template_files/frontend_config.yaml"
+declare -r K8_INGRESS_FILE="./template_files/search/ingress-template.yaml"
+declare -r BACKEND_CONFIG_FILE="./template_files/search/backend_config.yaml"
+declare -r CERT_FILE="./template_files/managed_cert.yaml"
 
-# pushd "${CONFIG_PATH}" > /dev/null
+# 1. Managed certificate
+sed < "${CERT_FILE}" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
+    -e "s/DOMAIN/${!domain}/g" | kubectl apply -f -
 
-# 1. Persistent volume + claim
+# 2. Frontend
+kubectl apply -f "${FRONTEND_CONFIG_FILE}"
+
+# 3. Service backend
+kubectl apply -f "${BACKEND_CONFIG_FILE}"
+
+# 4. Persistent volume + claim
 sed < "${PV_FILE}" \
     -e "s/DISK_NAME/${!disk_name}/g" \
     -e "s/PVC_NAME/${!pvc_name}/g" \
     -e "s/PV_NAME/${!pv_name}/g" \
     -e "s/DISK_SIZE/${!disk_size_gb}/g" | kubectl apply -f -
 
-# 2. Service and pods.
+# 5. Service and pods.
 
 # NOTE: in the last expression we're replacing the usual delimiter to avoid having
 # to escape the "/" chars in the image_repo string
@@ -75,10 +83,17 @@ sed < "${K8_FILE}" \
     -e "s/SERVICE_NAME/${!service_name}/g" \
     -e "s/DEPLOYMENT_NAME/${!deployment_name}/g" \
     -e "s/PVC_NAME/${!pvc_name}/g" \
-    -e "s/IP_ADDR/${ip_addr}/g" \
     -e "s|IMAGE_REPO|${image_repo}|g" | kubectl apply -f -
 
-# popd > /dev/null
+# 6. Ingress
+#   Values to substitute in here:
+#    - SERVICE_NAME
+#    - IP_NAME
+#    - CERT_NAME
+sed < "${K8_INGRESS_FILE}" \
+    -e "s/SERVICE_NAME/${!service_name}/g" \
+    -e "s/CERT_NAME/${!cert_name}/g" \
+    -e "s/IP_NAME/${!ip_name}/g" | kubectl apply -f -
 
 # wait for the deployment to complete before exiting
 kubectl rollout status deployment/"${!deployment_name}" --watch=true
