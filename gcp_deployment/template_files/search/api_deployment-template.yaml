@@ -2,6 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: SERVICE_NAME
+  annotations:
+    beta.cloud.google.com/backend-config: '{"ports": {"80":"esp-search-backend-config"}}'
+    cloud.google.com/neg: '{"ingress": true}'
+    cloud.google.com/network-tier: "PREMIUM"
 spec:
   ports:
   - port: 80
@@ -41,4 +45,3 @@ spec:
         volumeMounts:
           - mountPath: "usr/api/data"
             name: disk-indexes-volume
-
