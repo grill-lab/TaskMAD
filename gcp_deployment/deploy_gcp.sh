@@ -226,7 +226,7 @@ build_and_push_local_images() {
         if [[ -n "${!build_cmd}" ]]
         then
             echo_color "> Running build script for ${d}...\n"
-            eval "${!build_cmd}" "${script_path}/deploy_gcp_config" "${docker_repo_id}"
+            eval "${!build_cmd}" "${script_path}/deploy_gcp_config" "${docker_repo_id}" "build"
         else
             echo_color "> Skipping Docker build for ${d}...\n" "${YELLOW}"
         fi
