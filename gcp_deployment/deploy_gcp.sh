@@ -548,6 +548,15 @@ cleanup_resources() {
     fi
 }
 
+clean_docker_images() {
+    for d in "${deployments[@]}"
+    do
+        build_cmd="${d}[docker_build_script]"
+        echo_color "> Removing local images for ${d}\n"
+        eval "${!build_cmd}" "${script_path}/deploy_gcp_config" "${docker_repo_id}" "clean"
+    done
+}
+
 check_gcloud() {
     # check for gcloud binary
     if ! command -v gcloud &> /dev/null 
@@ -633,6 +642,7 @@ then
     echo -e "   ${GREEN}manage <deployment>${NC}: setup kubectl to interact with the selected deployment."
     echo -e "   ${GREEN}domains${NC}: display the IPs you will need to point your domains at."
     echo -e "   ${GREEN}cleanup${NC}: delete all created GCP resources."
+    echo -e "   ${GREEN}dockercleanup${NC}: delete all local Docker images for the deployments."
     exit 0
 fi
 
@@ -710,6 +720,9 @@ then
 elif [[ "${1}" == "domains" ]]
 then
     show_domain_info
+elif [[ "${1}" == "dockercleanup" ]]
+then
+    clean_docker_images
 else
     echo_color "Unrecognised parameter \"${1}\"\n"
     exit 1
