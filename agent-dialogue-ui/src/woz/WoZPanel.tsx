@@ -235,6 +235,12 @@ class WoZDialogue
       });
     }
 
+    // As soon as the user connect to the webapp, we send a message notifying the wizard
+    var initial_status_message = `${this.props.params.userID} joined the chat.`
+    this.onEnter(initial_status_message, InteractionType.STATUS);
+
+
+
   }
 
   private onEnter = (text: string, messageTypeParam = InteractionType.TEXT) => {
