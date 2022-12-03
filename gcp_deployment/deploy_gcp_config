@@ -19,7 +19,7 @@ declare -r repo_name="taskmad-repo"
 # can be overridden with DEPLOYMENTS env var if needed
 declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 # URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
-declare -a config_url=( "http://dcs.gla.ac.uk/~adr/taskmad.json" )
+declare -a config_url=( "https://www.dcs.gla.ac.uk/~adr/taskmad.json" )
 # name of the temporary VM used during deployment to format disks
 declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
@@ -65,7 +65,7 @@ core[local_files_path]="./core_disk_files"
 # is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
 # should be accessible at /mnt/disk/foo/bar by the Pod 
 # (blank if not required, but must be set if local_files_path is set)
-core[remote_files_path]="/TODO"
+core[remote_files_path]="."
 # name of the Google-managed SSL certificate to create for HTTPS access
 core[cert_name]="cert-core"
 # URL where the service should be accessible (for use when creating the
