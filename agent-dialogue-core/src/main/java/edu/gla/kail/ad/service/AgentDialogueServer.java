@@ -44,9 +44,6 @@ public class AgentDialogueServer {
      *
      * @param port - the integer specifying the port.
      */
-    // public AgentDialogueServer(int port, ServerCredentials creds) {
-    //     this(Grpc.newServerBuilderForPort(port, creds));
-    // }
     public AgentDialogueServer(int port) {
         this(ServerBuilder.forPort(port));
     }
@@ -67,9 +64,6 @@ public class AgentDialogueServer {
         logger.info("Loading config file from:" + args[0]);
         PropertiesSingleton.getPropertiesSingleton(new URL(args[0]));
         logger.info("Configuration loaded: " + PropertiesSingleton.getCoreConfig().toString());
-        File serverCertFile = new File("keys/server-cert.pem");
-        File serverKeyFile = new File("keys/server-key.pem");
-        ServerCredentials creds = TlsServerCredentials.create(serverCertFile, serverKeyFile);
         AgentDialogueServer server = new AgentDialogueServer(PropertiesSingleton.getCoreConfig()
                 .getGrpcServerPort());
         server.start();
@@ -170,6 +164,7 @@ public class AgentDialogueServer {
             } catch (Exception exception) {
                 exception.printStackTrace();
                 dialogAgentManager = null;
+                logger.error("Caught an exception creating DialogAgentManager" + exception);
             }
             checkNotNull(dialogAgentManager, "The initialization of the DialogAgentManager " +
                     "failed!");
