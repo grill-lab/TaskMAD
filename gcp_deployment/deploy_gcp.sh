@@ -23,6 +23,30 @@ NC="\e[0m"
 
 script_path="$( dirname -- "$0"; )"
 
+declare deployment_ok=true
+
+exit_handler() {
+    # Handler for the bash EXIT signal. The script is set up to exit
+    # if a command returns an unsuccessful status code, but depending
+    # on when/how that happens it might not be immediately obvious to 
+    # the user that something went wrong. 
+    #
+    # This handler just uses the exit_ok variable to check if the
+    # exit event happened prematurely due to an error, and reports
+    # that to the user (currently only for the deployment phase, 
+    # as that's by far the most complex).
+    # 
+    # TODO: some of the steps redirect stderr to /dev/null, should
+    # probably make sure it's visible instead to help debug problems
+    if [[ "${deployment_ok}" == false ]]
+    then
+        echo -e "\n\n*** The selected TaskMAD deployment steps were NOT successfully completed!"
+        echo "*** Check the output above for error messages"
+    else
+        echo -e "\n\nThe selected TaskMAD deployment steps were successfully completed!"
+    fi
+}
+
 echo_color() {
     # Simple wrapper for the echo command to print coloured messages
     # 
@@ -573,7 +597,7 @@ check_clusters() {
     # Return code: ignored (should exit on error)
 
     declare -r interval=20
-    echo_color "Showing cluster states every ${interval}s!\n\n"
+    echo_color "Showing cluster states every ${interval}s\n\n"
 
     while true
     do
@@ -662,6 +686,13 @@ then
     setup_deployments
 elif [[ "${1}" == "create" ]]
 then
+    # hook up the exit_handler function above to the bash "EXIT" signal, 
+    # so it will be called when the script exits (for any reason)
+    trap exit_handler EXIT
+
+    # see exit_handler above
+    deployment_ok=false
+
     # allow only selected steps to be executed using phases variable
 
     # check for the required GCP services being enabled and enable them if necessary
@@ -705,6 +736,9 @@ then
     then
         setup_clusters 
     fi
+
+    # for exit_handler, see above
+    deployment_ok=true
 elif [[ "${1}" == "manage" ]]
 then
     # manage a cluster with kubectl
