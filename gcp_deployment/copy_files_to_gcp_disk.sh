@@ -152,8 +152,6 @@ format_disk() {
     #   Return value: ignored (should exit on error)
 
     run_ssh_command "${1}" "sudo /sbin/mkfs.ext4 -q /dev/disk/by-id/google-${2}" "Formatting the disk"
-    # echo "> Formatting the disk..."
-    # gcloud compute ssh "${1}" --command "sudo /sbin/mkfs.ext4 -q /dev/disk/by-id/google-${2}"
 }
 
 scp_files_to_disk() {
