@@ -23,6 +23,10 @@ NC="\e[0m"
 
 script_path="$( dirname -- "$0"; )"
 
+# avoid using deprecated kubectl auth method, see 
+# https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+
 declare deployment_ok=true
 
 exit_handler() {
