@@ -36,7 +36,12 @@ elif [[ "${3}" == "build" ]]
 then
     pushd "${script_path}/../agent-dialogue-core"
 
-    # override the default config file URL with the one defined in deploy_gcp_config
+    # couple of extra steps here:
+    #   1. create a copy of search_api_config.json with the correct search API endpoint
+    declare -r domain="${search[domain]}"
+    sed < "../gcp_deployment/template_files/search/search_api_config-template.json" \
+        -e "s/SEARCH_API_ENDPOINT/${domain}/g" > search_api_config.json
+    #   2. override the default config file URL with the one defined in deploy_gcp_config
     docker build --build-arg config_url="${config_url}" -f Dockerfile -t grpc-server:latest .
     docker tag grpc-server:latest "${remote}"/grpc-server:latest
 
