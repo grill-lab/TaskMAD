@@ -4,9 +4,9 @@
 # ===========================
 # compute region for the deployment, e.g. europe-west2. Different zones may have different
 # costs associated with them
-declare -r region="europe-west2"
+declare -r region="europe-west4"
 # compute zone for the deployment (this should be a zone within the above region, e.g. europe-west2-a)
-declare -r zone="europe-west2-a"
+declare -r zone="${region}-b"
 # the names of the services that are required for the deployments:
 # - Kubernetes Engine API
 # - Artifact Registry API
