@@ -502,6 +502,20 @@ cleanup_resources() {
     #  - delete artifact repo to get rid of the images inside
     #  - delete the reserved IPs 
     #  - delete the temporary VM used to format disks (might be left running if an error occurs)
+    #  - delete managed SSL certs
+
+    # retrieve list of SSL certificates currently existing
+    # TODO could be a function
+    declare -A certinfo
+    while read -r name domain;
+    do
+        if [[ "${name}" == "NAME" ]]
+        then
+            # skip header line
+            continue
+        fi
+        certinfo["${name}"]="${domain}"
+    done <<<$(gcloud compute ssl-certificates list --format="table(name, managed.domains[0])")
 
     echo_color "*** WARNING: this will attempt to delete the following resources\n" "${RED}"
     for d in "${deployments[@]}"
@@ -522,6 +536,7 @@ cleanup_resources() {
     done
     echo_color "[other]\n"
     echo_color " - Repository:\t ${repo_name}\n" "${YELLOW}"
+    echo_color " - Managed SSL certs: \t ${#certinfo[@]} certs found\n" "${YELLOW}"
     echo_color "\n"
 
     read -p "Do you wish to continue (y/n)? " -n 1 -r
@@ -575,6 +590,16 @@ cleanup_resources() {
         then
             echo_color "> Failed to delete artifact repo (may already have been deleted)\n" "${YELLOW}"
         fi
+
+        echo_color "> Deleting SSL certs...\n"
+        for name in "${!certinfo[@]}"
+        do 
+            echo_color "\tDeleting cert ID ${name} for ${certinfo[${name}]}\n" "${YELLOW}"
+            if ! gcloud compute ssl-certificates delete "${name}" --global --quiet 2> /dev/null
+            then
+                echo_color "> Failed to delete this certificate!\n" "${YELLOW}"
+            fi
+        done
 
     else
         echo_color "No resources have been deleted.\n"
