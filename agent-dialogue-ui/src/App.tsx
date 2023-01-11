@@ -19,7 +19,7 @@ class App extends Component<{}, IAppState> {
 
     const params: StringMap = {
       conversationID: "test",
-      url: "https://backend-server.online",
+      url: process.env.REACT_APP_BACKEND_URL as string,
       userID: "user",
       isAudioRecordingEnabled: '',
       isTextToSpeechEnabled: '',

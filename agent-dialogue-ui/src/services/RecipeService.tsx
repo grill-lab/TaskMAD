@@ -12,7 +12,8 @@ export class RecipeService {
 
         var dataJson = undefined;
         try {
-            const response = await fetch('https://storage.googleapis.com/taskmad-public-bucket/associated_recipes.json', requestOptions);
+            const recipes_url = process.env.REACT_APP_RECIPE_URL;
+            const response = await fetch(recipes_url as string, requestOptions);
             dataJson = await response.json();
 
             if (dataJson !== undefined) {
@@ -21,7 +22,7 @@ export class RecipeService {
             }
 
         } catch (error) {
-            console.log(error)
+            console.log('Recipe fetch error: %o', error);
         }
 
         return dataJson;
