@@ -17,8 +17,11 @@ then
     exit 1
 fi
 
-# declare -r config_file="${1}"
+declare -r config_file="${1}"
 declare -r remote="${2}"
+
+# shellcheck disable=1090
+source "${config_file}"
 
 script_path="$( dirname -- "$0"; )"
 
@@ -30,7 +33,9 @@ elif [[ "${3}" == "build" ]]
 then
     pushd "${script_path}/../agent-dialogue-ui"
 
-    docker build -f Dockerfile -t chat:latest .
+    # set the recipe URL and default backend endpoint from the config file
+    declare -r backend_url="https://${core[domain]}"
+    docker build --build-arg recipe_url="${recipe_url}" --build-arg backend_url="${backend_url}" -f Dockerfile -t chat:latest .
     docker tag chat:latest "${remote}"/chat:latest
 
     popd
