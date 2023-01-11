@@ -60,13 +60,18 @@ core[service_name]="esp-core-envoy"
 # Docker build command
 core[docker_build_script]="./build_images_core.sh"
 # Path to local folder containing files that must be copied to the persistent disk
-# for the deployment (blank if not required, ignored if not disk_name given)
+# for the deployment (blank if not required, ignored if not disk_name given).
+#
+# For the core deployment, this should currently contain the JSON file containing your
+# Firebase private key information (see the main README for details).
 core[local_files_path]="./core_disk_files"
 # Remote path to copy the local_files into on the remote disk such that when mounted
 # the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
 # is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
-# should be accessible at /mnt/disk/foo/bar by the Pod 
+# should be accessible at /mnt/disk/foo/bar by the Pod.
 # (blank if not required, but must be set if local_files_path is set)
+#
+# For the core deployment, this should currently be set to "."
 core[remote_files_path]="."
 # name of the Google-managed SSL certificate to create for HTTPS access
 core[cert_name]="cert-core"
@@ -82,7 +87,7 @@ declare -A chat
 chat[machine_type]="g1-small"
 # number of nodes in the cluster node pool. Increasing this will increase costs.
 chat[node_count]=1
-# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs.
 chat[boot_disk_size_gb]=32
 # disk size in gigabytes for the persistent disk used for the PVC
 chat[disk_size_gb]=0
@@ -98,7 +103,7 @@ chat[pvc_name]=""
 chat[pv_name]=""
 # disk label for the disk backing the PV (blank if none required)
 chat[disk_name]=""
-# path to script to generate a deployment 
+# path to script to generate a deployment
 chat[deployment_script]="./create_chat_deployment.sh"
 # name of service for accessing the deployment
 chat[service_name]="chat-app"
@@ -110,7 +115,7 @@ chat[local_files_path]=""
 # Remote path to copy the local_files into on the remote disk such that when mounted
 # the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
 # is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
-# should be accessible at /mnt/disk/foo/bar by the Pod 
+# should be accessible at /mnt/disk/foo/bar by the Pod
 # (blank if not required, but must be set if local_files_path is set)
 chat[remote_files_path]=""
 # name of the Google-managed SSL certificate to create for HTTPS access
@@ -119,7 +124,7 @@ chat[cert_name]="cert-chat"
 # certificate and configuring the deployment)
 chat[domain]="taskmad-chat.andrewramsay.net" # e.g. chat-uog.online
 
-# Parameters for the Search API deployment 
+# Parameters for the Search API deployment
 # ==================================
 declare -A search
 # machine-type for the Kubernetes cluster nodes. These are described at https://cloud.google.com/compute/docs/machine-types
@@ -127,7 +132,7 @@ declare -A search
 search[machine_type]="e2-standard-4"
 # number of nodes in the cluster node pool. Increasing this will increase costs.
 search[node_count]=1
-# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs. 
+# boot disk size in gigabytes for the cluster nodes. Increasing this will increase costs.
 search[boot_disk_size_gb]=100
 # disk size in gigabytes for the persistent disk used for the PVC
 search[disk_size_gb]=100
@@ -143,21 +148,26 @@ search[pvc_name]="disk-indexes-claim"
 search[pv_name]="disk-indexes"
 # disk label for the disk backing the PV (blank if none required)
 search[disk_name]="disk-indexes-disk"
-# path to script to generate a deployment 
+# path to script to generate a deployment
 search[deployment_script]="./create_search_deployment.sh"
 # name of service for accessing the deployment
-search[service_name]="search-api-service" 
+search[service_name]="search-api-service"
 # Docker build command
-search[docker_build_script]="./build_images_searchapi.sh" 
+search[docker_build_script]="./build_images_searchapi.sh"
 # Path to local folder containing files that must be copied to the persistent disk
 # for the deployment (blank if not required, ignored if not disk_name given)
-search[local_files_path]="./search_disk_files"
+#
+# For the search API, this should be a path to a directory containing the
+# search indexes you want the API to have access to.
+search[local_files_path]="../../search_api_indexes/"
 # Remote path to copy the local_files into on the remote disk such that when mounted
 # the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
 # is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
-# should be accessible at /mnt/disk/foo/bar by the Pod 
+# should be accessible at /mnt/disk/foo/bar by the Pod
 # (blank if not required, but must be set if local_files_path is set)
-search[remote_files_path]="/TODO"
+#
+# For the search component, this should currently be set to "."
+search[remote_files_path]="."
 # name of the Google-managed SSL certificate to create for HTTPS access
 search[cert_name]="cert-search"
 # URL where the service should be accessible (for use when creating the
