@@ -269,7 +269,7 @@ setup_disks() {
     #
     # Return value: ignored (should exit on error)
 
-    echo_color "> Creating disks (if necessary)\n"
+    echo_color "> Creating disks (if necessary) in zone ${zone}\n"
     for d in "${deployments[@]}"
     do
         # check if this deployment needs a disk at all
@@ -353,7 +353,13 @@ setup_clusters() {
         cluster_name="${d}[cluster_name]"
         # check if there's a cluster already running with the expected name
         echo_color "> Checking for existing cluster with name ${!cluster_name}..."
-        resp=$(gcloud container clusters list --filter "name=${!cluster_name}" 2> /dev/null)
+        if [[ -z "${zone}" ]]
+        then
+            resp=$(gcloud container clusters list --filter "name=${!cluster_name}" --region "${region}" 2> /dev/null)
+        else
+            resp=$(gcloud container clusters list --filter "name=${!cluster_name}" --zone "${zone}" 2> /dev/null)
+        fi
+
         if is_response_not_empty "${resp}"
         then
             echo_color "cluster found!\n"
@@ -533,7 +539,7 @@ cleanup_resources() {
             echo_color "> Deleting resources for deployment ${d}...\n"
 
             echo_color " - Deleting K8S cluster ${!cluster_name} (this can take a few minutes to complete once started!)\n"
-            if ! gcloud container clusters delete "${!cluster_name}" --quiet --async 2> /dev/null
+            if ! gcloud container clusters delete "${!cluster_name}" --zone="${zone}" --quiet --async 2> /dev/null
             then
                 echo_color " ! Failed to delete cluster (may already have been deleted or still provisioning)\n" "${YELLOW}"
             fi
@@ -556,7 +562,7 @@ cleanup_resources() {
             fi
 
             echo_color " - Deleting temporary VM instance ${vm_name}-${d}\n"
-            if ! gcloud compute instances delete "${vm_name}-${d}" --quiet 2> /dev/null
+            if ! gcloud compute instances delete "${vm_name}-${d}" --zone="${zone}" --quiet 2> /dev/null
             then
                 echo_color " - Failed to delete VM instance (may already have been deleted)\n" "${YELLOW}"
             fi
