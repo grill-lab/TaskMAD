@@ -19,7 +19,9 @@ declare -r repo_name="taskmad-repo"
 # can be overridden with DEPLOYMENTS env var if needed
 declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 # URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
-declare -a config_url=( "https://www.dcs.gla.ac.uk/~adr/taskmad.json" )
+declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad.json"
+# URL of the JSON recipes file used by the chat service
+declare -a recipe_url="https://storage.googleapis.com/test-18a70.appspot.com/associated_recipes.json"
 # name of the temporary VM used during deployment to format disks
 declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
