@@ -129,7 +129,7 @@ run_ssh_command() {
     for (( i=1; i<=num_retries; i++ )) 
     do
         echo "> ${3}..."
-        if ! gcloud compute ssh "${1}" --command "${2}"
+        if ! gcloud compute ssh "${1}" --command "${2}" --zone="${zone}"
         then
             echo "    (retry #${i}/${num_retries})"
             sleep "${retry_delay}"
@@ -176,7 +176,7 @@ scp_files_to_disk() {
     declare local_sz
     local_sz=$(du -sm "${3}" | awk '{ print $1; }')
     echo "> Copying a total of ${local_sz}MB of files to remote..."
-    gcloud compute scp --recurse "${3}"/* "${1}:${mountpoint}/${4}"
+    gcloud compute scp --recurse "${3}"/* "${1}:${mountpoint}/${4}" --zone="${zone}"
     echo "> Finished copying files!"
     run_ssh_command "${1}" "sudo sync && sudo umount ${mountpoint}" "Unmounting disk"
     echo "> Disk unmounted"
@@ -185,7 +185,7 @@ scp_files_to_disk() {
 if ! does_vm_exist "${vm_name}" "${zone}"
 then
     echo "> Creating a VM instance called ${vm_name}..."
-    gcloud compute instances create "${vm_name}" --image-family=debian-11 --image-project=debian-cloud --machine-type=f1-micro --network-tier=STANDARD
+    gcloud compute instances create "${vm_name}" --image-family=debian-11 --image-project=debian-cloud --machine-type=e2-micro --network-tier=STANDARD --zone="${zone}"
 else
     echo "> Using existing VM ${vm_name}"
 fi
@@ -201,15 +201,15 @@ does_disk_exist "${disk_name}" "${zone}"
 
 # using device-name here allows the disk to be easily accessed under that for mounting/formatting
 echo "> Attaching disk ${disk_name}..."
-if ! gcloud compute instances attach-disk "${vm_name}" --disk "${disk_name}" --device-name="${disk_name}"
+if ! gcloud compute instances attach-disk "${vm_name}" --disk "${disk_name}" --device-name="${disk_name}" --zone="${zone}"
 then
     # probably means already attached from a previous attempt"
     echo "> Failed to attach disk, attempting to detach it..."
-    gcloud compute instances detach-disk "${vm_name}" --disk "${disk_name}"
+    gcloud compute instances detach-disk "${vm_name}" --disk "${disk_name}" --zone="${zone}"
     # assume it wasn't formatted on the previous attempt
     new_disk="true"
     echo "> Re-attaching disk ${disk_name}..."
-    gcloud compute instances attach-disk "${vm_name}" --disk "${disk_name}" --device-name="${disk_name}"
+    gcloud compute instances attach-disk "${vm_name}" --disk "${disk_name}" --device-name="${disk_name}" --zone="${zone}"
 fi
 
 if [[ "${new_disk}" = "true" ]]
@@ -224,10 +224,10 @@ scp_files_to_disk "${vm_name}" "${disk_name}" "${src}" "${dest}"
 
 # detach the disk from the VM
 echo "> Detaching disk..."
-gcloud compute instances detach-disk "${vm_name}" --disk "${disk_name}"
+gcloud compute instances detach-disk "${vm_name}" --disk "${disk_name}" --zone="${zone}"
 
 # dispose of VM
 echo "> Deleting VM instance ${vm_name}..."
-gcloud compute instances delete "${vm_name}" --quiet 
+gcloud compute instances delete "${vm_name}" --zone="${zone}" --quiet
 
 echo "> Completed successfully!"
