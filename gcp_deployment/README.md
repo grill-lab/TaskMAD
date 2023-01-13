@@ -10,11 +10,13 @@ There are 4 components or services that make up a minimal TaskMAD deployment, na
  * `core`: a gRPC server which handles communication, logging, etc
  * `chat`: a React webapp allowing a user to interact with the system
  * `woz`: a React webapp for the wizard to interact with the system
- * `search`: a REST API implementation used by the wizard to retrieve data for the user
+ * `search`: a REST API implementation used by the other services to retrieve data
 
 The deployment script will create a GCP K8S cluster for each component alongside any additional resources required (external IPs, SSL certificates, a Docker image repository, GCP disks).
 
 ## Prequisites and initial steps
+
+### Source code structure
 
 The current [TaskMAD repo](https://github.com/grill-lab/TaskMAD/) only contains 2 of the 4 components that need to be deployed, the `core` gRPC server and the `chat` webapp. The other 2 components are in separate repos and will need to be cloned to your local machine individually. The expected directory structure for the scripted deployment method is:
 ```sh
@@ -24,14 +26,16 @@ The current [TaskMAD repo](https://github.com/grill-lab/TaskMAD/) only contains 
    \GroundedKnowledgeInterface  # search component
 ```
 
-Future versions of TaskMAD will merge the `woz` and `search` components into the TaskMAD repository. 
+Future versions of TaskMAD will merge the `woz` and `search` components into the TaskMAD repository.
+
+### Pre-deployment steps
 
 Before continuing to deploy TaskMAD:
 * Follow the documentation on configuring a Firebase instance and creating a JSON configuration file (this will need to be loaded by the `core` component)
-* Perform a local deployment with Minikube and check for any initial problems with building and running the various Docker images (`TODO`: the docs won't currently cover the wizard and search API deployments)
+* (optionally) Perform a local deployment with Minikube and check for any initial problems with building and running the various Docker images (`TODO`: the docs won't currently cover the wizard and search API deployments)
 * If necessary, create a new Google Cloud project through the [Cloud Console](https://console.cloud.google.com) to host the deployment
 * You will also need to [enable billing on your account](https://console.cloud.google.com/billing/) as the deployment will incur costs (although you can use free trial period for testing)
-* Ensure you have a domain available which can be used to direct traffic to each of the components 
+* Ensure you have a domain available which can be used to direct traffic to each of the components
 
 ## Deploying with the script
 
@@ -39,11 +43,14 @@ The `deploy_gcp_config` file defines a long list of parameters for the `deploy_g
 
 Most of the parameters already have suitable defaults. Change the following parameters in the "Cross-deployment" section to suit your intended deployment:
 * set `region` and `zone` to your preferred GCP locations (e.g. `europe-west2` and `europe-west2-a` respectively) 
-* set `config_url` to the URL of your JSON configuration file as described in the [TaskMAD documentation](https://github.com/grill-lab/TaskMAD/#configuration-file)
+* set `config_url` to the URL of your JSON configuration file as described in the [TaskMAD documentation](https://github.com/grill-lab/TaskMAD/#configuration-file) and make sure the URL is publicly available
+* set `recipe_url` to the URL of your recipes JSON file and make sure the URL is publicly available 
 
 Additional per-deployment parameters that you will probably need to change from the defaults are:
 * set the `domain` parameter for each component to the domain you want to assign to it (SSL certificate creation is handled by GCP)
-* set `local_files_path` for the `core` and `search` deployments. Both of these deployments rely on a GCP persistent disk as file storage, and so the script needs to copy files from your local machine to the GCP disk before the deployment is rolled out. The `local_files_path` parameter is used to set the local directory containing the necessary files for each deployment
+* set `local_files_path` for the `core` and `search` deployments. Both of these deployments rely on a GCP persistent disk as file storage, and so the script needs to copy files from your local machine to the GCP disk before the deployment is rolled out. The `local_files_path` parameter is used to set the local directory containing the necessary files for each deployment. The paths should be set as follows:
+  * `core[local_files_path]` should point to a folder containing the Firebase JSON API keys file
+  * `search[local_files_path]` should point to a folder containing the search API index files
 * you may need to adjust the `search[disk_size_gb]` if your indexes are particularly large (the default size is 100GB).
 
 The remaining parameters will not normally need to be adjusted for a single new deployment, but if you want to create multiple deployments within the same GCP project you will need to update names of clusters aand other objects to avoid name clashes.
@@ -57,7 +64,7 @@ Running `./deploy_gcp.sh` will print some usage information. The script has seve
 * `./deploy_gcp.sh cleanup`: attempts to delete all deployments, clusters, and other GCP resources
 * `./deploy_gcp.sh dockercleanup`: remove all local Docker images
 
-The intended workflow looks like this:
+The typical intended workflow looks like this:
 ```bash
 #   1. Create deployment resources (for all deployments)
 ./deploy_gcp.sh create
@@ -140,7 +147,9 @@ Once the output of `./deploy_gcp.sh domains` shows all certificates are active, 
 
 ### Step 6 - deleting resources
 
-When you're finished with a deployment you can run `./deploy_gcp.sh cleanup` to delete all the GCP resources created by the script. Note that this may need run more than once to ensure everything is deleted, e.g. it will fail to delete a persistent disk if that disk is still attached to a cluster that is in the process of being deleted but hasn't finished yet. It is recommended to manually check your [Cloud Console](https://console.cloud.google.com/) for any remaining resources to avoid extra billing charges. 
+When you're finished with a deployment you can run `./deploy_gcp.sh cleanup` to delete all the GCP resources created by the script. **Note that this may need run more than once to ensure everything is deleted**, e.g. it will fail to delete a persistent disk if that disk is still attached to a cluster that is in the process of being deleted but hasn't finished yet. Similarly SSL certificates are tied to cluster load balancers and can't be deleted while those still exist. 
+
+It is recommended to manually check your [Cloud Console](https://console.cloud.google.com/) for any remaining resources to avoid extra billing charges. 
 
 ## Deploying manually
 
