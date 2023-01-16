@@ -17,7 +17,9 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.3.2 && \
 RUN ["mvn", "clean"]
 RUN ["mvn", "install"]
 
-
 EXPOSE 8070
 
-CMD ["java", "-jar", "target/agent-dialogue-core-0.1-SNAPSHOT.jar", "https://storage.googleapis.com/taskmad-public-bucket/core-config.json"]
+# allow a new URL to be passed with --build-arg config_url=<URL>
+ARG config_url
+ENV CONFIG_URL=${config_url:-"https://storage.googleapis.com/taskmad-public-bucket/core-config.json"}
+CMD java -jar target/agent-dialogue-core-0.1-SNAPSHOT.jar ${CONFIG_URL}

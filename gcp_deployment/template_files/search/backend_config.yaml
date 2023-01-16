@@ -1,0 +1,15 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: esp-search-backend-config
+spec:
+  # Connection open for max 24hrs
+  timeoutSec: 86400
+  healthCheck:
+    # The health of the service is based on 
+    # the health of the grpc-health-proxy 
+    # which supports http on port 8080
+    checkIntervalSec: 60
+    port: 5000
+    type: HTTP
+    requestPath: /healthz

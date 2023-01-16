@@ -168,34 +168,4 @@ If the process has been successful, we should be able to interact with the two a
 
 ## Deployment on Google Cloud
 
-Deploying to Google Cloud requires multiple services to communicate and interact correclty. Before to proceed make sure to have done all the steps required up to **Local Deployment**. 
-
-### Step 1: Creating static external IP addresses
-
-1. The first thing we need to do is to create static external IP addresses that won't change as we redeploy our application. This will make our applications accessible. To do so, in the Google Cloud console, go to the *External IP addresses* under the *VPC Network* tab. 
-2. Reserve 2 different ip addresses one for the chat interface and one for the grpc server. Here you can pick either regional or global addresses as desired. 
-3. Now, specify the reserved IP addresses in the files `chat_deployment_nginx.yaml` and `deployment-envoy.yaml` under the tag `loadBalancerIP`. 
-
-### Step 2: Create Artifact Registry Repository
-
-1. Create a an Artifact repository on Google Cloud with the preferred name. Select Docker as format. 
-2. Now we need to change again `chat_deployment_nginx.yaml` and `deployment-envoy.yaml` in order to specify from where our images will need to be pulled from when deploying to kubernetes. The path we are looking for should similar to the following one `europe-west2-docker.pkg.dev/agentdialoguesystem/agent-dialogue-system`
-	- Hence, in both .yaml files replace the `image` tag with the path previously defined in order to point to the images we will push later on. 
-
-### Step 3: Creating and Pusing Images to Artifact Registry
-
-At this point, we can create the images we need locally and push them to Artifact registry. To do so we proceed as follows: 
-
-1. Run the command `docker build -t envoy:latest -f envoy_updated.Dockerfile .` from within the `config` folder
-2. Run the command `docker build -t grpc-server:latest  .` from within the `agent-dialogue-core` folder
-3. Run the command `docker build -t chat:latest .` from within the folder `agent-dialogue-ui`
-4. Now push the images to Artifact registry by followign [this guide.](https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling)
-
-### Step 4: Creating Clusters 
-
-In order to deploy  
-
-
-
-
-
+Deploying to Google Cloud requires multiple services to communicate and interact correclty. Before to proceed make sure to have done all the steps required up to **Local Deployment**. The Google Cloud deployment process is described in more detail [here](gcp_deployment/README.md).

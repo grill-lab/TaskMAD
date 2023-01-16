@@ -1,0 +1,10 @@
+{
+    "search_api":{
+        "root_url": "https://SEARCH_API_ENDPOINT",
+        "api_endpoints": {
+            "query_documents": "/search",
+            "page": "/extract_page",
+            "recipe": "/recipe"
+        }
+    }
+}
