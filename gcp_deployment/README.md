@@ -22,8 +22,8 @@ The current [TaskMAD repo](https://github.com/grill-lab/TaskMAD/) only contains 
 ```sh
 \<deployment root>
    \TaskMAD                     # core and chat components
-   \WoZStudy                    # woz component
-   \GroundedKnowledgeInterface  # search component
+   \WoZStudy                    # woz component (as of 21/3/23, use the fix_build_issue branch)
+   \GroundedKnowledgeInterface  # search component (as of 21/3/23, use the taskmad_deployment_tweaks branch)
 ```
 
 Future versions of TaskMAD will merge the `woz` and `search` components into the TaskMAD repository.
@@ -36,6 +36,12 @@ Before continuing to deploy TaskMAD:
 * If necessary, create a new Google Cloud project through the [Cloud Console](https://console.cloud.google.com) to host the deployment
 * You will also need to [enable billing on your account](https://console.cloud.google.com/billing/) as the deployment will incur costs (although you can use free trial period for testing)
 * Ensure you have a domain available which can be used to direct traffic to each of the components
+* Install required tools/software:
+  * Install [kubectl](https://kubernetes.io/docs/tasks/tools/), e.g. `gcloud components install kubectl`, or install it using a package manager
+  * Follow the instructions at https://cloud.google.com/sdk/docs/install to install `gcloud` 
+  * Once `gcloud` is installed, run `gcloud init` to login and set the default project to the one you want to use for the deployment
+  * You also need the [GKE auth plugin](https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke), which can be installed with `gcloud components install gke-gcloud-auth-plugin` or through a package manager [if configured](https://cloud.google.com/sdk/docs/install#deb)
+* Once `gcloud` is installed, run `gcloud compute configure-ssh`. If no SSH configuration is found, this will create a new key and prompt you for a passphrase. To allow the script to run without interaction it's easiest to set a blank passphrase here
 
 ## Deploying with the script
 
@@ -43,14 +49,15 @@ The `deploy_gcp_config` file defines a long list of parameters for the `deploy_g
 
 Most of the parameters already have suitable defaults. Change the following parameters in the "Cross-deployment" section to suit your intended deployment:
 * set `region` and `zone` to your preferred GCP locations (e.g. `europe-west2` and `europe-west2-a` respectively) 
-* set `config_url` to the URL of your JSON configuration file as described in the [TaskMAD documentation](https://github.com/grill-lab/TaskMAD/#configuration-file) and make sure the URL is publicly available
-* set `recipe_url` to the URL of your recipes JSON file and make sure the URL is publicly available 
+* set `config_url` to the URL of your JSON configuration file as described in the [TaskMAD documentation](https://github.com/grill-lab/TaskMAD/#configuration-file) and make sure the URL is publicly available 
+* set `recipe_url` to the URL of your recipes JSON file and make sure the URL is publicly available (also see the note on [CORS configuration](#cors-configuration))
 
 Additional per-deployment parameters that you will probably need to change from the defaults are:
 * set the `domain` parameter for each component to the domain you want to assign to it (SSL certificate creation is handled by GCP)
 * set `local_files_path` for the `core` and `search` deployments. Both of these deployments rely on a GCP persistent disk as file storage, and so the script needs to copy files from your local machine to the GCP disk before the deployment is rolled out. The `local_files_path` parameter is used to set the local directory containing the necessary files for each deployment. The paths should be set as follows:
   * `core[local_files_path]` should point to a folder containing the Firebase JSON API keys file
   * `search[local_files_path]` should point to a folder containing the search API index files
+  * note that you should **not** normally need to edit the `[remote_files_path]` values
 * you may need to adjust the `search[disk_size_gb]` if your indexes are particularly large (the default size is 100GB).
 
 The remaining parameters will not normally need to be adjusted for a single new deployment, but if you want to create multiple deployments within the same GCP project you will need to update names of clusters aand other objects to avoid name clashes.
@@ -222,3 +229,16 @@ Click the `Create` button and choose "Standard" mode. Set your desired cluster n
 
 ---
 TODO: describe how to actually deploy services to clusters. this shouldn't be too complex, mostly running the kubectl auth command, then manually editing parameters in deployment files and running kubectl apply commands...
+
+
+## CORS configuration
+
+For the recipe JSON file (the `recipe_url` configuration value) to be loaded in the `chat` webapp, the hosting server needs to be configured to allow the file to be accessed from the location where the webapp is hosted. The mechanism used to allow/disallow cross-domain HTTP requests like this is called [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). 
+
+A simple way of hosting the JSON file with a public URL is to put it into a GCP storage bucket and make the file public. However in this case you need to set the CORS configuration for the bucket to allow the request. You can do this by running the command: 
+```
+gcloud storage buckets update gs://bucket_name --cors-file=TaskMAD/agent-dialogue-ui/google_bucket_cors.json
+```
+
+If you are hosting the JSON file on a webserver, consult the documentation for that server to find how to apply the same CORS configuration to it. 
+
