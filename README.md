@@ -108,12 +108,14 @@ The  **configuration\_file_URL** is the name of the JSON Firebase private key pr
 
 ### Update agent-dialogue-core Dockerfile
 
-We need to update the `Dockerfile ` in the `agent-dialogue-core` in order to tell it where to find the configuration file. The URL mapping to the configuration file has to be specified in this line in the `Dockerfile`
+The `Dockerfile` for the `agent-dialogue-core` service needs to be given a URL to the configuration file. Note that this URL should point to the JSON file described in the previous step, not the `configuration_file_URL` values defined inside the file itslef.
 
-```yaml
-CMD ["java", "-jar", "target/agent-dialogue-core-0.1-SNAPSHOT.jar",
- "<URL_CONFIG_FILE>"]
-``` 
+The URL should be supplied as a parameter when building the Docker image, e.g.:
+```
+docker build -f Dockerfile --build-arg config_url=https://somehost.com/config.json .
+```
+
+If you are creating a GCP deployment, this step is handled automatically (see the [README](gcp_deployment/README.md)).
 
 ## Local Deployment 
 
