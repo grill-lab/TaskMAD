@@ -17,8 +17,11 @@ then
     exit 1
 fi
 
-# declare -r config_file="${1}"
+declare -r config_file="${1}"
 declare -r remote="${2}"
+
+# shellcheck disable=1090
+source "${config_file}"
 
 script_path="$( dirname -- "$0"; )"
 
@@ -32,7 +35,7 @@ then
     # currently assumes TaskMAD and WoZStudy repos are in the same parent directory
     pushd "${script_path}/../../WoZStudy/"
 
-    docker build -f Dockerfile -t woz:latest .
+    docker build --build-arg spreadsheet_url="${spreadsheet_url}" -f Dockerfile -t woz:latest .
     docker tag woz:latest "${remote}"/woz:latest
 
     popd
