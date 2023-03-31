@@ -24,6 +24,8 @@ declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad.json"
 declare -a recipe_url="http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json"
 # URL of the JSON topic data file
 declare -a data_url="http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json"
+# URL of the topic spreadsheet file for WoZ
+declare -a spreadsheet_url="http://gem.cs.ru.nl/grad-pkg/self-dialogue_input_excel.xlsx"
 # name of the temporary VM used during deployment to format disks
 declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
