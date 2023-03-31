@@ -9,6 +9,8 @@ WORKDIR /app
 # https://create-react-app.dev/docs/adding-custom-environment-variables)
 ARG recipe_url
 ENV REACT_APP_RECIPE_URL=${recipe_url:-"https://storage.googleapis.com/taskmad-public-bucket/associated_recipes.json"}
+ARG data_url
+ENV REACT_APP_DATA_URL=${data_url:-"https://storage.googleapis.com/taskmad-public-bucket/topic_data.json"}
 ARG backend_url
 ENV REACT_APP_BACKEND_URL=${backend_url:-"https://backend-server.online"}
 
