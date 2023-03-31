@@ -106,37 +106,6 @@ export class RecipePageComponent
     var resultMap = new Map<string, RecipeCheckboxModel[]>()
     if (tempRecipeModel !== undefined) {
 
-
-      // Create checkbox objects for the description
-      // let descriptionList = tempRecipeModel!.sentences.map((el: string) => {
-      //   return tempRecipeModel!.recipeModelToRecipeCheckboxModel('Description', el);
-      // })
-
-      // resultMap.set('Description', descriptionList);
-
-      // Generate the time sections
-      let prepTimeRecipeCheckboxModel = tempRecipeModel!.recipeModelToRecipeCheckboxModel('Time', 'Preparation Time: ' + tempRecipeModel!.durationMinutesPrep + ' minutes');
-      let cookingTimeRecipeCheckboxModel = tempRecipeModel!.recipeModelToRecipeCheckboxModel('Time', 'Cooking Time: ' + tempRecipeModel!.durationMinutesCooking + ' minutes');
-      let totalTimeRecipeCheckboxModel = tempRecipeModel!.recipeModelToRecipeCheckboxModel('Time', 'Total Time: ' + tempRecipeModel!.durationMinutesTotal + ' minutes');
-
-      //resultMap.set('Time', [prepTimeRecipeCheckboxModel, cookingTimeRecipeCheckboxModel, totalTimeRecipeCheckboxModel]);
-
-      // Create checkbox objects for the required equipment
-      let requiredEquipmentList = tempRecipeModel!.requiredEquipment.map((el: string) => {
-        return tempRecipeModel!.recipeModelToRecipeCheckboxModel('Required equipment', el);
-      })
-
-      //resultMap.set('Required equipment', requiredEquipmentList);
-
-      // Create checkbox objects for the required ingredients
-      let requiredIngredientsList = tempRecipeModel!.requiredIngredient.map((el: string) => {
-        return tempRecipeModel!.recipeModelToRecipeCheckboxModel('Required Ingredients', el);
-      })
-
-      //resultMap.set('Required Ingredients', requiredIngredientsList);
-
-      resultMap.set('Time, Equipment & Ingredients', [prepTimeRecipeCheckboxModel, cookingTimeRecipeCheckboxModel, totalTimeRecipeCheckboxModel].concat(requiredEquipmentList).concat(requiredIngredientsList));
-
       // Generate the steps checkbox models
       if (tempRecipeModel?.stepsSentencesWithImages !== undefined) {
         for (let i = 0; i < tempRecipeModel?.stepsSentencesWithImages.length; i++) {
@@ -213,11 +182,13 @@ export class RecipePageComponent
 
           let checkboxJsxElement = this.props.showCheckBoxes ? <Checkbox key={index} onChange={() => this.props.onSelectCheckbox(el)} checked={this.props.selectedCheckboxList.filter(checkbox => checkbox.isEqual(el)).length === 1} className={css.recipeCheckbox}></Checkbox> : undefined;
 
-          // Here we show either an image or the associated checkboxes
-          return isStringImagePath(el.sectionValue) ? <img src={el.sectionValue} className={css.recipeStepImage}></img> : <div>{checkboxJsxElement}<div className={css.checkBoxLabel}>{this.props.showCheckBoxes ? undefined : "- "}{el.sectionValue}</div></div>
+          // this is a bit hacky but uses __dangerouslySetInnerHTML to allow the supplied text from the topic JSON data to be 
+          // formatted as HTML
+          return <div>{checkboxJsxElement}<div className={css.checkBoxLabel} dangerouslySetInnerHTML={{__html: el.sectionValue}}></div></div>
         });
+
         if (sectionCheckboxes.length !== 0) {
-          var section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{currentSectionKey}</Header>{sectionCheckboxes}</div>)
+          var section = (<div className={css.recipeSectionDiv} key={counter}>{sectionCheckboxes}</div>)
           pageBody.push(section);
         }
 

@@ -226,8 +226,7 @@ class WoZDialogue
   }
 
   public async componentDidMount() {
-
-    var recipe = await RecipeService.getRecipeById(this.props.params.selectedRecipeId, this.props.connection);
+    var recipe = await RecipeService.getTopicById(this.props.params.selectedRecipeId);
 
     if (recipe !== undefined) {
       this.setState({
