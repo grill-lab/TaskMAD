@@ -176,9 +176,9 @@ class WoZParamForm extends React.Component<IWoZParamFormProperties, IWozParams> 
         <Form.Input label="Conversation ID" name="conversationID"
           value={conversationID} onChange={this.handleChange} />
         <Form.Field>
-          <label>Select Recipe</label>
+          <label>Select Topic</label>
           <Dropdown label="" name="selectedRecipeId" options={this.convertToDropdownOptions()}
-            value={selectedRecipeId} onChange={this.handleChangeDropdown} placeholder='Select Recipe' selection />
+            value={selectedRecipeId} onChange={this.handleChangeDropdown} placeholder='Select Topic' selection />
         </Form.Field>
         <Button type="submit" color="black">Submit</Button>
 
