@@ -21,7 +21,9 @@ declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 # URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
 declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad.json"
 # URL of the JSON recipes file used by the chat service
-declare -a recipe_url="https://storage.googleapis.com/test-18a70.appspot.com/associated_recipes.json"
+declare -a recipe_url="http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json"
+# URL of the JSON topic data file
+declare -a data_url="http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json"
 # name of the temporary VM used during deployment to format disks
 declare -a vm_name="tempvm"
 # phases of resource creation the script goes through. These can be 
@@ -77,7 +79,7 @@ core[remote_files_path]="."
 core[cert_name]="cert-core"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-core[domain]="taskmad-backend.andrewramsay.net" # e.g. backend-server.online
+core[domain]="taskmad-backend.grill.science" # e.g. backend-server.online
 
 # Parameters for the chat deployment 
 # ==================================
@@ -122,7 +124,7 @@ chat[remote_files_path]=""
 chat[cert_name]="cert-chat"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-chat[domain]="taskmad-chat.andrewramsay.net" # e.g. chat-uog.online
+chat[domain]="taskmad-chat.grill.science" # e.g. chat-uog.online
 
 # Parameters for the Search API deployment
 # ==================================
@@ -172,7 +174,7 @@ search[remote_files_path]="."
 search[cert_name]="cert-search"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-search[domain]="taskmad-search.andrewramsay.net" # e.g. search-api.online
+search[domain]="taskmad-search.grill.science" # e.g. search-api.online
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -217,4 +219,4 @@ woz[remote_files_path]=""
 woz[cert_name]="cert-woz"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-woz[domain]="taskmad-woz.andrewramsay.net" # e.g. woz-uog.online
+woz[domain]="taskmad-woz.grill.science" # e.g. woz-uog.online
