@@ -507,11 +507,18 @@ cleanup_resources() {
     # retrieve list of SSL certificates currently existing
     # TODO could be a function
     declare -A certinfo
+    certinfo=()
+
     while read -r name domain;
     do
         if [[ "${name}" == "NAME" ]]
         then
             # skip header line
+            continue
+        fi
+        if [[ -z "${name}" ]]
+        then
+            # skip empty output lines
             continue
         fi
         certinfo["${name}"]="${domain}"
