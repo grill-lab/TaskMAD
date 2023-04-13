@@ -95,8 +95,10 @@ export class ChatTranscript
             </div>
 
           } else {
+            const rexp = /((http|https):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
+            const message_text = message.text.replace(rexp, '<a href="$1" target="_blank">$1</a>')
             return <div className={css.row + " " + rowClass} key={index}>
-              <div className={css.cell + " " + cellClass}>{visibleUserID}{message.text}</div>
+              <div className={css.cell + " " + cellClass}>{visibleUserID}<span dangerouslySetInnerHTML={{__html: message_text}}/></div>
             </div>
           }
 
