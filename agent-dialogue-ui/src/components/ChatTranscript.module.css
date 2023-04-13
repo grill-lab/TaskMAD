@@ -56,13 +56,25 @@
 /*noinspection CssUnusedSymbol*/
 .ourCell {
   text-align: left;
-  background-color: var(--message-frame);
+  background-color: #dfc1ff;
+  color: #000000;
 }
 
 /*noinspection CssUnusedSymbol*/
 .theirCell {
   text-align: left;
-  background-color: #888888;
+  background-color: #ffdebc;
+  color: #000000;
+}
+
+/* override link colours inside the agent responses to make them more visible */
+.ourCell a {
+    color: #0000ff;
+}
+
+/* override link colours inside the agent responses to make them more visible */
+.theirCell a {
+    color: #0000ff;
 }
 
 /*noinspection CssUnusedSymbol*/
