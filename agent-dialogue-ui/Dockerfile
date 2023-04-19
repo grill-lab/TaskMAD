@@ -8,9 +8,9 @@ WORKDIR /app
 # names need to be prefixed with "REACT_APP_" for them to be visible (see the docs at
 # https://create-react-app.dev/docs/adding-custom-environment-variables)
 ARG recipe_url
-ENV REACT_APP_RECIPE_URL=${recipe_url:-"https://storage.googleapis.com/taskmad-public-bucket/associated_recipes.json"}
+ENV REACT_APP_RECIPE_URL=${recipe_url:-"http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json"}
 ARG data_url
-ENV REACT_APP_DATA_URL=${data_url:-"https://storage.googleapis.com/taskmad-public-bucket/topic_data.json"}
+ENV REACT_APP_DATA_URL=${data_url:-"http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json"}
 ARG backend_url
 ENV REACT_APP_BACKEND_URL=${backend_url:-"https://backend-server.online"}
 
