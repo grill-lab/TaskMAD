@@ -1,0 +1,99 @@
+# TaskMAD Docker deployment parameters
+
+# Cross-deployment parameters
+# ===========================
+# deployment names for use by the script (should match the names used below)
+# can be overridden with DEPLOYMENTS env var if needed
+declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
+# URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
+declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad.json"
+# URL of the JSON recipes file used by the chat service
+declare -a recipe_url="https://storage.googleapis.com/test-18a70.appspot.com/associated_recipes.json"
+# URL of the JSON recipes file used by the chat service
+declare -a recipe_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json&token=tmradboud"
+# URL of the JSON topic data file
+declare -a data_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json&token=tmradboud"
+# URL of the topic spreadsheet file for WoZ
+declare -a spreadsheet_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/self-dialogue_input_excel.xlsx&token=tmradboud"
+# envoy configuration file (path is relative to the location of the Dockerfile)
+declare -a envoy_config_file="./envoy-taskmad-docker.yaml"
+declare -a envoy_ssl_cert="./certs/cert.pem"
+declare -a envoy_ssl_privkey="./certs/privkey.pem"
+
+# Parameters for the core deployment 
+# ==================================
+declare -A core
+# path to script to generate a deployment 
+core[deployment_script]="./create_core_deployment.sh"
+# name of service for accessing the deployment
+core[service_name]="esp-core-envoy"
+# Docker build command
+core[docker_build_script]="./build_images_core.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given).
+#
+# For the core deployment, this should currently contain the JSON file containing your
+# Firebase private key information (see the main README for details).
+core[local_files_path]="./core_disk_files"
+# Remote path to copy the local_files into on the remote disk such that when mounted
+# the files will be accessible under /mountpoint/remote_files_path. e.g. if the disk
+# is mounted to a Pod at /mnt/disk and remote_files_path is /foo/bar, the files
+# should be accessible at /mnt/disk/foo/bar by the Pod.
+# (blank if not required, but must be set if local_files_path is set)
+#
+# For the core deployment, this should currently be set to "."
+core[remote_files_path]="."
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+core[domain]="taskmad-backend.grill.science:5000" # e.g. backend-server.online
+
+# Parameters for the chat deployment 
+# ==================================
+declare -A chat
+# path to script to generate a deployment
+chat[deployment_script]="./create_chat_deployment.sh"
+# name of service for accessing the deployment
+chat[service_name]="chat-app"
+# Docker build command
+chat[docker_build_script]="./build_images_chatui.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+chat[local_files_path]=""
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+chat[domain]="taskmad-chat.grill.science:5000" # e.g. chat-uog.online
+
+# Parameters for the Search API deployment
+# ==================================
+declare -A search
+# path to script to generate a deployment
+search[deployment_script]="./create_search_deployment.sh"
+# name of service for accessing the deployment
+search[service_name]="search-api-service"
+# Docker build command
+search[docker_build_script]="./build_images_searchapi.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+#
+# For the search API, this should be a path to a directory containing the
+# search indexes you want the API to have access to.
+search[local_files_path]="../../search_api_indexes/"
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+search[domain]="taskmad-search.grill.science:5000" # e.g. search-api.online
+
+# Parameters for the WOz deployment 
+# ==================================
+declare -A woz
+# path to script to generate a deployment 
+woz[deployment_script]="./create_woz_deployment.sh"
+# name of service for accessing the deployment
+woz[service_name]="woz-service"
+# Docker build command
+woz[docker_build_script]="./build_images_woz.sh"
+# Path to local folder containing files that must be copied to the persistent disk
+# for the deployment (blank if not required, ignored if not disk_name given)
+woz[local_files_path]=""
+# URL where the service should be accessible (for use when creating the
+# certificate and configuring the deployment)
+woz[domain]="taskmad-woz.grill.science:5000" # e.g. woz-uog.online
