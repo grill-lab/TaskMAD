@@ -1,10 +1,11 @@
 FROM envoyproxy/envoy:v1.19-latest
 
-COPY ./envoy.yaml /etc/envoy/envoy.yaml
-
-# COPY ./certs/fullchain.pem /etc/envoy/certs/fullchain.pem
-
-# COPY ./certs/privkey.pem /etc/envoy/certs/privkey.pem
+ARG envoy_config_file=./envoy.yaml
+COPY ${envoy_config_file} /etc/envoy/envoy.yaml
+ARG envoy_ssl_cert
+ARG envoy_ssl_privkey
+COPY ${envoy_ssl_cert} /etc/envoy/cert.pem
+COPY ${envoy_ssl_privkey} /etc/envoy/privkey.pem
 
 ENV ENVOY_UID=0
 
