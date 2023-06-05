@@ -60,12 +60,14 @@ export class RecipePageComponent
         last_message = this.props.dialogue.messages[this.props.dialogue.messages.length - 1];
       }
 
+
       // Here we check if the last message has been sent by the wizard and if the message is of type action 
       if (last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.ACTION) {
 
         // If that is the case we check whether the message has been sent no more than 5 seconds ago 
-        if (last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5) {
-
+        //if (last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5) {
+        if(true) { // want to "replay" step changes if resuming a conversation
+            console.log("ACTION MESSAGE %o", last_message)
           // We extract the actions
           var actions = last_message.actions;
           if (actions !== undefined && actions.length !== 0) {
@@ -81,6 +83,12 @@ export class RecipePageComponent
               if (this.recipeSectionIndex < this.recipeSections.length - 1) {
                 this.recipeSectionIndex += 1;
               }
+            }
+            // new bit
+            if (actions[0].startsWith('step')) {
+                let step = parseInt(actions[0].replace("step", ""))
+                console.log("jumping to step %o", step)
+                this.recipeSectionIndex = step - 1
             }
 
             // Once we move the a new section we also need to read section title and provide prompt 
@@ -132,74 +140,84 @@ export class RecipePageComponent
     this.recipeSections = Array.from(resultMap.keys()) !== undefined ? Array.from(resultMap.keys()) : [];
 
     return resultMap
-
-
   }
 
-  // Method used to generate the page body
-  private generatePageBodyFullPage(): JSX.Element[] {
-    let recipeMap = this.generatePageRecipeCheckboxModel();
-    var pageBody: JSX.Element[] = []
-    var counter = 0
+    // Method used to generate the page body
+    private generatePageBodyFullPage(): JSX.Element[] {
+        let recipeMap = this.generatePageRecipeCheckboxModel();
+        var pageBody: JSX.Element[] = []
+        var counter = 0
 
-    if (recipeMap.size > 0) {
-      recipeMap.forEach((value, key) => {
+        if (recipeMap.size > 0) {
+            recipeMap.forEach((value, key) => {
 
-        let sectionCheckboxes = value.map((el: RecipeCheckboxModel, index: number) => {
+            let sectionCheckboxes = value.map((el: RecipeCheckboxModel, index: number) => {
+                let checkboxJsxElement = this.props.showCheckBoxes ? <Checkbox key={index} 
+                                                                            onChange={() => this.props.onSelectCheckbox(el)} 
+                                                                            checked={this.props.selectedCheckboxList.filter(checkbox => checkbox.isEqual(el)).length === 1} 
+                                                                            className={css.recipeCheckbox}>
+                                                                </Checkbox> 
+                                                                : 
+                                                                undefined;
+                    // Here we show either an image or the associated checkboxes
+                    return isStringImagePath(el.sectionValue) ? 
+                        <img src={el.sectionValue} className={css.recipeStepImage}></img> 
+                        : 
+                        <div>{checkboxJsxElement}
+                            <div className={css.checkBoxLabel}>{
+                                this.props.showCheckBoxes ? undefined : "- "}{el.sectionValue}
+                            </div>
+                        </div>
+                });
+                if (sectionCheckboxes.length !== 0) {
+                    var section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{key}</Header>{sectionCheckboxes}</div>)
+                    pageBody.push(section);
+                }
 
-          let checkboxJsxElement = this.props.showCheckBoxes ? <Checkbox key={index} onChange={() => this.props.onSelectCheckbox(el)} checked={this.props.selectedCheckboxList.filter(checkbox => checkbox.isEqual(el)).length === 1} className={css.recipeCheckbox}></Checkbox> : undefined;
-          // Here we show either an image or the associated checkboxes
-          return isStringImagePath(el.sectionValue) ? <img src={el.sectionValue} className={css.recipeStepImage}></img> : <div>{checkboxJsxElement}<div className={css.checkBoxLabel}>{this.props.showCheckBoxes ? undefined : "- "}{el.sectionValue}</div></div>
-        });
-        if (sectionCheckboxes.length !== 0) {
-          var section = (<div className={css.recipeSectionDiv} key={counter}><Header as='h3'>{key}</Header>{sectionCheckboxes}</div>)
-          pageBody.push(section);
+                counter += 1;
+
+            });
         }
+        return pageBody;
 
-        counter += 1;
-
-      });
     }
 
+    // Method used to generate the page body
+    private generatePageBodySingleSection(displaySection: number = 0): JSX.Element[] {
+        let recipeMap = this.generatePageRecipeCheckboxModel();
+        var pageBody: JSX.Element[] = []
+        var counter = 0
 
-    return pageBody;
+        if (recipeMap.size > 0) {
+            // Get the key of the section we want to display 
+            let currentSectionKey = Array.from(recipeMap.keys())[displaySection];
+            let currentSectionValues = recipeMap.get(currentSectionKey)
+            if (currentSectionValues !== undefined) {
+                let sectionCheckboxes = currentSectionValues.map((el: RecipeCheckboxModel, index: number) => {
+                    let checkboxJsxElement = this.props.showCheckBoxes ? 
+                        <Checkbox key={index} 
+                            onChange={() => this.props.onSelectCheckbox(el)} 
+                            checked={this.props.selectedCheckboxList.filter(checkbox => checkbox.isEqual(el)).length === 1} 
+                            className={css.recipeCheckbox}></Checkbox> 
+                        : 
+                        undefined;
 
-  }
+                    // this is a bit hacky but uses __dangerouslySetInnerHTML to allow the supplied text from the topic JSON data to be 
+                    // formatted as HTML
+                    // return <div>{checkboxJsxElement}<div className={css.checkBoxLabel} key={index} dangerouslySetInnerHTML={{__html: foo}}></div></div>
+                    return <div className={css.checkBoxLabel} key={index} dangerouslySetInnerHTML={{__html: el.sectionValue}}></div>
+                });
 
-  // Method used to generate the page body
-  private generatePageBodySingleSection(displaySection: number = 0): JSX.Element[] {
-    let recipeMap = this.generatePageRecipeCheckboxModel();
-    var pageBody: JSX.Element[] = []
-    var counter = 0
+                if (sectionCheckboxes.length !== 0) {
+                    var section = (<div className={css.recipeSectionDiv} key={counter}>{sectionCheckboxes}</div>)
+                    pageBody.push(section);
+                }
 
-
-    if (recipeMap.size > 0) {
-      // Get the key of the section we want to display 
-      let currentSectionKey = Array.from(recipeMap.keys())[displaySection];
-      let currentSectionValues = recipeMap.get(currentSectionKey)
-      if (currentSectionValues !== undefined) {
-        let sectionCheckboxes = currentSectionValues.map((el: RecipeCheckboxModel, index: number) => {
-
-          let checkboxJsxElement = this.props.showCheckBoxes ? <Checkbox key={index} onChange={() => this.props.onSelectCheckbox(el)} checked={this.props.selectedCheckboxList.filter(checkbox => checkbox.isEqual(el)).length === 1} className={css.recipeCheckbox}></Checkbox> : undefined;
-
-          // this is a bit hacky but uses __dangerouslySetInnerHTML to allow the supplied text from the topic JSON data to be 
-          // formatted as HTML
-          return <div>{checkboxJsxElement}<div className={css.checkBoxLabel} dangerouslySetInnerHTML={{__html: el.sectionValue}}></div></div>
-        });
-
-        if (sectionCheckboxes.length !== 0) {
-          var section = (<div className={css.recipeSectionDiv} key={counter}>{sectionCheckboxes}</div>)
-          pageBody.push(section);
+                counter += 1;
+            }
         }
-
-        counter += 1;
-      }
-
-
+        return pageBody;
     }
-    return pageBody;
-
-  }
 
   // Generate the button interface used to navigate between sections
   // The method also takes the current section to displat as input 
@@ -236,12 +254,18 @@ export class RecipePageComponent
     }
   }
 
-
+  componentDidUpdate() {
+    // Right before rendering check whether we should update the recipe index or not
+    this.wizardNavigationController();
+  }
 
   public render(): React.ReactNode {
 
+    // NOTE: this seems to generate a React warning/error because it mutates state/props
+    // during a render(), so I've moved it to componentDidUpdate() for now..
+    //
     // Right before rendering check whether we should update the recipe index or not
-    this.wizardNavigationController();
+    // this.wizardNavigationController();
 
     let pageBody: JSX.Element[] = this.props.showFullPageCheckList ? this.generatePageBodyFullPage() : this.generatePageBodySingleSection(this.recipeSectionIndex);
     let errorMessage = <Message color='red' key='0'>An error occurred when retrieving the recipe. Try again later.</Message>

@@ -6,6 +6,7 @@ import css from "./ChatInput.module.css"
 
 export interface IControlledComponent<Value> {
   value: Value
+  disabled: boolean
   onUpdate: (newValue: Value) => void
   onCommit: () => void
   onRevert: () => void,
@@ -100,6 +101,7 @@ export class ValueInput
 
     return <ControlledInput
       {...inherited}
+      disabled={false}
       value={this.state.value}
       onCommit={this.onCommit}
       onRevert={this.onRevert}
@@ -140,6 +142,7 @@ export class ValueFormInput
 
     return <ControlledFormInput
       {...inherited}
+      disabled={false}
       value={this.state.value}
       onCommit={this.onCommit}
       onRevert={this.onRevert}
