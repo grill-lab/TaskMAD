@@ -682,4 +682,5 @@ agent-dialogue-ui/dist
 # Custom 
 agent-dialogue-core/keys/*
 !agent-dialogue-core/keys/.gitkeep
-
+config/certs/*
+!config/certs/.gitkeep
