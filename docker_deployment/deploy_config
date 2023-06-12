@@ -45,7 +45,7 @@ core[local_files_path]="./core_disk_files"
 core[remote_files_path]="."
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-core[domain]="taskmad-backend.grill.science:5000" # e.g. backend-server.online
+core[domain]="taskmad-backend.grill.science" # e.g. backend-server.online
 
 # Parameters for the chat deployment 
 # ==================================
@@ -61,7 +61,7 @@ chat[docker_build_script]="./build_images_chatui.sh"
 chat[local_files_path]=""
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-chat[domain]="taskmad-chat.grill.science:5000" # e.g. chat-uog.online
+chat[domain]="taskmad-chat.grill.science" # e.g. chat-uog.online
 
 # Parameters for the Search API deployment
 # ==================================
@@ -80,7 +80,7 @@ search[docker_build_script]="./build_images_searchapi.sh"
 search[local_files_path]="../../search_api_indexes/"
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-search[domain]="taskmad-search.grill.science:5000" # e.g. search-api.online
+search[domain]="taskmad-search.grill.science" # e.g. search-api.online
 
 # Parameters for the WOz deployment 
 # ==================================
@@ -96,4 +96,4 @@ woz[docker_build_script]="./build_images_woz.sh"
 woz[local_files_path]=""
 # URL where the service should be accessible (for use when creating the
 # certificate and configuring the deployment)
-woz[domain]="taskmad-woz.grill.science:5000" # e.g. woz-uog.online
+woz[domain]="taskmad-woz.grill.science" # e.g. woz-uog.online
