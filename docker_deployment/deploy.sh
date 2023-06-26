@@ -83,22 +83,44 @@ create_containers() {
     # to the appropriate containers. the envoy Docker image is using host
     # networking because we need to redirect connections to the separate
     # deployment for the cast searcher
+
+    # TODO build this even if core not selected
     docker run --rm -d --name envoy --network host envoy:latest
-    # Core listens on port 8070, and needs a volume mounted with config files/keys 
-    docker run --rm -d --name grpc-server -p 8070:8070 --mount type=bind,src=./core_files,dst=/code/keys grpc-server:latest
-    # Chat listens on port 80
-    docker run --rm -d --name chat -p 8080:80 chat:latest
-    # Woz listens on port 80
-    docker run --rm -d --name woz -p 8090:80 woz:latest
-    # Search listens on port 5000
-    docker run --rm -d --name search -p 8100:5000 search-api:latest
+    if [[ "${deployments[*]}" =~ "core" ]]
+    then
+        # Core listens on port 8070, and needs a volume mounted with config files/keys 
+        docker run --rm -d --name grpc-server -p 8070:8070 --mount type=bind,src=./core_files,dst=/code/keys grpc-server:latest
+    fi	 
+    
+    if [[ "${deployments[*]}" =~ "chat" ]]
+    then
+        # Chat listens on port 80
+        docker run --rm -d --name chat -p 8080:80 chat:latest
+    fi
+
+    if [[ "${deployments[*]}" =~ "woz" ]]
+    then
+        # Woz listens on port 80
+        docker run --rm -d --name woz -p 8090:80 woz:latest
+    fi
+
+    if [[ "${deployments[*]}" =~ "search" ]]
+    then
+        # Search listens on port 5000
+        docker run --rm -d --name search -p 8100:5000 search-api:latest
+    fi
 }
 
 stop_containers() {
     for c in grpc-server chat woz search envoy
     do
-        docker stop ${c}
+        if [[ "${deployments[*]}" =~ "${c}" ]]
+        then
+            docker stop ${c}
+        fi
     done
+    # TODO again see above
+    docker stop envoy
 }
 
 clean_docker_images() {
