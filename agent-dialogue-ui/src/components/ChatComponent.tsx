@@ -15,7 +15,7 @@ export class ChatComponent
 
     return <div className={css.root}>
       <ChatTranscript {...transcriptProps} isTextToSpeechEnabled={this.props.isTextToSpeechEnabled} />
-      <ChatInput onEnter={onEnter} connection={this.props.connection} isAudioRecordingEnabled={this.props.isAudioRecordingEnabled} />
+      <ChatInput us={this.props.us} onEnter={onEnter} connection={this.props.connection} isAudioRecordingEnabled={this.props.isAudioRecordingEnabled} dialogue={this.props.dialogue} />
     </div>
   }
 }
