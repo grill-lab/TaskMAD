@@ -5,10 +5,10 @@ import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
 import edu.gla.kail.ad.agents.DialogflowAgent;
-import edu.gla.kail.ad.agents.ModelInteractionAgent;
 import edu.gla.kail.ad.agents.RestSearchAgent;
 import edu.gla.kail.ad.agents.SpeechToTextAgent;
 import edu.gla.kail.ad.agents.WizardAgent;
+import edu.gla.kail.ad.agents.LLMAgent;
 import edu.gla.kail.ad.core.Log.RequestLog;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.Log.ResponseLog.Builder;
@@ -132,6 +132,14 @@ public class DialogAgentManager {
                 case SPEECH_TO_TEXT: 
                     try {
                         _agents.add(new SpeechToTextAgent(agent));
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                    break;
+                case LLM:
+                    try {
+                        _agents.add(new LLMAgent(agent));
+                        System.out.println("*** Created a new LLM agent");
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }

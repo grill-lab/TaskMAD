@@ -64,8 +64,7 @@ public class AgentDialogueServer {
         logger.info("Loading config file from:" + args[0]);
         PropertiesSingleton.getPropertiesSingleton(new URL(args[0]));
         logger.info("Configuration loaded: " + PropertiesSingleton.getCoreConfig().toString());
-        AgentDialogueServer server = new AgentDialogueServer(PropertiesSingleton.getCoreConfig()
-                .getGrpcServerPort());
+        AgentDialogueServer server = new AgentDialogueServer(PropertiesSingleton.getCoreConfig().getGrpcServerPort());
         server.start();
         server.blockUntilShutdown();
     }
