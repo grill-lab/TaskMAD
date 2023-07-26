@@ -148,12 +148,14 @@ public class LLMAgent implements AgentInterface {
 
         }
 
+        // TODO return proper MessageStatus if something goes wrong
+
         Struct.Builder builder = Struct.newBuilder();
         JsonFormat.parser().merge(result, builder);
 
         // Return a ResponseLog object
         return ResponseLog.newBuilder().setClientId(Client.ClientId.EXTERNAL_APPLICATION)
-                .setServiceProvider(ServiceProvider.SEARCH).setMessageStatus(MessageStatus.SUCCESSFUL)
+                .setServiceProvider(ServiceProvider.LLM).setMessageStatus(MessageStatus.SUCCESSFUL)
                 .setRawResponse(result).addAction(SystemAct.newBuilder().setInteraction(OutputInteraction.newBuilder()
                         .setType(InteractionType.TEXT).setText(result).setUnstructuredResult(builder).build()))
                 .build();
