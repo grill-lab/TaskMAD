@@ -153,6 +153,7 @@ then
     echo -e "   ${GREEN}build${NC}: build all Docker images"
     echo -e "   ${GREEN}start${NC}: create all Docker containers"
     echo -e "   ${GREEN}stop${NC}: stop all Docker containers"
+    echo -e "   ${GREEN}restart${NC}: stop and then start all Docker containers"
     echo -e "   ${GREEN}cleanup${NC}: delete all local Docker images for the deployments."
     exit 0
 fi
@@ -181,6 +182,10 @@ then
 elif [[ "${1}" == "stop" ]]
 then 
     stop_containers
+elif [[ "${1}" == "restart" ]]
+then
+    stop_containers
+    create_containers
 elif [[ "${1}" == "cleanup" ]]
 then
     clean_docker_images
