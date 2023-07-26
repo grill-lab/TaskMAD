@@ -70,6 +70,7 @@ export class RecipePageComponent
             console.log("ACTION MESSAGE %o", last_message)
           // We extract the actions
           var actions = last_message.actions;
+          let did_change = true
           if (actions !== undefined && actions.length !== 0) {
             // Here we handle the page reload based on the current step we are in 
             if (actions[0] === 'prev') {
@@ -88,6 +89,9 @@ export class RecipePageComponent
             if (actions[0].startsWith('step')) {
                 let step = parseInt(actions[0].replace("step", ""))
                 console.log("jumping to step %o", step)
+                if(this.recipeSectionIndex === step - 1) {
+                    did_change = false
+                }
                 this.recipeSectionIndex = step - 1
             }
 
@@ -99,7 +103,9 @@ export class RecipePageComponent
             }
 
             // At the end of the interaction we notify the Wizard of the actual change happening 
-            this.props.onRecipeSectionButtonClick(this.recipeSections[this.recipeSectionIndex])
+            if(did_change) {
+                this.props.onRecipeSectionButtonClick(this.recipeSections[this.recipeSectionIndex])
+            }
           }
         }
 
