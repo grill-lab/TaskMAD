@@ -112,11 +112,16 @@ create_containers() {
 }
 
 stop_containers() {
-    for c in grpc-server chat woz search envoy
+    for c in core chat woz search envoy
     do
         if [[ "${deployments[*]}" =~ "${c}" ]]
         then
-            docker stop ${c}
+	    if [[ "${c}" == "core" ]] 
+	    then
+		    docker stop grpc-server
+	    else 
+                docker stop ${c}
+	    fi
         fi
     done
     # TODO again see above
