@@ -89,7 +89,7 @@ create_containers() {
     if [[ "${deployments[*]}" =~ "core" ]]
     then
         # Core listens on port 8070, and needs a volume mounted with config files/keys 
-        docker run --rm -d --name grpc-server -p 8070:8070 --mount type=bind,src=./core_files,dst=/code/keys grpc-server:latest
+        docker run --rm -d --name grpc-server -p 8070:8070 --mount type=bind,src=./core_files,dst=/code/configs grpc-server:latest
     fi	 
     
     if [[ "${deployments[*]}" =~ "chat" ]]
