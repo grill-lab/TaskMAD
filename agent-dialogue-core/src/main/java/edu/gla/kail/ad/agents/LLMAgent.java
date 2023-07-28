@@ -62,6 +62,8 @@ public class LLMAgent implements AgentInterface {
      * @throws Exception
      */
     private void initAgent() throws Exception {
+        // load the info from the JSON config file. this will tell the agent the request type and API
+        // endpoint to use, with the request body being sent by the WoZ app
         this._llmApiEndpointInfo = new JSONObject(IOUtils.toString(new FileInputStream(_agent.getConfigurationFileURL()), "UTF-8"));
         if (_llmApiEndpointInfo.isEmpty()) {
             throw new Exception("Model API config file in the wrong format.");
@@ -80,28 +82,29 @@ public class LLMAgent implements AgentInterface {
 
     @Override
     public ResponseLog getResponseFromAgent(InteractionRequest interactionRequest) throws Exception {
-        // parameters sent by the remote client
+        // parameters sent by the remote client. the only field we're expecting here is 
+        // the request_body, but the request_type and api_endpoint can be overriden by
+        // values provided in the request parameters.
         Map<String, Value> fieldsMap = interactionRequest.getAgentRequestParameters().getFieldsMap();
         String result = "";
 
-        // expected parameter names:
-        //  api_endpoint (String): the URL for the RU-LLM API
-        //  request_type (String): GET/POST
-        //  request_body (protobuf Struct): the content of the request (ultimately JSON)
-        //
-
-        // default to POST
-        String request_type = "POST";
-        if (fieldsMap.containsKey("request_type")) {
+        String request_type = this._llmApiEndpointInfo.getString("request_type");
+        if(fieldsMap.containsKey("request_type")) {
+            logger.info("Overriding request_type");
             request_type = fieldsMap.get("request_type").getStringValue();
         }
-        System.out.println(fieldsMap);
 
-        if(!fieldsMap.containsKey("request_body") || !fieldsMap.containsKey("api_endpoint")) {
-            throw new Exception("api_endpoint or request_body not specified.");
+        String api_endpoint = this._llmApiEndpointInfo.getString("api_endpoint");
+        if(fieldsMap.containsKey("api_endpoint")) {
+            logger.info("Overriding api_endpoint");
+            api_endpoint = fieldsMap.get("api_endpoint").getStringValue();
+        }
+
+        // must have a request_body for a valid request
+        if(!fieldsMap.containsKey("request_body")) {
+            throw new Exception("request_body not found in request parameters!");
         }
         String request_body = JsonFormat.printer().preservingProtoFieldNames().print(fieldsMap.get("request_body").getStructValue());
-        String api_endpoint = fieldsMap.get("api_endpoint").getStringValue();
 
         logger.info("Received agent parameters"  + fieldsMap);
         logger.info("Request type is " + request_type);
@@ -137,18 +140,13 @@ public class LLMAgent implements AgentInterface {
             result = br.lines().collect(Collectors.joining());
 
             conn.disconnect();
-
         } catch (MalformedURLException e) {
             e.printStackTrace();
             throw new Exception("Malformed API URL:" + e.getMessage());
-
         } catch (IOException e) {
             e.printStackTrace();
             throw new Exception("IOException:" + e.getMessage());
-
         }
-
-        // TODO return proper MessageStatus if something goes wrong
 
         Struct.Builder builder = Struct.newBuilder();
         JsonFormat.parser().merge(result, builder);
@@ -159,7 +157,6 @@ public class LLMAgent implements AgentInterface {
                 .setRawResponse(result).addAction(SystemAct.newBuilder().setInteraction(OutputInteraction.newBuilder()
                         .setType(InteractionType.TEXT).setText(result).setUnstructuredResult(builder).build()))
                 .build();
-
     }
 
     @Override
