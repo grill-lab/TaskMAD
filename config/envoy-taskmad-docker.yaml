@@ -55,6 +55,19 @@ static_resources:
                 allow_methods: GET, POST
                 allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent
                 max_age: "1728000"
+            - name: llmapi
+              domains: ["llmapi.grill.science"]
+              routes:
+              - match: {prefix: "/"}
+                route:
+                  cluster: llmapi
+                  timeout: 0s
+              cors:
+                allow_origin_string_match:
+                  - prefix: "*"
+                allow_methods: GET, POST
+                allow_headers: keep-alive,user-agent,cache-control,content-type,content-transfer-encoding,custom-header-1,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent
+                max_age: "1728000"
             - name: taskmad_proxy
               domains: ["taskmadproxy.grill.science"]
               routes:
@@ -160,6 +173,19 @@ static_resources:
               socket_address:
                 address: localhost
                 port_value: 8090
+  - name: llmapi
+    # type: STRICT_DNS
+    lb_policy: ROUND_ROBIN
+    connect_timeout: 1s
+    load_assignment:
+      cluster_name: llmapi
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: 127.0.0.1
+                port_value: 7771
   - name: taskmad_proxy
     # type: STRICT_DNS
     lb_policy: ROUND_ROBIN
