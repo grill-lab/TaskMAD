@@ -85,14 +85,14 @@ export class RecipePageComponent
                 this.recipeSectionIndex += 1;
               }
             }
-            // new bit
+            // new bit. note that the WoZ app will be sending 0-based step numbers!
             if (actions[0].startsWith('step')) {
                 let step = parseInt(actions[0].replace("step", ""))
                 console.log("jumping to step %o", step)
-                if(this.recipeSectionIndex === step - 1) {
+                if(this.recipeSectionIndex === step) {
                     did_change = false
                 }
-                this.recipeSectionIndex = step - 1
+                this.recipeSectionIndex = step
             }
 
             // Once we move the a new section we also need to read section title and provide prompt 

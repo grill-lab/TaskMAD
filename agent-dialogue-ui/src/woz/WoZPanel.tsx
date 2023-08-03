@@ -336,6 +336,8 @@ class WoZDialogue extends React.Component<IWoZDialogueProperties, IWoZDialogueSt
         // However we first need to generate the specific message text for the wizard
 
         if (sectionKey !== undefined && sectionKey.trim().length !== 0) {
+            // the "sectionKey" values here are string "Step 1", "Step 2" etc
+            // and are defined so that internal step index 0 === "Step 1" 
             var messageText = 'User moved to section "' + sectionKey + '".'
             this.onEnter(messageText, InteractionType.STATUS);
         }
