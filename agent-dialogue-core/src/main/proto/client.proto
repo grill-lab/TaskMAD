@@ -67,6 +67,19 @@ enum InteractionType {
     STATUS = 4;
 }
 
+// currently this is only used to distinguish between LLM responses
+// that have the "system" vs "assistant" roles (both will have the 
+// same user ID, but should be handled differently in the UI and 
+// also should be distinguished in the logs). 
+//
+// for user messages, this should always be 0/NOTSET. For assistant
+// messages it should be either ASSISTANT or SYSTEM
+enum InteractionRole {
+    NOTSET = 0; // Proto3 doesn't distinguish between field that is empty or is set to it's default (value = 0).
+    ASSISTANT = 1;
+    SYSTEM = 2;
+}
+
 // Message sent to the agent.
 message InputInteraction {
     string text = 1; // The text that is being sent to the Agent.
@@ -92,7 +105,9 @@ message InputInteraction {
     repeated string logged_user_recipe_section_value = 19; // The list of checkboxes text associated to the checboxes clicked
     repeated int64 logged_user_recipe_select_timestamp = 20; // The list of timestamps associated to the checkboxes clicked
     string audio_base64 = 21; // The message sent to the agent in base64 format
-}
+
+    InteractionRole role = 22; // the interaction role associated with the text (if any)
+} 
 
 // Message sent back by agent.
 message OutputInteraction {
