@@ -1,11 +1,17 @@
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+            <pattern>%d{YYYY-MM-DD HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
         </encoder>
         <target>System.err</target>
     </appender>
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
+    <logger name="io.grpc.netty.shaded.io.netty" level="info">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <logger name="io.grpc.netty.shaded.io.grpc" level="info">
+        <appender-ref ref="STDOUT" />
+    </logger>
 </configuration>
