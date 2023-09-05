@@ -75,7 +75,7 @@ enum InteractionType {
 // for user messages, this should always be 0/NOTSET. For assistant
 // messages it should be either ASSISTANT or SYSTEM
 enum InteractionRole {
-    NOTSET = 0; // Proto3 doesn't distinguish between field that is empty or is set to it's default (value = 0).
+    NOROLE = 0; // Proto3 doesn't distinguish between field that is empty or is set to it's default (value = 0).
     ASSISTANT = 1;
     SYSTEM = 2;
 }
