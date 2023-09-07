@@ -8,6 +8,7 @@ import {
   ClientId, InputInteraction, InteractionRequest,
   InteractionResponse,
   InteractionType,
+  InteractionRole,
 } from "../generated/client_pb"
 import {AgentDialogueClient} from "../generated/ServiceServiceClientPb"
 
@@ -73,6 +74,7 @@ interface IADTextResponse {
   userID: string
   time: Date
   messageType: InteractionType
+  role: InteractionRole
 }
 
 declare module "../generated/client_pb" {
@@ -91,7 +93,8 @@ proto.edu.gla.kail.ad.InteractionResponse.prototype.asTextResponse =
     time: new Date(this.getTime().getSeconds() * 1000
                    + this.getTime().getNanos() / 1e+6),
     userID: this.getUserId(),
-    messageType: this.getInteractionList()[0].getType()
+    messageType: this.getInteractionList()[0].getType(),
+    role: this.getInteractionList()[0].getRole()
   }
 }
 
@@ -136,7 +139,7 @@ export class ADConnection {
     input.setLoggedUserRecipeSectionList(args.loggedUserRecipeSection || []);
     input.setLoggedUserRecipeSectionValueList(args.loggedUserRecipeSectionValue || []);
     input.setLoggedUserRecipeSelectTimestampList(args.loggedUserRecipeSelectTimestamp || []);
-    
+
     return input
   }
 
