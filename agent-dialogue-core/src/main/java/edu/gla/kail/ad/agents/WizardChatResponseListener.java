@@ -50,6 +50,14 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
         if (responseIdString != null) {
           responseId = (String) responseIdString;
         }
+
+        // when reading messages from the DB, the "role" field will be a string, e.g. "NOROLE"
+        // or "ASSISTANT" or "SYSTEM". The buildResponse method expects to find this value with
+        // its protobuf enum type instead, so convert it here
+        if(changeData.containsKey("role")) {
+            changeData.put("role", Client.InteractionRole.valueOf((String)changeData.get("role")));
+        }
+
         response = WizardAgent.buildResponse(responseId, changeData);
 
         // Information about the original change.
