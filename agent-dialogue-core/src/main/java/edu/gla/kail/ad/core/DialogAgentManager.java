@@ -59,7 +59,7 @@ public class DialogAgentManager {
     private String _sessionId;
     private LogTurnManagerSingleton _logTurnManagerSingleton;
     // Time of no response from agent, after which there is timeout on getting response from agent.
-    private Integer _agentCallTimeoutSeconds = 50;
+    private Integer _agentCallTimeoutSeconds = 120;
 
     /**
      * Create a unique session ID generated with startSession() method.
