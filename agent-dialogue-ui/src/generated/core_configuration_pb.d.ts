@@ -69,5 +69,7 @@ export enum ServiceProvider {
   DIALOGFLOW = 1,
   WIZARD = 2,
   SEARCH = 3,
+  MODEL_INFERENCE = 4,
   SPEECH_TO_TEXT = 5,
+  LLM = 6,
 }

@@ -1,6 +1,7 @@
-import * as jspb from "google-protobuf"
+import * as jspb from 'google-protobuf'
 
 import * as client_pb from './client_pb';
+
 
 export class UserID extends jspb.Message {
   getUserId(): string;

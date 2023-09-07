@@ -246,6 +246,9 @@ export class InputInteraction extends jspb.Message {
   getAudioBase64(): string;
   setAudioBase64(value: string): InputInteraction;
 
+  getRole(): InteractionRole;
+  setRole(value: InteractionRole): InputInteraction;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InputInteraction.AsObject;
   static toObject(includeInstance: boolean, msg: InputInteraction): InputInteraction.AsObject;
@@ -277,6 +280,7 @@ export namespace InputInteraction {
     loggedUserRecipeSectionValueList: Array<string>,
     loggedUserRecipeSelectTimestampList: Array<number>,
     audioBase64: string,
+    role: InteractionRole,
   }
 }
 
@@ -310,6 +314,9 @@ export class OutputInteraction extends jspb.Message {
   hasInteractionTime(): boolean;
   clearInteractionTime(): OutputInteraction;
 
+  getRole(): InteractionRole;
+  setRole(value: InteractionRole): OutputInteraction;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OutputInteraction.AsObject;
   static toObject(includeInstance: boolean, msg: OutputInteraction): OutputInteraction.AsObject;
@@ -327,6 +334,7 @@ export namespace OutputInteraction {
     resultList: Array<Result.AsObject>,
     unstructuredResult?: google_protobuf_struct_pb.Struct.AsObject,
     interactionTime?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    role: InteractionRole,
   }
 }
 
@@ -380,4 +388,9 @@ export enum InteractionType {
   AUDIO = 2,
   ACTION = 3,
   STATUS = 4,
+}
+export enum InteractionRole { 
+  NOROLE = 0,
+  ASSISTANT = 1,
+  SYSTEM = 2,
 }
