@@ -208,6 +208,8 @@ public class WizardAgent implements AgentInterface {
 
     Map<String, Object> data = new HashMap<>();
     data.put("interaction_text", "Success, message added!");
+    data.put("role", interactionRequest.getInteraction().getRole());
+
     ResponseLog response =  buildResponse(responseId, data);
     Client.InteractionResponse interactionResponse;
     Timestamp timestamp = Timestamp.newBuilder()
@@ -299,10 +301,17 @@ public class WizardAgent implements AgentInterface {
       responseInteractionType = InteractionType.TEXT;
     }
 
+    Client.InteractionRole role = Client.InteractionRole.NOROLE;
+    if(data.get("role") != null) {
+        Client.InteractionRole _role = (Client.InteractionRole)data.get("role");
+        role = _role;
+    }
+
     Builder outputInteractionBuilder = OutputInteraction.newBuilder()
       .setType(responseInteractionType)
       .setText(responseString)
-      .setInteractionTime(timestamp);
+      .setInteractionTime(timestamp)
+      .setRole(role);
 
     // We need to add all the actions to the OutputInteraction object
     for(int i = 0; i < interactionActionsList.length; i++){
@@ -361,6 +370,7 @@ public class WizardAgent implements AgentInterface {
     data.put("logged_user_recipe_section", interactionRequest.getInteraction().getLoggedUserRecipeSectionList());
     data.put("logged_user_recipe_section_value", interactionRequest.getInteraction().getLoggedUserRecipeSectionValueList());
     data.put("logged_user_recipe_select_timestamp", interactionRequest.getInteraction().getLoggedUserRecipeSelectTimestampList());
+    data.put("role", interactionRequest.getInteraction().getRole());
     chatReference.set(data);
     return chatReference;
   }
