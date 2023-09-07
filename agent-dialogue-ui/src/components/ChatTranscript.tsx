@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Embed } from "semantic-ui-react"
 import { diffSecondsBetweenDates, isStringImagePath, isStringVideoPath, playTextToAudio } from "../common/util"
-import { InteractionType } from "../generated/client_pb"
+import { InteractionType, InteractionRole } from "../generated/client_pb"
 import css from "./ChatTranscript.module.css"
 import { IDialogue } from "./DialogueModel"
 
@@ -58,7 +58,7 @@ export class ChatTranscript
   public render(): React.ReactNode {
 
     const rows = this.props.dialogue.messages.map((message, index) => {
-      const cellClass = message.userID === undefined
+      let cellClass = message.userID === undefined
         ? css.systemCell
         : message.userID === this.props.us
           ? css.ourCell
@@ -97,6 +97,12 @@ export class ChatTranscript
           } else {
             const rexp = /((http|https):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
             const message_text = message.text.replace(rexp, '<a href="$1" target="_blank">$1</a>')
+            // if the message has a role of "SYSTEM", then want to show it with a different colour to everything else
+            // (don't need to check user ID as only agent can send these messages)
+            if(message.role === InteractionRole.SYSTEM) {
+                cellClass = css.systemRoleCell;
+            }
+            
             return <div className={css.row + " " + rowClass} key={index}>
               <div className={css.cell + " " + cellClass}>{visibleUserID}<span dangerouslySetInnerHTML={{__html: message_text}}/></div>
             </div>

@@ -67,13 +67,23 @@
   color: #000000;
 }
 
+.systemRoleCell {
+  text-align: left;
+  background-color: #c3ff8f;
+  color: #000000;
+}
+
+
 /* override link colours inside the agent responses to make them more visible */
 .ourCell a {
     color: #0000ff;
 }
 
-/* override link colours inside the agent responses to make them more visible */
 .theirCell a {
+    color: #0000ff;
+}
+
+.systemRoleCell a {
     color: #0000ff;
 }
 
