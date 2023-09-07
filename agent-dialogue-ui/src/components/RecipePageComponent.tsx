@@ -23,130 +23,118 @@ interface IRecipePageComponentProperties {
 }
 
 
-export class RecipePageComponent
-  extends React.Component<IRecipePageComponentProperties> {
+export class RecipePageComponent extends React.Component<IRecipePageComponentProperties> {
 
-  private recipeSections: string[] = [];
-  // Specific recipe section to display if the view is single section rather than full page
-  private recipeSectionIndex: number = 0;
+    private recipeSections: string[] = [];
+    // Specific recipe section to display if the view is single section rather than full page
+    private recipeSectionIndex: number = 0;
 
-  public static defaultProps = {
-    showFullPageCheckList: false,
-    showCheckBoxes: false,
-    isSequentialNavigationEnabled: false,
-    isTextToSpeechEnabled: false
-  };
-
-
-  constructor(props: IRecipePageComponentProperties) {
-    super(props);
+    public static defaultProps = {
+        showFullPageCheckList: false,
+        showCheckBoxes: false,
+        isSequentialNavigationEnabled: false,
+        isTextToSpeechEnabled: false
+    };
 
 
-    this.handleRecipeNavigation = this.handleRecipeNavigation.bind(this);
-  }
+    constructor(props: IRecipePageComponentProperties) {
+        super(props);
+        this.handleRecipeNavigation = this.handleRecipeNavigation.bind(this);
+    }
 
-  private wizardNavigationController(): void {
+    private wizardNavigationController(): void {
+        // Here we handle the automatic navigation to different sections based on the last message sent by the Wizard. 
+        // More precisely if the last message sent by the user is of type IteractionType.ACTION then we execute the specific action. 
+        // However we execute the operation only in the case the message has been sent no more than 5 seconds (otherwise we would
+        // trigger the behaviour when not required)
 
-    // Here we handle the automatic navigation to different sections based on the last message sent by the Wizard. 
-    // More precisely if the last message sent by the user is of type IteractionType.ACTION then we execute the specific action. 
-    // However we execute the operation only in the case the message has been sent no more than 5 seconds (otherwise we would
-    // trigger the behaviour when not required)
-
-    // We first check if the navigation is controlled by the wizard 
-    if (!this.props.isSequentialNavigationEnabled) {
-      // If that is the case we get the last message
-      var last_message = undefined;
-      if (this.props.dialogue?.messages !== undefined && this.props.dialogue.messages.length !== 0) {
-        last_message = this.props.dialogue.messages[this.props.dialogue.messages.length - 1];
-      }
-
-
-      // Here we check if the last message has been sent by the wizard and if the message is of type action 
-      if (last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.ACTION) {
-
-        // If that is the case we check whether the message has been sent no more than 5 seconds ago 
-        //if (last_message?.time.getTime() !== undefined && diffSecondsBetweenDates(last_message?.time, new Date()) <= 5) {
-        if(true) { // want to "replay" step changes if resuming a conversation
-            console.log("ACTION MESSAGE %o", last_message)
-          // We extract the actions
-          var actions = last_message.actions;
-          let did_change = true
-          if (actions !== undefined && actions.length !== 0) {
-            // Here we handle the page reload based on the current step we are in 
-            if (actions[0] === 'prev') {
-              // Update the recipeSectionIndex only if we are not at step 0
-              if (this.recipeSectionIndex !== 0) {
-                this.recipeSectionIndex -= 1;
-              }
+        // We first check if the navigation is controlled by the wizard 
+        if (!this.props.isSequentialNavigationEnabled) {
+            // If that is the case we get the last message
+            var last_message = undefined;
+            if (this.props.dialogue?.messages !== undefined && this.props.dialogue.messages.length !== 0) {
+                last_message = this.props.dialogue.messages[this.props.dialogue.messages.length - 1];
             }
-            if (actions[0] === 'next') {
-              // Update the recipeSectionIndex only if we are not at the end of the list
-              if (this.recipeSectionIndex < this.recipeSections.length - 1) {
-                this.recipeSectionIndex += 1;
-              }
-            }
-            // new bit. note that the WoZ app will be sending 0-based step numbers!
-            if (actions[0].startsWith('step')) {
-                let step = parseInt(actions[0].replace("step", ""))
-                console.log("jumping to step %o", step)
-                if(this.recipeSectionIndex === step) {
-                    did_change = false
+
+            // Here we check if the last message has been sent by the wizard and if the message is of type action 
+            if (last_message !== undefined && last_message?.userID !== this.props.us && last_message?.messageType === InteractionType.ACTION) {
+                if(true) { // always want to "replay" step changes if resuming a conversation
+                   // We extract the actions
+                    var actions = last_message.actions;
+                    let did_change = true
+                    if (actions !== undefined && actions.length !== 0) {
+                        // the "next" and "prev" actions won't be used in the current version, since the 
+                        // navigation is controlled by the LLM API responses
+                        if (actions[0] === 'prev') {
+                            // Update the recipeSectionIndex only if we are not at step 0
+                            if (this.recipeSectionIndex !== 0) {
+                                this.recipeSectionIndex -= 1;
+                            }
+                        }
+                        if (actions[0] === 'next') {
+                            // Update the recipeSectionIndex only if we are not at the end of the list
+                            if (this.recipeSectionIndex < this.recipeSections.length - 1) {
+                                this.recipeSectionIndex += 1;
+                            }
+                        }
+
+                        // this section is where the step changes are currently triggered. the WoZ
+                        // app will send actions of the form "stepX" where X is the step number to
+                        // jump to. NOTE: these numbers will be 0-based!
+                        if (actions[0].startsWith('step')) {
+                            let step = parseInt(actions[0].replace("step", ""))
+                            console.log("received action %o, jumping from step %o to step %o", actions[0], this.recipeSectionIndex, step)
+                            console.log("from message %o", last_message)
+                            did_change = (this.recipeSectionIndex !== step)
+                            if(did_change) {
+                                this.recipeSectionIndex = step
+                            }
+                        }
+
+                        // Once we move the a new section we also need to read section title and provide prompt 
+                        // to the user 
+                        if (this.props.isTextToSpeechEnabled) {
+                            var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
+                            playTextToAudio(textString);
+                        }
+
+                        // At the end of the interaction we notify the Wizard of the actual change happening 
+                        if(did_change) {
+                            this.props.onRecipeSectionButtonClick(this.recipeSections[this.recipeSectionIndex])
+                        }
+                    }
                 }
-                this.recipeSectionIndex = step
             }
-
-            // Once we move the a new section we also need to read section title and provide prompt 
-            // to the user 
-            if (this.props.isTextToSpeechEnabled) {
-              var textString = "Here we are in section " + this.recipeSections[this.recipeSectionIndex] + "! Have a read and feel free to ask me questions!";
-              playTextToAudio(textString);
-            }
-
-            // At the end of the interaction we notify the Wizard of the actual change happening 
-            if(did_change) {
-                this.props.onRecipeSectionButtonClick(this.recipeSections[this.recipeSectionIndex])
-            }
-          }
         }
-
-      }
-    }
-  }
-
-
-  // Method used in order to generate the page body associated to this recipe
-  private generatePageRecipeCheckboxModel(): Map<string, RecipeCheckboxModel[]> {
-    let tempRecipeModel = this.props.recipeObj;
-    var resultMap = new Map<string, RecipeCheckboxModel[]>()
-    if (tempRecipeModel !== undefined) {
-
-      // Generate the steps checkbox models
-      if (tempRecipeModel?.stepsSentencesWithImages !== undefined) {
-        for (let i = 0; i < tempRecipeModel?.stepsSentencesWithImages.length; i++) {
-          for (let j = 0; j < tempRecipeModel?.stepsSentencesWithImages[i].length; j++) {
-            let tempRecipeCheckboxModel = tempRecipeModel?.recipeModelToRecipeCheckboxModel('Step ' + (i + 1), tempRecipeModel?.stepsSentencesWithImages[i][j]);
-            if (resultMap.has('Step ' + (i + 1))) {
-              let innerRecipeStepsList = resultMap.get('Step ' + (i + 1))
-              if (innerRecipeStepsList !== undefined)
-                resultMap.set('Step ' + (i + 1), innerRecipeStepsList?.concat([tempRecipeCheckboxModel]));
-            } else {
-              resultMap.set('Step ' + (i + 1), [tempRecipeCheckboxModel]);
-            }
-
-          }
-
-
-        }
-      }
-
-
     }
 
-    // Get the array of all the sections
-    this.recipeSections = Array.from(resultMap.keys()) !== undefined ? Array.from(resultMap.keys()) : [];
+    // Method used in order to generate the page body associated to this recipe
+    private generatePageRecipeCheckboxModel(): Map<string, RecipeCheckboxModel[]> {
+        let tempRecipeModel = this.props.recipeObj;
+        var resultMap = new Map<string, RecipeCheckboxModel[]>()
+            if (tempRecipeModel !== undefined) {
+                // Generate the steps checkbox models
+                if (tempRecipeModel?.stepsSentencesWithImages !== undefined) {
+                    for (let i = 0; i < tempRecipeModel?.stepsSentencesWithImages.length; i++) {
+                        for (let j = 0; j < tempRecipeModel?.stepsSentencesWithImages[i].length; j++) {
+                            let tempRecipeCheckboxModel = tempRecipeModel?.recipeModelToRecipeCheckboxModel('Step ' + (i + 1), tempRecipeModel?.stepsSentencesWithImages[i][j]);
+                            if (resultMap.has('Step ' + (i + 1))) {
+                                let innerRecipeStepsList = resultMap.get('Step ' + (i + 1))
+                                    if (innerRecipeStepsList !== undefined)
+                                        resultMap.set('Step ' + (i + 1), innerRecipeStepsList?.concat([tempRecipeCheckboxModel]));
+                            } else {
+                                resultMap.set('Step ' + (i + 1), [tempRecipeCheckboxModel]);
+                            }
+                        }
+                    }
+                }
+            }
 
-    return resultMap
-  }
+        // Get the array of all the sections
+        this.recipeSections = Array.from(resultMap.keys()) !== undefined ? Array.from(resultMap.keys()) : [];
+
+        return resultMap
+    }
 
     // Method used to generate the page body
     private generatePageBodyFullPage(): JSX.Element[] {
