@@ -9,9 +9,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.URI;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.gson.JsonObject;
@@ -112,40 +118,25 @@ public class LLMAgent implements AgentInterface {
         logger.info("Request body is " + request_body);
 
         try {
-            // Construct the url where to perform the request
-            URL url = new URL(api_endpoint);
+            HttpClient client = HttpClient.newBuilder().build();
+            HttpRequest request = HttpRequest.newBuilder(new URI(api_endpoint))
+                                    .version(HttpClient.Version.HTTP_2)
+                                    .POST(HttpRequest.BodyPublishers.ofString(request_body))
+                                    .headers("Content-Type", "application/json")
+                                    .timeout(Duration.ofMinutes(2))
+                                    .build();
 
-            // Start the connection
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod(request_type);
-            conn.setRequestProperty("Content-Type", "application/json");
-            //conn.setRequestProperty("Authorization:", "Bearer <KEY>");
-            conn.setDoOutput(true);
-
-            JSONObject requestBody = new JSONObject(request_body);
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(requestBody.toString());
-            wr.flush();
-
-            // If the response is not successful we raise an error
-            if (conn.getResponseCode() != 200) {
-                System.out.println(conn.getResponseMessage());
-                System.out.println(url.toString());
-                throw new Exception("Failed : HTTP error code : " + conn.getResponseCode());
+            HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            logger.info("HttpClient response is " + response.statusCode());
+            if(response.statusCode() != 200) {
+                throw new Exception("Failed : HTTP error code : " + response.statusCode());
             }
 
-            // We need now to parse the returned message from the API
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-            result = br.lines().collect(Collectors.joining());
-
-            conn.disconnect();
-        } catch (MalformedURLException e) {
+            logger.info("HttpClient body is " + response.body());
+            result = (String)response.body();
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Malformed API URL:" + e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new Exception("IOException:" + e.getMessage());
+            throw new Exception("HTTP error: " + e.getMessage());
         }
 
         Struct.Builder builder = Struct.newBuilder();
