@@ -1,6 +1,6 @@
 import * as uuid from "uuid"
 import {PartialBy} from "../common/util"
-import { InteractionType } from "../generated/client_pb"
+import { InteractionType, InteractionRole } from "../generated/client_pb"
 
 export interface IMessage {
   id: string
@@ -17,6 +17,8 @@ export interface IMessage {
   // Specific type of this message
   messageType?: InteractionType
   actions?: Array<string>
+
+  role?: InteractionRole
 }
 
 export const ourUserID = "us"
@@ -74,4 +76,6 @@ export class Message implements IMessage {
 
   public readonly messageType?: InteractionType
   public readonly actions?: Array<string>
+
+  public readonly role?: InteractionRole
 }
