@@ -118,6 +118,7 @@ message OutputInteraction {
     repeated Result result = 5; // To allow search results and similar output
     google.protobuf.Struct unstructured_result = 6; // General unstructured result used to handle responses in different format (e.g. json)
     google.protobuf.Timestamp interaction_time = 7; // The time of the creation of the response.
+    InteractionRole role = 8; // the interaction role associated with the text (if any)
 }
 
 message Result {
