@@ -1,173 +1,139 @@
 # TaskMAD: Task Multimodal Agent Dialogue
 
-# Project Overview
+This is a modified version of the original TaskMAD system. The original version can be found [here](https://github.com/grill-lab/TaskMAD/). 
 
-In this repository we introduce Task-oriented Multimodal Agent Dialogue (TaskMAD), a new platform that supports the creation of interactive multimodal and task-centric datasets in a Wizard-of-Oz experimental setup. TaskMAD includes support for text and voice, federated retrieval from text and knowledge bases, and structured logging of interactions for offline labeling. Its architecture supports a spectrum of tasks that span open-domain exploratory search to traditional frame-based dialogue tasks. It’s open-source and offers rich capability as a platform used to collect data for the Amazon Alexa Prize Taskbot challenge, TREC Conversational Assistance track, undergraduate student research, and others. 
+This document focuses on describing the changes and the instructions for setting up and using this version of TaskMAD. It is paired with a modified version of the [WoZStudy](https://github.com/alessandrospeggiorin/WoZStudy/tree/radboud_branch) repo. 
 
-TaskMAD has also been designed with the goal in mind of allowing researchers to plug-in existing bots for evaluation and building conversational training / test collections. 
+## Differences from the original TaskMAD
 
-# Online Demo
+This version of TaskMAD has been adapted for use in a task where users engage in a conversation based around one of a set of predefined topics (e.g. Cooking, Travel). 
 
-It is possible to test both the Chat and Wizard interfaces by using the urls provided below: 
+Unlike the original system where the "wizard" user would have a large set of buttons that could be clicked to generate responses in addition to a search feature, this version instead relies on an LLM to generate wizard responses (which may then be edited by the human user before being sent). The LLM integration is done through a new "Agent" class in the backend component of the system. Instead of calling an LLM API directly, this agent sends a request to an external API which then calls the LLM API internally after constructing the parameters based on the current conversation state. Each of the 2 webapps also load step-based instructions from external JSON files and display these to the users as the conversation progresses. Additional constraints have been aded to e.g. ensure that a conversational turn always consists of a single message from each user. 
 
-## Chat Interface
+A brief summary of changes and new/removed features:
 
-To access to the chat interface simply visit the following url [https://chat-uog.online](https://chat-uog.online)
+ * Chat interface has had the recipe selection replaced with a topic selection
+ * UI colours are updated to better distinguish different message roles and make links more visible
+ * The `LLMAgent` class was added to the backend to handle communication with an external LLM wrapper API
+ * Configuration file updates to support new functionality
+ * New `role` field added to `OutputInteraction` protobufs (the LLM responses may have multiple roles that need to be acted on and logged)
+ * Updated `WizardAgent` class in the backend to handle the new `role` field
+ * JDK base image version for the backend updated from `openjdk:8` to `eclipse-temurin:17-jdk`
+ * Docker deployment script added
 
-In order to effectively connect the Chat interface with the backend server it is required to provide the configurations outlined below: 
+## Configuration
 
-* **Host Url:** [https://backend-server.online](https://backend-server.online)
-* **User ID:** user
-* **Conversation ID:** *Any conversation ID of personal choice i.e. conv1*
-* **Select Recipe:** *Pick any recipe of personal choice*
+Much of the configuration remains similar to the original system, but there are some changes. The use of the Docker deployment scripts in the `docker_deployment` directory is heavily recommended. This helps automate the process of building and starting the various Docker containers required for the complete system (including the `WoZStudy` webapp). See the "Deployment" section below for instructions on running the scripts. 
 
-## Wizard Interface 
+To get started, edit the `docker_deployment/deploy_config` file and look at the first set of parameters ("Cross-deployment parameters"). You will need to change the following parameters:
 
-To access the Wizard interface simply visit the following url [https://woz-uog.online](https://woz-uog.online)
+#### 1. config_url
 
-In order to effectively connect the Wizard interface with the backend server it is required to provide the configurations outlined below: 
-
-* First of all, from the **Selected Connector** section select the **Agent Dialogue** option. Here specify the following: 
-	* **Server Url:** [https://backend-server.online](https://backend-server.online)
-	* **User ID:** wizard
-	* **Conversation ID:** *The same conversation ID of specified for the chat*
-* Tick the checkbox **Show chat transcript**
-* Then click on the *Upload Excel Spreadsheet* and upload the file *woz_input_excel.xlsx* provided in the repository.  
-
-## Repository Content
-
-In this repository we provide content only to run the Task-MAD gRPC server and the Chat interface. To run the Wizard Interface it 
-
-# Installation 
-
-In this section, it will be described how to install and run the agent-dialogue system on a local machine. As an example, the system will be connected to the [Wizard of Oz Webapp](https://github.com/USC-ICT/WoZ) but any other supported agent integration would follow a very similar approach 
-
-## Requirements 
-
-In order to run the system locally, it is necessary to have the following programs installed on the local machine 
-
-* [Docker](https://docs.docker.com/get-docker/): The system will create local images for both the gRPC server and the Envoy proxy 
-* [Minikube](https://minikube.sigs.k8s.io/docs/start/): Used in order to orchestrate the deployment of the different services
-* [Node.js](https://nodejs.org/en/download/): In order to run the web apps for both the chat and Wizard of Oz interfaces.  
-
-## Additional Configurations 
-
-### Firebase 
-
-In order to store effectively the interaction between the user and the WoZ it is required to configure [Firebase](https://console.firebase.google.com/). To be more specific, it is necessary to create a Firestore database and define an empty collection (the program should create all the required documents and collections automatically when functioning). 
-
-* In this context, it is also very important to remember to set the rules (by selecting the **Rules** tab on the Firestore Database interface) in order to specify the correct read/write permissions. 
-* Moreover, under project settings -> service account, we need to create a Private key. This will be required in order to allow our app to interact with Firebase. The key needs to be stored (it will be used later on) and has the following format 
-
-```json 
-{
-  "type": "service_account",
-  "project_id": "<project_id>",
-  "private_key_id": "<private_key_id>",
-  "private_key": "<private_key>",
-  "client_email": "<client_email>",
-  "client_id": "<client_id>",
-  "auth_uri": "<auth_uri>",
-  "token_uri": "<token_uri>",
-  "auth_provider_x509_cert_url": "<auth_provider_x509_cert_url>"
-}
-```
-
-This private key should be stored in the folder `agent-dialogue-core/keys`
-
-### Files Structure 
-
-The main folders used in order to run the project are the following: 
-
-**Agent Dialogue**
-
-* `agent-dialogue-core`: This is the core folder in which agents and gRPC servers are defined. 
-* `agent-dialogue-ui`: The main chat UI that users can use to interact with agents/Woz
-
-
-### Configuration File
-
-We do need a configuration file in order to specify some configuration settings of our agent. The configuration file must be a JSON file stored online (Cloud Storage or [JSONBIN.io](https://jsonbin.io/login)) as we need a publicly accessible URL. 
-
-The file must have this format 
+`config_url` tells the backend service where to load its configuration data from. The URL here doesn't have to be public but must be accessible from the machine running the backend. The file format is described [here](https://github.com/grill-lab/TaskMAD#configuration-file), and an example is shown below:
 
 ```json
 {
-  "grpc_server_port": "8070",
-  "agents": [
-    {
-      "service_provider": "WIZARD",
-      "project_id": "WizardOfOz",
-      "configuration_file_URL": "<configuration_file_NAME>"
-    }
-  ]
+    "grpc_server_port": "8070",
+    "max_number_of_simultaneous_conversations": "1000",
+    "session_timeout_minutes": "180",
+    "agents": [
+        {
+            "service_provider": "WIZARD",
+            "project_id": "WizardOfOz",
+            "configuration_file_URL": "configs/firebase_key.json"
+        },
+        {
+            "service_provider": "LLM",
+            "project_id": "LLMAgent",
+            "configuration_file_URL": "configs/llm-config.json"
+        }
+    ]
 }
 ```
 
-The  **configuration\_file_URL** is the name of the JSON Firebase private key previously defined (which should be stored in the `agent-dialogue-core` folder). 
+The first 3 fields can usually be set to the values shown above as sensible defaults. The `agents` list defines the `Agent` subclasses that the backend will instantiate. The `service_provider` and `project_id` should be set as shown. 
 
-### Update agent-dialogue-core Dockerfile
+Each of the agents then has its own *local* configuration file. The filenames can be changed but should always be `configs/name_of_file.json`. The local copies of the files should be placed in the `TaskMAD/docker_deployment/core_files` directory, e.g. for the above example there should exist both `TaskMAD/docker_deployment/core_files/firebase_key.json` and `TaskMAD/docker_deployment/core_files/llm-config.json`.
 
-The `Dockerfile` for the `agent-dialogue-core` service needs to be given a URL to the configuration file. Note that this URL should point to the JSON file described in the previous step, not the `configuration_file_URL` values defined inside the file itslef.
+The configuration file for the `WizardOfOz` agent is simply a Firestore API key file. See [the original documentation](https://github.com/grill-lab/TaskMAD#firebase).
 
-The URL should be supplied as a parameter when building the Docker image, e.g.:
+The configuration file for the `LLMAgent` agent should look like this:
+
+
+```json
+{
+    "request_type": "POST",
+    "api_endpoint": "http://..."
+}
 ```
-docker build -f Dockerfile --build-arg config_url=https://somehost.com/config.json .
+
+where `api_endpoint` defines the external LLM API endpoint.
+
+#### 2. recipe_url (TODO)
+
+`recipe_url` should point to a JSON file containing a list of conversation topics. This is parsed and displayed to the user when they start a conversation in the chat webapp. 
+
+Example:
+
+```json
+{"recipes":[
+    {"id": "0", "page_id": "0", "page_title": "Cooking" }, 
+    {"id": "1", "page_id": "1", "page_title": "Travel"}, 
+    {"id": "2", "page_id": "2", "page_title": "Movies"},
+    {"id": "3", "page_id": "3", "page_title": "Music"},
+]}
 ```
 
-If you are creating a GCP deployment, this step is handled automatically (see the [README](gcp_deployment/README.md)).
+#### 3. data_url
 
-## Local Deployment 
+`data_url` should point to a JSON file which defines things like the initial wizard message to be sent to the user at the start of a conversation, and the set of step-based instructions to be displayed during conversations. The file format current resuses the original TaskMAD format with a couple of new fields. An example can be found [here](http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json). 
 
-If everything has been configured correctly it is possible to deploy the system. This is a 3 steps process: 
- 
-1. We need to edit the `deployment-envoy.yaml` file. We need to remove all the configurations that refer to the deployment on Cloud. More precisely we need to comment out the following lines:
+#### 4. spreadsheet_url
 
-	- Remote IP address `loadBalancerIP: "35.241.45.255"`
-	- Remove the volumes
-	
-		```yaml
-		volumes:
-	        - name: disk-core-volume
-	          persistentVolumeClaim:
-	            claimName: disk-core-claim
-	            
-	    ... 
-	    
-	    
-	   		volumeMounts:
-      			- mountPath: "code/keys"
-       		  name: disk-core-volume 
-		```
-	- Change the files as follows to specify where to find the local images
-	
-		```yaml
-	      - name: esp
-	        image: envoy:latest
-	        imagePullPolicy: Never
-	        ports:
-	          - containerPort: 10000
-	      # [END envoy]
-	      - name: core
-	        image: grpc-server:latest
-	        imagePullPolicy: Never
-	        ports:
-	          - containerPort: 8070
-		```
-	
-2. Run the script `agent_dialogue_deployment.sh`. This will take care of building the required docker images and managing Minikube deployments. Eventually, the script should open a browser window exposing the public IP that can be used to access the gRPC server. 
-2. From withing `agent-dialogue-ui` run `npm start` to start the chat interface (or build from the Dockerfile)
+This can be set to an empty string, it's no longer used.
 
-### Using the agent-dialogue system
+TODO remove
 
-Both web apps should prompt us with login interfaces. Here we should specify the following: 
+#### 5. envoy_ssl_cert / envoy_ssl_privkey
 
-* **Host URL:** This is the public URL resulting from running `agent_dialogue_deployment.sh`
-* **User ID:** Any user ID of choice. This has to be the same one used in both web apps. 
-* **Conversation ID:** This has to be the same one for both interfaces (so that the two apps can communicate)
+These files are loaded by the Envoy proxy container to provide self-signed SSL certificate support. The files themselves should be placed in `TaskMAD/config/certs`, and the value of each parameter should be given as `./certs/<filename>`, i.e. relative to `TaskMAD/config`. 
 
-If the process has been successful, we should be able to interact with the two apps, see real-time updates on both interfaces and the Firestore Database.  
+#### 6. [domain]  parameters
 
-## Deployment on Google Cloud
+There are a set of parameters for each of the services that make up the complete TaskMAD system. Most of these should not typically need changed. The deployment script assumes you have domains configured for each service, so you will need to set the `<service>[domain]` parameters appropriately to ensure the Envoy proxy container will route incoming connections to the appropriate container. The `search` service is not currently used, and `core` is the backend service. 
 
-Deploying to Google Cloud requires multiple services to communicate and interact correclty. Before to proceed make sure to have done all the steps required up to **Local Deployment**. The Google Cloud deployment process is described in more detail [here](gcp_deployment/README.md).
+### Envoy 
+
+The Docker configuration includes an [Envoy](https://www.envoyproxy.io/) container to handle the routing of connections to the appropriate container depending on the hostname (the assumption is you want to run all the services on a single machine and share a single port for all of them). Envoy is also required to handle incoming gRPC connections which the backend can't accept directly. 
+
+The default Envoy configuration can be found in `TaskMAD/configs/envoy-taskmad-docker.yaml`. It will listen for connections on port 443 and handle SSL using the certificate and key file defined in the `deploy_config` file. It then routes connections based on the hostname given in the URL and forwards them to different local ports where the respective containers are listening. 
+
+**TODO do this automatically** You will need to edit this file to update the domain names for each service to the set you wish to use, otherwise no incoming connections will be routed successfully.
+
+If you want to change the port and/or interface that Envoy listens on, edit this line near the top of the file:
+
+> address: {socket_address: {address: 0.0.0.0, port_value: 443}}
+
+## Deployment
+
+Pre-deployment checklist:
+ * domains created and DNS updated
+ * SSL certificate created and cert/key files placed in `TaskMAD/config/certs`, referenced by `envoy_ssl_cert` and `envoy_ssl_privkey` parameters
+ * top-level backend configuration file available at URL defined by `config_url` parameter
+ * agent configuration files placed in `TaskMAD/docker_deployment/core_files`
+ * topics list JSON file available at URL defined by `recipe_url` parameter
+ * other conversation data available at URL defined by `data_url` parameter
+ * a copy of the `WozStudy` repo has been cloned into the same directory as the `TaskMAD` repo (i.e. there should be a parent directory containing both repos, `WoZStudy` shouldn't be cloned inside `TaskMAD`!)
+
+To build the set of TaskMAD images:
+
+> ./deploy.sh build
+
+Once all images have been built, start the services:
+
+> ./deploy.sh start
+
+To stop services:
+
+> ./deploy.sh stop
+
