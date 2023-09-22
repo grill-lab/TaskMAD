@@ -2,34 +2,41 @@
 
 This is a modified version of the original TaskMAD system. The original version can be found [here](https://github.com/grill-lab/TaskMAD/). 
 
-This document focuses on describing the changes and the instructions for setting up and using this version of TaskMAD. It is paired with a modified version of the [WoZStudy](https://github.com/alessandrospeggiorin/WoZStudy/tree/radboud_branch) repo. 
+This document focuses on describing the changes and the instructions for setting up and using this version of TaskMAD. It is paired with a modified version of the [TaskMAD-WoZ-Interface](https://github.com/grill-lab/TaskMAD-WoZ-Interface/tree/radboud_branch) repo. 
 
 ## Differences from the original TaskMAD
 
 This version of TaskMAD has been adapted for use in a task where users engage in a conversation based around one of a set of predefined topics (e.g. Cooking, Travel). 
 
-Unlike the original system where the "wizard" user would have a large set of buttons that could be clicked to generate responses in addition to a search feature, this version instead relies on an LLM to generate wizard responses (which may then be edited by the human user before being sent). The LLM integration is done through a new "Agent" class in the backend component of the system. Instead of calling an LLM API directly, this agent sends a request to an external API which then calls the LLM API internally after constructing the parameters based on the current conversation state. Each of the 2 webapps also load step-based instructions from external JSON files and display these to the users as the conversation progresses. Additional constraints have been aded to e.g. ensure that a conversational turn always consists of a single message from each user. 
+Unlike the original system where the "wizard" user would have a large set of buttons (defined in a spreadsheet) that could be clicked to generate responses in addition to a search feature, this version instead relies on an LLM to generate wizard responses. These responses may then be edited by the human wizard user before being sent in most cases, although some responses cannot be edited and are automatically sent. 
+
+The LLM integration is implemented through a new "Agent" class in the backend component of the system. Instead of calling an LLM API directly, this agent sends a request to an external 3rd-party API which then calls a selected LLM API internally, constructing the parameters based on the current conversation state. 
+
+Each of the 2 webapps also load step-based instructions from external JSON files, displaying these to the users as the conversation progresses. Additional constraints have been added to e.g. ensure that a conversational turn always consists of a single message from each user. 
 
 A brief summary of changes and new/removed features:
 
- * Chat interface has had the recipe selection replaced with a topic selection
- * UI colours are updated to better distinguish different message roles and make links more visible
+ * Chat interface has had the recipe selection step replaced with a topic selection step
+ * UI colours are updated to better distinguish different message roles and make hyperlinks more visible
  * The `LLMAgent` class was added to the backend to handle communication with an external LLM wrapper API
  * Configuration file updates to support new functionality
  * New `role` field added to `OutputInteraction` protobufs (the LLM responses may have multiple roles that need to be acted on and logged)
  * Updated `WizardAgent` class in the backend to handle the new `role` field
  * JDK base image version for the backend updated from `openjdk:8` to `eclipse-temurin:17-jdk`
  * Docker deployment script added
+ * Envoy proxy configuration updated
 
 ## Configuration
 
-Much of the configuration remains similar to the original system, but there are some changes. The use of the Docker deployment scripts in the `docker_deployment` directory is heavily recommended. This helps automate the process of building and starting the various Docker containers required for the complete system (including the `WoZStudy` webapp). See the "Deployment" section below for instructions on running the scripts. 
+Much of the configuration remains similar to the original system, but there are some changes. The use of the Docker deployment script in the `docker_deployment` directory is heavily recommended. This helps automate the process of building and starting the various Docker containers required for the complete system (including the `TaskMAD-WoZ-Interface` webapp), as well as parameterising some of the services to match the desired configuration. 
 
-To get started, edit the `docker_deployment/deploy_config` file and look at the first set of parameters ("Cross-deployment parameters"). You will need to change the following parameters:
+See the "Deployment" section below for instructions on actually running the script. 
+
+To begin configuring the system, edit the `docker_deployment/deploy_config` file and look at the first set of parameters ("Cross-deployment parameters"). You will need to change the following parameters:
 
 #### 1. config_url
 
-`config_url` tells the backend service where to load its configuration data from. The URL here doesn't have to be public but must be accessible from the machine running the backend. The file format is described [here](https://github.com/grill-lab/TaskMAD#configuration-file), and an example is shown below:
+`config_url` tells the backend service where to load its configuration data from. The URL here doesn't have to be public but must be accessible from the machine running the backend. The file format is described [here](https://github.com/grill-lab/TaskMAD#configuration-file), and an example for this LLM-enabled version of TaskMAD is shown below:
 
 ```json
 {
@@ -51,14 +58,13 @@ To get started, edit the `docker_deployment/deploy_config` file and look at the 
 }
 ```
 
-The first 3 fields can usually be set to the values shown above as sensible defaults. The `agents` list defines the `Agent` subclasses that the backend will instantiate. The `service_provider` and `project_id` should be set as shown. 
+The first 3 fields can usually be set to the values shown above as sensible defaults. The `agents` list defines the `Agent` subclasses that the backend will instantiate. Both of these entries are required, and should have their `service_provider` and `project_id` left at the default values. 
 
-Each of the agents then has its own *local* configuration file. The filenames can be changed but should always be `configs/name_of_file.json`. The local copies of the files should be placed in the `TaskMAD/docker_deployment/core_files` directory, e.g. for the above example there should exist both `TaskMAD/docker_deployment/core_files/firebase_key.json` and `TaskMAD/docker_deployment/core_files/llm-config.json`.
+Each of the agents then has its own *local* configuration file referenced by the `configuration_file_URL` field. The filenames can be changed but should always be of the form `configs/name_of_file.json`. The local copies of the files should be placed in the `TaskMAD/docker_deployment/core_files` directory, e.g. for the above example there should exist both `TaskMAD/docker_deployment/core_files/firebase_key.json` and `TaskMAD/docker_deployment/core_files/llm-config.json`.
 
 The configuration file for the `WizardOfOz` agent is simply a Firestore API key file. See [the original documentation](https://github.com/grill-lab/TaskMAD#firebase).
 
 The configuration file for the `LLMAgent` agent should look like this:
-
 
 ```json
 {
@@ -67,32 +73,34 @@ The configuration file for the `LLMAgent` agent should look like this:
 }
 ```
 
-where `api_endpoint` defines the external LLM API endpoint.
+where `api_endpoint` defines the 3rd-party LLM API endpoint.
 
-#### 2. recipe_url (TODO)
+#### 2. recipe_url (TODO change name)
 
 `recipe_url` should point to a JSON file containing a list of conversation topics. This is parsed and displayed to the user when they start a conversation in the chat webapp. 
 
 Example:
 
 ```json
-{"recipes":[
-    {"id": "0", "page_id": "0", "page_title": "Cooking" }, 
-    {"id": "1", "page_id": "1", "page_title": "Travel"}, 
-    {"id": "2", "page_id": "2", "page_title": "Movies"},
-    {"id": "3", "page_id": "3", "page_title": "Music"},
-]}
+{
+    "recipes":[
+        { "id": "0", "page_id": "0", "page_title": "Cooking" }, 
+        { "id": "1", "page_id": "1", "page_title": "Travel" }, 
+        { "id": "2", "page_id": "2", "page_title": "Movies" },
+        { "id": "3", "page_id": "3", "page_title": "Music" },
+    ]
+}
 ```
 
 #### 3. data_url
 
-`data_url` should point to a JSON file which defines things like the initial wizard message to be sent to the user at the start of a conversation, and the set of step-based instructions to be displayed during conversations. The file format current resuses the original TaskMAD format with a couple of new fields. An example can be found [here](http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json). 
+`data_url` should point to a JSON file which defines things like the initial wizard message to be sent to the user at the start of a conversation, and the set of step-based instructions to be displayed during conversations. The file format currently resuses the original TaskMAD format with a couple of new fields included. An example can be found [here](http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json). 
 
 #### 4. spreadsheet_url
 
 This can be set to an empty string, it's no longer used.
 
-TODO remove
+TODO remove this completely
 
 #### 5. envoy_ssl_cert / envoy_ssl_privkey
 
@@ -108,7 +116,9 @@ The Docker configuration includes an [Envoy](https://www.envoyproxy.io/) contain
 
 The default Envoy configuration can be found in `TaskMAD/configs/envoy-taskmad-docker.yaml`. It will listen for connections on port 443 and handle SSL using the certificate and key file defined in the `deploy_config` file. It then routes connections based on the hostname given in the URL and forwards them to different local ports where the respective containers are listening. 
 
-**TODO do this automatically** You will need to edit this file to update the domain names for each service to the set you wish to use, otherwise no incoming connections will be routed successfully.
+**TODO do this automatically:** 
+
+You will need to edit this file to update the domain names for each service to the set you wish to use, otherwise no incoming connections will be routed successfully.
 
 If you want to change the port and/or interface that Envoy listens on, edit this line near the top of the file:
 
@@ -123,7 +133,7 @@ Pre-deployment checklist:
  * agent configuration files placed in `TaskMAD/docker_deployment/core_files`
  * topics list JSON file available at URL defined by `recipe_url` parameter
  * other conversation data available at URL defined by `data_url` parameter
- * a copy of the `WozStudy` repo has been cloned into the same directory as the `TaskMAD` repo (i.e. there should be a parent directory containing both repos, `WoZStudy` shouldn't be cloned inside `TaskMAD`!)
+ * a copy of the `WozStudy` repo has been cloned into the same directory as the `TaskMAD` repo (i.e. there should be a parent directory containing both repos, `TaskMAD-WoZ-Interface` shouldn't be cloned inside `TaskMAD`!)
 
 To build the set of TaskMAD images:
 
