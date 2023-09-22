@@ -147,3 +147,19 @@ To stop services:
 
 > ./deploy.sh stop
 
+## Accessing deployed applications
+
+To accces the chat application, you can simply browse to the domain defined for that service. 
+
+To access the wizard application, you need to construct a URL which contains some parameters required by the app:
+  * `connector=ADConnector`: defines the type of backend connection that the app will use, `ADConnector` is the type required for TaskMAD
+  * `serverURL`: the full https:// URL for the backend service
+  * `userID`: the conversation user ID for the wizard 
+  * `conversationID`: the conversation ID (e.g. `test1`)
+  * `topic`: the selected conversation topic, to match that selected by the chat user
+
+An example URL:
+
+> https://taskmad-woz.grill.science/?connector=ADConnector&serverURL=https://taskmad-backend.grill.science&userID=agent&conversationID=test1&topic=Cooking
+
+This sets the `connector` type to `ADConnector`, defines the backend URL as `https://taskmad-backend.grill.science`, defines the wizard's user ID as `agent`, defines the conversation ID as `test1`, and selects `Cooking` as the topic.
