@@ -30,10 +30,6 @@ In order to effectively connect the Chat interface with the backend server it is
 
 To deploy and configure the Wizard of Oz Interface check the [TaskMAD-WoZ-Interface repository](https://github.com/grill-lab/TaskMAD-WoZ-Interface).
 
-## Repository Content
-
-In this repository we provide content only to run the Task-MAD gRPC server and the Chat interface. To run the Wizard Interface it 
-
 # Installation 
 
 In this section, it will be described how to install and run the agent-dialogue system on a local machine. As an example, the system will be connected to the [Wizard of Oz Webapp](https://github.com/USC-ICT/WoZ) but any other supported agent integration would follow a very similar approach 
