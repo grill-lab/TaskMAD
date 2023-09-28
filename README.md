@@ -6,33 +6,29 @@ In this repository we introduce Task-oriented Multimodal Agent Dialogue (TaskMAD
 
 TaskMAD has also been designed with the goal in mind of allowing researchers to plug-in existing bots for evaluation and building conversational training / test collections. 
 
-# Online Demo
-
-It is possible to test both the Chat and Wizard interfaces by using the urls provided below: 
-
 ## Chat Interface
 
-To access to the chat interface simply visit the following url [https://chat-uog.online](https://chat-uog.online)
+In order to test the interface locally once cloned, run the following commands: 
+
+```
+cd agent-dialogue-ui
+npm install 
+npm start
+```
+The interface will be deployed locally at the address `http://localhost:3001`.
+
+Moreover, we also provide `Dockerfile` and `yaml` files to quickly deploy the application on GCP or AWS.
 
 In order to effectively connect the Chat interface with the backend server it is required to provide the configurations outlined below: 
 
-* **Host Url:** [https://backend-server.online](https://backend-server.online)
-* **User ID:** user
-* **Conversation ID:** *Any conversation ID of personal choice i.e. conv1*
+* **Host Url:** The TaskMAD core public URL
+* **User ID:** The User name as it will appear in the conversation.
+* **Conversation ID:** Unique conversation ID to allow the communication between Wizard and User.
 * **Select Recipe:** *Pick any recipe of personal choice*
 
 ## Wizard Interface 
 
-To access the Wizard interface simply visit the following url [https://woz-uog.online](https://woz-uog.online)
-
-In order to effectively connect the Wizard interface with the backend server it is required to provide the configurations outlined below: 
-
-* First of all, from the **Selected Connector** section select the **Agent Dialogue** option. Here specify the following: 
-	* **Server Url:** [https://backend-server.online](https://backend-server.online)
-	* **User ID:** wizard
-	* **Conversation ID:** *The same conversation ID of specified for the chat*
-* Tick the checkbox **Show chat transcript**
-* Then click on the *Upload Excel Spreadsheet* and upload the file *woz_input_excel.xlsx* provided in the repository.  
+To deploy and configure the Wizard of Oz Interface check the [TaskMAD-WoZ-Interface repository](https://github.com/grill-lab/TaskMAD-WoZ-Interface).
 
 ## Repository Content
 
