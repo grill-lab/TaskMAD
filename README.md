@@ -75,9 +75,9 @@ The configuration file for the `LLMAgent` agent should look like this:
 
 where `api_endpoint` defines the 3rd-party LLM API endpoint.
 
-#### 2. recipe_url (TODO change name)
+#### 2. topic_url
 
-`recipe_url` should point to a JSON file containing a list of conversation topics. This is parsed and displayed to the user when they start a conversation in the chat webapp. 
+`topic_url` should point to a JSON file containing a list of conversation topics. This is parsed and displayed to the user when they start a conversation in the chat webapp. 
 
 Example:
 
@@ -131,7 +131,7 @@ Pre-deployment checklist:
  * SSL certificate created and cert/key files placed in `TaskMAD/config/certs`, referenced by `envoy_ssl_cert` and `envoy_ssl_privkey` parameters
  * top-level backend configuration file available at URL defined by `config_url` parameter
  * agent configuration files placed in `TaskMAD/docker_deployment/core_files`
- * topics list JSON file available at URL defined by `recipe_url` parameter
+ * topics list JSON file available at URL defined by `topic_url` parameter
  * other conversation data available at URL defined by `data_url` parameter
  * a copy of the `WozStudy` repo has been cloned into the same directory as the `TaskMAD` repo (i.e. there should be a parent directory containing both repos, `TaskMAD-WoZ-Interface` shouldn't be cloned inside `TaskMAD`!)
 

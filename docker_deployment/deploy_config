@@ -7,10 +7,8 @@
 declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 # URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
 declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad_llm.json"
-# URL of the JSON recipes file used by the chat service
-declare -a recipe_url="https://storage.googleapis.com/test-18a70.appspot.com/associated_recipes.json"
-# URL of the JSON recipes file used by the chat service
-declare -a recipe_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json&token=tmradboud"
+# URL of the JSON topics file used by the chat service
+declare -a topic_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json&token=tmradboud"
 # URL of the JSON topic data file
 declare -a data_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json&token=tmradboud"
 # URL of the topic spreadsheet file for WoZ

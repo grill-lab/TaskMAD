@@ -35,7 +35,7 @@ then
 
     # set the recipe URL and default backend endpoint from the config file
     declare -r backend_url="https://${core[domain]}"
-    docker build --build-arg recipe_url="${recipe_url}" --build-arg backend_url="${backend_url}" --build-arg data_url="${data_url}" -f Dockerfile -t chat:latest .
+    docker build --build-arg topic_url="${topic_url}" --build-arg backend_url="${backend_url}" --build-arg data_url="${data_url}" -f Dockerfile -t chat:latest .
     docker tag chat:latest "${remote}"/chat:latest
 
     popd

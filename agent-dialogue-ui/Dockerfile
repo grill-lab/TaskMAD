@@ -7,8 +7,8 @@ WORKDIR /app
 # and similar for the default backend endpoint URL. Since this is a React app the env var
 # names need to be prefixed with "REACT_APP_" for them to be visible (see the docs at
 # https://create-react-app.dev/docs/adding-custom-environment-variables)
-ARG recipe_url
-ENV REACT_APP_RECIPE_URL=${recipe_url:-"http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json"}
+ARG topic_url
+ENV REACT_APP_TOPIC_URL=${topic_url:-"http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json"}
 ARG data_url
 ENV REACT_APP_DATA_URL=${data_url:-"http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json"}
 ARG backend_url

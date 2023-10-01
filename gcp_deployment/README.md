@@ -50,7 +50,7 @@ The `deploy_gcp_config` file defines a long list of parameters for the `deploy_g
 Most of the parameters already have suitable defaults. Change the following parameters in the "Cross-deployment" section to suit your intended deployment:
 * set `region` and `zone` to your preferred GCP locations (e.g. `europe-west2` and `europe-west2-a` respectively) 
 * set `config_url` to the URL of your JSON configuration file as described in the [TaskMAD documentation](https://github.com/grill-lab/TaskMAD/#configuration-file) and make sure the URL is publicly available 
-* set `recipe_url` to the URL of your recipes JSON file and make sure the URL is publicly available (also see the note on [CORS configuration](#cors-configuration))
+* set `topic_url` to the URL of your topics JSON file and make sure the URL is publicly available (also see the note on [CORS configuration](#cors-configuration))
 
 Additional per-deployment parameters that you will probably need to change from the defaults are:
 * set the `domain` parameter for each component to the domain you want to assign to it (SSL certificate creation is handled by GCP)
@@ -233,7 +233,7 @@ TODO: describe how to actually deploy services to clusters. this shouldn't be to
 
 ## CORS configuration
 
-For the recipe JSON file (the `recipe_url` configuration value) to be loaded in the `chat` webapp, the hosting server needs to be configured to allow the file to be accessed from the location where the webapp is hosted. The mechanism used to allow/disallow cross-domain HTTP requests like this is called [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). 
+For the topic JSON file (the `topic_url` configuration value) to be loaded in the `chat` webapp, the hosting server needs to be configured to allow the file to be accessed from the location where the webapp is hosted. The mechanism used to allow/disallow cross-domain HTTP requests like this is called [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). 
 
 A simple way of hosting the JSON file with a public URL is to put it into a GCP storage bucket and make the file public. However in this case you need to set the CORS configuration for the bucket to allow the request. You can do this by running the command: 
 ```

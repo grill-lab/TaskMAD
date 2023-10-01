@@ -35,7 +35,7 @@ then
     # currently assumes TaskMAD and WoZStudy repos are in the same parent directory
     pushd "${script_path}/../../WoZStudy/"
 
-    docker build --build-arg spreadsheet_url="${spreadsheet_url}" --build-arg recipe_url="${recipe_url}" --build-arg data_url="${data_url}" -f Dockerfile -t woz:latest .
+    docker build --build-arg spreadsheet_url="${spreadsheet_url}" --build-arg topic_url="${topic_url}" --build-arg data_url="${data_url}" -f Dockerfile -t woz:latest .
     docker tag woz:latest "${remote}"/woz:latest
 
     popd

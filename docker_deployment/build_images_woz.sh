@@ -29,7 +29,7 @@ then
     # TODO: update when repos are merged
     # currently assumes TaskMAD and WoZStudy repos are in the same parent directory
     pushd "${script_path}/../../WoZStudy/"
-    docker build --build-arg spreadsheet_url="${spreadsheet_url}" --build-arg recipe_url="${recipe_url}" --build-arg data_url="${data_url}" -f Dockerfile -t woz:latest .
+    docker build --build-arg spreadsheet_url="${spreadsheet_url}" --build-arg topic_url="${topic_url}" --build-arg data_url="${data_url}" -f Dockerfile -t woz:latest .
     popd
 else
     echo "Unknown argument: ${2} (expected either 'build' or 'clean')"
