@@ -8,14 +8,17 @@ declare -a deployments=( ${DEPLOYMENTS:-core chat search woz} )
 # URL of the JSON configuration file (see https://github.com/grill-lab/TaskMAD/#configuration-file)
 declare -a config_url="https://www.dcs.gla.ac.uk/~adr/taskmad_llm.json"
 # URL of the JSON topics file used by the chat service
-declare -a topic_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json&token=tmradboud"
+declare -a topic_url="https://taskmadproxy.grill.science?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad.json&token=tmradboud"
 # URL of the JSON topic data file
-declare -a data_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json&token=tmradboud"
+declare -a data_url="https://taskmadproxy.grill.science?url=http://gem.cs.ru.nl/grad-pkg/radboud_taskmad_data.json&token=tmradboud"
 # URL of the topic spreadsheet file for WoZ
-declare -a spreadsheet_url="https://taskmadproxy.grill.science:8000?url=http://gem.cs.ru.nl/grad-pkg/self-dialogue_input_excel.xlsx&token=tmradboud"
+declare -a spreadsheet_url="https://taskmadproxy.grill.science?url=http://gem.cs.ru.nl/grad-pkg/self-dialogue_input_excel.xlsx&token=tmradboud"
 # envoy configuration file (path is relative to the location of the Dockerfile)
 declare -a envoy_config_file="./envoy-taskmad-docker.yaml"
-# note that for LetsEncrypt certs, this should be the "fullchain.pem"
+# paths to these files are relative to <TaskMAD>/config/.
+# NOTE 1: these are packaged into the image, so it needs to be
+# rebuilt when the certs are updated.
+# NOTE 2: for LetsEncrypt certs, this should be the "fullchain.pem"
 # file, NOT "cert.pem"!
 declare -a envoy_ssl_cert="./certs/cert.pem"
 declare -a envoy_ssl_privkey="./certs/privkey.pem"
