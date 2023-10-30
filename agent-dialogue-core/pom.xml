@@ -125,7 +125,21 @@
             <artifactId>google-cloud-speech</artifactId>
             <version>2.2.15</version>
         </dependency>
-        
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+		<version>2.0.6</version>
+	</dependency>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-core</artifactId>
+		<version>1.4.7</version>
+	</dependency>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>1.4.7</version>
+	</dependency>
     </dependencies>
 
     <build>
@@ -133,6 +147,13 @@
             <resource>
                 <directory>src/main/proto</directory>
             </resource>
+		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
+			<includes>
+				<include>logback.xml</include>
+			</includes>
+		</resource>
         </resources>
         <extensions>
             <extension>
