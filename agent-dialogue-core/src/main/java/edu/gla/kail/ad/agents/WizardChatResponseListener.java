@@ -30,6 +30,7 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
 
   @Override
   public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirestoreException e) {
+    logger.info("WizardChatResponseListener.onEvent");
     if (e != null) {
       logger.error("Listen failed: " + e);
       return;
@@ -40,6 +41,8 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
       for (DocumentChange change : documentChanges) {
         Log.ResponseLog response;
         Map<String, Object> changeData = change.getDocument().getData();
+
+        logger.info("building response for " + change);
 
         // NOTE: This is replaying events from the DB for streaming.  It should copy the correct values from the
         // change data to the response to mimic the original response correctly.
@@ -58,6 +61,7 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
             changeData.put("role", Client.InteractionRole.valueOf((String)changeData.get("role")));
         }
 
+        logger.info("Calling WizardAgent.buildResponse");
         response = WizardAgent.buildResponse(responseId, changeData);
 
         // Information about the original change.
@@ -105,6 +109,8 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
           m_observer.onError(exception);
         }
       }
+    } else {
+        logger.warn("Snapshots data is null/empty??");
     }
   }
 

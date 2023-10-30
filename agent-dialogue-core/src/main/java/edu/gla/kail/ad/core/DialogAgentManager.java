@@ -31,6 +31,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -60,6 +62,8 @@ public class DialogAgentManager {
     private LogTurnManagerSingleton _logTurnManagerSingleton;
     // Time of no response from agent, after which there is timeout on getting response from agent.
     private Integer _agentCallTimeoutSeconds = 125;
+
+    private static final Logger logger = LoggerFactory.getLogger(DialogAgentManager.class);
 
     /**
      * Create a unique session ID generated with startSession() method.
@@ -139,7 +143,7 @@ public class DialogAgentManager {
                 case LLM:
                     try {
                         _agents.add(new LLMAgent(agent));
-                        System.out.println("*** Created a new LLM agent");
+                        logger.info("*** Created a new LLM agent");
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
