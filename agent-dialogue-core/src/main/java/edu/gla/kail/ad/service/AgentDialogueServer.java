@@ -176,7 +176,9 @@ public class AgentDialogueServer {
                             .getNano())
                     .build();
             try {
+                logger.info("Calling dialogAgentManager.getResponse()");
                 response = dialogAgentManager.getResponse(interactionRequest);
+                logger.info("Constructing InteractionResponse");
                 interactionResponse = InteractionResponse.newBuilder()
                         .setResponseId(response.getResponseId())
                         .setSessionId(dialogAgentManager.getSessionId())
@@ -188,6 +190,7 @@ public class AgentDialogueServer {
                                 .map(action -> action.getInteraction())
                                 .collect(Collectors.toList()))
                         .build();
+                logger.info("Result JSON: " + JsonFormat.printer().preservingProtoFieldNames().print(interactionResponse));
             } catch (Exception exception) {
                 logger.warn("Error processing request :" + exception.getMessage() + " " + exception.getMessage());
 
@@ -197,7 +200,9 @@ public class AgentDialogueServer {
                         .setTime(timestamp)
                         .build();
             }
+            logger.info("calling onNext");
             responseObserver.onNext(interactionResponse);
+            logger.info("calling onCompleted");
             responseObserver.onCompleted();
         }
 
@@ -217,24 +222,29 @@ public class AgentDialogueServer {
                         .preservingProtoFieldNames()
                         .print(interactionRequest);
 
-                logger.info("Processing request:" + jsonString);
+                logger.info("*** Processing listResponse request:" + jsonString);
                 checkNotNull(interactionRequest.getUserId(), "The InteractionRequest that have " +
                         "been sent doesn't have userID!");
                 DialogAgentManager dialogAgentManager;
                 try {
+                    logger.info("retrieving DAM for " + interactionRequest.getUserId());
                     dialogAgentManager = DialogAgentManagerSingleton
                             .getDialogAgentManager(interactionRequest.getUserId());
+                    logger.info("retrieved DAM successfully");
                 } catch (Exception exception) {
                     exception.printStackTrace();
+                    logger.error("Caught exception retrieving DAM: " + exception);
                     dialogAgentManager = null;
                 }
                 checkNotNull(dialogAgentManager, "The initialization of the DialogAgentManager " +
                         "failed!");
 
 
+                logger.info("Calling listResponse");
                 dialogAgentManager.listResponse(interactionRequest, responseObserver);
+                logger.info("Call to listResponse completed");
             } catch (Exception exception) {
-                logger.warn("Error processing request :" + exception.getMessage() + " " + exception.getMessage());
+                logger.warn("Error processing listResponse request :" + exception + " " + exception.getMessage());
                 responseObserver.onError(exception);
             }
         }

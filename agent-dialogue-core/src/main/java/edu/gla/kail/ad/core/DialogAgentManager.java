@@ -1,6 +1,7 @@
 package edu.gla.kail.ad.core;
 
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.JsonFormat;
 import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
@@ -123,6 +124,7 @@ public class DialogAgentManager {
                         _agents.add(new WizardAgent(_sessionId, agent));
                     } catch (Exception exception) {
                         // TODO: Implement
+                        logger.error("Failed to instantiate a WizardAgent: " + exception);
                         exception.printStackTrace();
                     }
                     break;
@@ -145,10 +147,12 @@ public class DialogAgentManager {
                         _agents.add(new LLMAgent(agent));
                         logger.info("*** Created a new LLM agent");
                     } catch (Exception exception) {
+                        logger.error("Failed to instantiate an LLMAgent: " + exception);
                         exception.printStackTrace();
                     }
                     break;
                 default:
+                    logger.error("Unsupported agent type: " + agent.getServiceProvider().toString());
                     throw new IllegalArgumentException("The type of the agent provided " +
                             agent.getServiceProvider().toString() + "\" is not supported (yet)!");
             }
@@ -164,14 +168,19 @@ public class DialogAgentManager {
      *         obtained by calling all the agents.
      */
     public ResponseLog getResponse(InteractionRequest interactionRequest) throws Exception {
+        logger.info("getResponse constructing RequestLog");
         RequestLog requestLog = RequestLog.newBuilder()
                 .setRequestId(generateRandomID())
                 .setTime(getCurrentTimeStamp())
                 .setClientId(interactionRequest.getClientId())
                 .setInteraction(interactionRequest.getInteraction()).build();
 
+        logger.info("getResponse calling getResponsesFromAgents");
         List<ResponseLog> responses = getResponsesFromAgents(interactionRequest);
+        logger.info("getResponse calling chooseOneResponse");
         ResponseLog chosenResponse = chooseOneResponse(responses);
+
+        logger.info("getResponse creating turn");
         TurnOrBuilder turnBuilder = Turn.newBuilder()
                 .setRequestLog(requestLog)
                 .setSessionId(_sessionId)
@@ -182,7 +191,9 @@ public class DialogAgentManager {
         Turn turn = ((Turn.Builder) turnBuilder).build();
 
         // Store the turn in the log file.
+        logger.info("getResponselogging the turn");
         _logTurnManagerSingleton.addTurn(turn);
+        logger.info("getResponse completed");
         return chosenResponse;
     }
 
@@ -193,13 +204,17 @@ public class DialogAgentManager {
     public void listResponse(InteractionRequest interactionRequest, StreamObserver<Client.InteractionResponse> responseObserver) throws Exception {
         if (checkNotNull(_agents, "Agents are not set up! Use the method" +
                 " setUpAgents() first.").isEmpty()) {
+            logger.error("Empty list of agents in listResponse");
             throw new IllegalArgumentException("The list of agents is empty!");
         }
+
+        logger.info("listResponse");
         ArrayList<AgentInterface> agents = (ArrayList<AgentInterface>) _agents.stream().filter
                 (agent -> interactionRequest.getChosenAgentsList().contains(agent.getAgentId()))
                 .collect(Collectors.toList());
 
         for (AgentInterface agent : agents) {
+            logger.info("listRespone calling streamingResponseFromAgent " + agent.getAgentId());
             agent.streamingResponseFromAgent(interactionRequest, responseObserver);
         }
     }
@@ -216,14 +231,18 @@ public class DialogAgentManager {
     private List<ResponseLog> getResponsesFromAgents(InteractionRequest interactionRequest) {
         if (checkNotNull(_agents, "Agents are not set up! Use the method" +
                 " setUpAgents() first.").isEmpty()) {
+            logger.error("Empty list of agents in getResponseFromAgents");
             throw new IllegalArgumentException("The list of agents is empty!");
         }
         ArrayList<AgentInterface> agents = (ArrayList<AgentInterface>) _agents.stream().filter
                 (agent -> interactionRequest.getChosenAgentsList().contains(agent.getAgentId()))
                 .collect(Collectors.toList());
+
+        logger.info("getResponsesFromAgents-1");
         List<ResponseLog> listOfResponseLogs = asynchronousAgentCaller(interactionRequest, agents);
         // TODO: Remove when the log saving is implemented. Currently we can see the output.
         listOfResponseLogs.forEach(System.out::println);
+        logger.info("getResponsesFromAgents-2");
         return listOfResponseLogs;
     }
 
@@ -256,9 +275,16 @@ public class DialogAgentManager {
      */
     private List<ResponseLog> synchronousAgentCaller(InteractionRequest interactionRequest) {
         List<ResponseLog> listOfResponseLogs = new ArrayList<>();
+        logger.info("asynchronousAgentCaller starting");
         for (AgentInterface agent : _agents) {
+            try {
+                logger.info("callForResponseAndValidate on " + agent.getAgentId() + " with interactionRequest" + JsonFormat.printer().preservingProtoFieldNames().print(interactionRequest));
+            } catch (Exception e) {
+                logger.error("Invalid protobuf in asynchronousAgentCaller: " + e);
+            }
             listOfResponseLogs.add(callForResponseAndValidate(agent, interactionRequest));
         }
+        logger.info("asynchronousAgentCaller completed");
         return listOfResponseLogs;
     }
 
