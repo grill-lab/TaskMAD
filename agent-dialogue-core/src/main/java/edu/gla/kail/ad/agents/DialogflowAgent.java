@@ -27,7 +27,6 @@ import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
 import edu.gla.kail.ad.core.Log.Slot;
 import edu.gla.kail.ad.core.Log.SystemAct;
 import io.grpc.stub.StreamObserver;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -240,6 +239,6 @@ public class DialogflowAgent implements AgentInterface {
     @Override
     public void streamingResponseFromAgent(InteractionRequest interactionRequest,
                                     StreamObserver<Client.InteractionResponse> responseObserver) throws Exception {
-        responseObserver.onError(new NotImplementedException());
+        responseObserver.onError(new Exception("Not implemented"));
     }
 }
