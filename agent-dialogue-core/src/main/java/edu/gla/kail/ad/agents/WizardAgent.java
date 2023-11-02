@@ -3,6 +3,7 @@ package edu.gla.kail.ad.agents;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.api.core.SettableApiFuture;
+import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
@@ -421,7 +422,16 @@ public class WizardAgent implements AgentInterface {
                 interactionRequest.getInteraction()
                         .getLoggedUserRecipeSelectTimestampList());
         data.put("role", interactionRequest.getInteraction().getRole());
-        chatReference.set(data);
+        ApiFuture<WriteResult> writeResult = chatReference.set(data);
+
+        try {
+            WriteResult result = writeResult.get();
+            logger.info("Firestore write completed at: " + result.getUpdateTime());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            logger.error("*** Firestore write exception: " + e.getMessage());
+        }
+
         return chatReference;
     }
 }
