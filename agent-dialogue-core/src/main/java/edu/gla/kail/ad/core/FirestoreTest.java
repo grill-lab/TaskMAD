@@ -40,7 +40,7 @@ public class FirestoreTest {
     checkNotNull(credentials, "Credentials used to initialise FireStore are null.");
 
     FirestoreOptions fireStoreOptions =
-            FirestoreOptions.newBuilder().setTimestampsInSnapshotsEnabled(true)
+            FirestoreOptions.newBuilder()
                     .setCredentials(credentials)
                     .setProjectId("agentdialogue-2cd4b")
                     .build();

@@ -24,7 +24,8 @@
 
         <grpc.version>1.39.0</grpc.version>
         <dialogflow.version>3.3.0</dialogflow.version>
-        <firebase-admin.version>8.0.0</firebase-admin.version>
+        <firebase-admin.version>9.2.0</firebase-admin.version>
+        <firestore-sdk.version>3.15.0</firestore-sdk.version>
         <rxjava.version>3.0.13</rxjava.version>
 
         <protocCommand>protoc</protocCommand>
@@ -91,7 +92,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore</artifactId>
-            <version>1.35.1</version>
+            <version>${firestore-sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -116,7 +117,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>libraries-bom</artifactId>
-            <version>25.2.0</version>
+            <version>26.26.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
