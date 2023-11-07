@@ -117,6 +117,27 @@ public class LLMAgent implements AgentInterface {
         logger.info("API endpoint is " + api_endpoint);
         logger.info("Request body is " + request_body);
 
+        // for load testing: if a conversation ID begins with "___test" then don't actually
+        // send a request to the LLM API. Instead just construct and send a fixed response
+        // immediately so that the simulated conversation can continue
+	    if(request_body.contains("___test")) {
+            logger.info(">>> Not calling LLM API, test conversation detected");
+            String _result = "{\"message\": \"OK\", \"status\": \"success\", \"data\": {\"message\": \"LLM response 123\", \"role\": \"assistant\", \"stepNo\": 1}}";
+            Struct.Builder _builder = Struct.newBuilder();
+            JsonFormat.parser().merge(_result, _builder);
+            // simulate a response
+            return ResponseLog.newBuilder()
+                    .setClientId(Client.ClientId.EXTERNAL_APPLICATION)
+                    .setServiceProvider(ServiceProvider.LLM)
+                    .setMessageStatus(MessageStatus.SUCCESSFUL)
+                    .setRawResponse(_result)
+                    .addAction(SystemAct.newBuilder()
+                                    .setInteraction(OutputInteraction.newBuilder()
+                                    .setType(InteractionType.TEXT)
+                                    .setText(_result).setUnstructuredResult(_builder).build()))
+                    .build();
+        }
+
         try {
             HttpClient client = HttpClient.newBuilder().build();
             HttpRequest request = HttpRequest.newBuilder(new URI(api_endpoint))
