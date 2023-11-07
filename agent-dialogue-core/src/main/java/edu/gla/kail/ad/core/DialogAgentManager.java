@@ -89,7 +89,15 @@ public class DialogAgentManager {
      * End a session
      */
     public void endSession() {
-
+        logger.info("endSession was called");
+        for(AgentInterface agent: _agents) {
+            try {
+                agent.endSession();
+            } catch (Exception e) {
+                logger.error("Exception when calling endSession on " + agent + ": " + e);
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
