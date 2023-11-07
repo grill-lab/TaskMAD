@@ -13,11 +13,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class used to hold the instances of DialogAgentManager for each session.
  */
 final class DialogAgentManagerSingleton {
+
+    private static final Logger logger = LoggerFactory.getLogger(DialogAgentManagerSingleton.class);
+
     private static DialogAgentManagerSingleton _instance;
     // The maximum number of sessions that can be active at the same time.
     private static int _MAX_NUMBER_OF_SIMULTANEOUS_CONVERSATIONS = PropertiesSingleton
@@ -27,6 +36,9 @@ final class DialogAgentManagerSingleton {
     private static int _SESSION_TIMEOUT_IN_MINUTES = PropertiesSingleton.getCoreConfig()
             .getSessionTimeoutMinutes();
 
+    private static ScheduledExecutorService cacheSweeper = Executors.newScheduledThreadPool(1);
+    private static ScheduledFuture<?> future = null;
+
     // The cache mapping userID and the DialogAgentManager instances assigned to each user.
     private static LoadingCache<String, DialogAgentManager> _initializedManagers = CacheBuilder
             .newBuilder()
@@ -35,11 +47,13 @@ final class DialogAgentManagerSingleton {
             .removalListener(new RemovalListener<String, DialogAgentManager>() {
                 public void onRemoval(RemovalNotification<String, DialogAgentManager> removal) {
                     removal.getValue().endSession();
+		    logger.info("CACHE DROP: " + removal.getKey() + " removed due to " + removal.getCause());
                 }
             })
             .build(
                     new CacheLoader<String, DialogAgentManager>() {
                         public DialogAgentManager load(String key) throws IOException {
+                            logger.info("CACHE ADD: " + key);
                             // Execute if the active session for the user doesn't exist.
                             DialogAgentManager dialogAgentManager = new DialogAgentManager();
                             dialogAgentManager.setUpAgents((List<AgentConfig>) PropertiesSingleton
@@ -64,6 +78,16 @@ final class DialogAgentManagerSingleton {
     static synchronized DialogAgentManager getDialogAgentManager(String userId) throws Exception {
         if (_instance == null) {
             _instance = new DialogAgentManagerSingleton();
+
+            Runnable task = new Runnable() {
+                public void run() {
+                    logger.info("Running cleanUp on the cache, current size is " + _instance._initializedManagers.size());
+                    _instance._initializedManagers.cleanUp();
+                    logger.info("After cache cleanUp current size is " + _instance._initializedManagers.size());
+                }
+            };
+            logger.info("Starting cache sweeper");
+            future = cacheSweeper.scheduleAtFixedRate(task, 0, 1, TimeUnit.MINUTES);
         }
         if (_initializedManagers.size() == _MAX_NUMBER_OF_SIMULTANEOUS_CONVERSATIONS) {
             throw new Exception("The maximum number of conversations have been reached - wait " +
@@ -79,6 +103,7 @@ final class DialogAgentManagerSingleton {
      *         with every request.
      */
     static synchronized boolean deleteDialogAgentManager(String userId) {
+        logger.info("CACHE DROP: " + userId);
         _initializedManagers.invalidate(userId);
         return true;
     }
