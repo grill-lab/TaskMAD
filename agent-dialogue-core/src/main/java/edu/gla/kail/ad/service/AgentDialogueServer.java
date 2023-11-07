@@ -20,6 +20,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.ServerCredentials;
 import io.grpc.TlsServerCredentials;
 import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ServerCallStreamObserver;
 
 import java.io.File;
 import java.io.IOException;
@@ -242,6 +243,9 @@ public class AgentDialogueServer {
 
                 logger.info("Calling listResponse");
                 dialogAgentManager.listResponse(interactionRequest, responseObserver);
+                ((ServerCallStreamObserver<InteractionResponse>)responseObserver).setOnCancelHandler(() -> {
+                    logger.info(">>> onCancelHandler called");
+                });
                 logger.info("Call to listResponse completed");
             } catch (Exception exception) {
                 logger.warn("Error processing listResponse request :" + exception + " " + exception.getMessage());
