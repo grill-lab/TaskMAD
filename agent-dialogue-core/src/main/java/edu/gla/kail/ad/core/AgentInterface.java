@@ -36,4 +36,8 @@ public interface AgentInterface {
      */
     void streamingResponseFromAgent(InteractionRequest interactionRequest,
                                 StreamObserver<Client.InteractionResponse> responseObserver) throws Exception;
+
+    // when a DialogAgentManager is being removed from the cache it will call this method
+    // on each of its agents
+    void endSession() throws Exception;
 }
