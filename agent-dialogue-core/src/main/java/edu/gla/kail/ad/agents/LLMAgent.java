@@ -156,4 +156,8 @@ public class LLMAgent implements AgentInterface {
 
     }
 
+    @Override
+    public void endSession() {
+    }
+
 }
