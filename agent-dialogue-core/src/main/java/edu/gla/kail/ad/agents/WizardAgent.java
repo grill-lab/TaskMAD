@@ -2,43 +2,44 @@ package edu.gla.kail.ad.agents;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.api.core.SettableApiFuture;
-import com.google.api.core.ApiFuture;
+import java.io.FileInputStream;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.api.core.ForwardingApiFuture;
+import com.google.api.core.SettableApiFuture;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.*;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.ListenerRegistration;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.Value;
-import edu.gla.kail.ad.Client;
+
 import edu.gla.kail.ad.Client.InteractionRequest;
-import edu.gla.kail.ad.Client.InteractionType;
 import edu.gla.kail.ad.Client.OutputInteraction;
-import edu.gla.kail.ad.Client.OutputInteraction.Builder;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
-import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
 import edu.gla.kail.ad.core.AgentInterface;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
 import edu.gla.kail.ad.core.Log.SystemAct;
 import io.grpc.stub.StreamObserver;
-import java.io.FileInputStream;
-import java.net.URL;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.google.cloud.firestore.FirestoreOptions;
-import com.google.api.gax.grpc.ChannelPoolSettings;
-import com.google.cloud.grpc.GrpcTransportOptions;
-import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import jdk.internal.module.ServicesCatalog.ServiceProvider;
 
 /**
  * This is a Wizard-of-Oz agent created for experiments. It allows multiple
@@ -86,13 +87,16 @@ public class WizardAgent implements AgentInterface {
      * @throws Exception
      */
     private void initAgent() throws Exception {
-        // URL configFileURL = new URL(_agent.getConfigurationFileURL());
         GoogleCredentials credentials = GoogleCredentials.fromStream(
                 new FileInputStream(_agent.getConfigurationFileURL()));
         checkNotNull(credentials,
                 "Credentials used to initialise FireStore are null.");
 
         // https://cloud.google.com/java/docs/reference/gax/latest/com.google.api.gax.grpc.ChannelPoolSettings
+        // TODO the setPoolSize method is deprecated. The recommended alternative seems to be to create a 
+        // ChannelPoolSettings object (https://javadoc.io/static/com.google.api/gax-grpc/2.32.0/com/google/api/gax/grpc/ChannelPoolSettings.html)
+        // and use setMaxChannelCount() on its Builder class before passing the constructed object to
+        // the ChannelProvider using .setChannelPoolSettings()
         InstantiatingGrpcChannelProvider channelProvider = InstantiatingGrpcChannelProvider.newBuilder()
             .setPoolSize(500)
             .build();
