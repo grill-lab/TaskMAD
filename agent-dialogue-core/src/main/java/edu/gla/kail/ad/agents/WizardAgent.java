@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.api.core.ApiFuture;
+import com.google.api.core.ForwardingApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
@@ -30,9 +31,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.cloud.firestore.FirestoreOptions;
+import com.google.api.gax.grpc.ChannelPoolSettings;
+import com.google.cloud.grpc.GrpcTransportOptions;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 
 /**
  * This is a Wizard-of-Oz agent created for experiments. It allows multiple
@@ -59,6 +65,8 @@ public class WizardAgent implements AgentInterface {
     // Gold the hardcoded agent ID.
     private String _agentId = null;
 
+    private WizardChatResponseListener listener = null;
+
     /**
      * Construct a new WizardAgent.
      *
@@ -84,10 +92,24 @@ public class WizardAgent implements AgentInterface {
         checkNotNull(credentials,
                 "Credentials used to initialise FireStore are null.");
 
-        FirebaseOptions options = new FirebaseOptions.Builder().setCredentials(credentials).build();
+        // https://cloud.google.com/java/docs/reference/gax/latest/com.google.api.gax.grpc.ChannelPoolSettings
+        InstantiatingGrpcChannelProvider channelProvider = InstantiatingGrpcChannelProvider.newBuilder()
+            .setPoolSize(500)
+            .build();
+
+        FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
+            .setCredentials(credentials)
+            .setChannelProvider(channelProvider)
+            .build();
+        // https://firebase.google.com/docs/reference/admin/java/reference/com/google/firebase/FirebaseOptions.Builder
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                                    .setCredentials(credentials)
+                                    .setFirestoreOptions(firestoreOptions)
+                                    .build();
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
         }
+
         _database = FirestoreClient.getFirestore();
     }
 
@@ -120,6 +142,10 @@ public class WizardAgent implements AgentInterface {
         return _agent.getServiceProvider();
     }
 
+    public WizardChatResponseListener getListener() {
+        return listener;
+    }
+
     @Override
     public ResponseLog getResponseFromAgent(InteractionRequest interactionRequest)
             throws Exception {
@@ -145,19 +171,24 @@ public class WizardAgent implements AgentInterface {
                     "Request must specify the conversationId in the agent request parameters.");
         }
         String conversationId = fieldsMap.get("conversationId").getStringValue();
-        logger.info("streamingResponseFromAgent on conversation " + conversationId);
+        logger.info("streamingResponseFromAgent(" + conversationId + ")");
         Client.ClientId clientId = interactionRequest.getClientId();
-
         logger.info("getting collection reference for " + conversationId);
         CollectionReference conversationCollection = getDbCollection(conversationId);
 
-        // Wait for a response after the current time (filter out past messages).
         Query query = conversationCollection;
-        logger.debug("Waiting on listener: " + query.toString());
-        WizardChatResponseListener wizardChatResponseListener = new WizardChatResponseListener(observer);
-        ListenerRegistration registration = query.addSnapshotListener(wizardChatResponseListener);
-        wizardChatResponseListener.setRegistration(registration);
-        logger.info("Configured listener");
+        logger.info("Creating a listener on " + conversationId);
+        if(listener != null) {
+            logger.warn("WizardAgent already has a previously active listener!");
+            // remove the previous listener's registration properly
+            listener.removeRegistration();
+            listener = null;           
+        }
+
+        listener = new WizardChatResponseListener(observer);
+        ListenerRegistration registration = query.addSnapshotListener(listener);
+        listener.setRegistration(registration);
+        logger.info("Configured a new listener on " + conversationId);
     }
 
     /**
@@ -219,10 +250,15 @@ public class WizardAgent implements AgentInterface {
         logger.info("Adding interaction to database for " + conversationId);
         DocumentReference documentReference = addInteractionRequestToDatabase(
                 responseId, conversationId, interactionRequest);
-        logger.info("Added interaction to database for " + conversationId);
+
+        String interaction_text = "Success, message added!";
+        if(documentReference == null) {
+           logger.error("Failed database write for " + conversationId);
+           interaction_text = "FAILURE, database write did not succeed!";
+        }
 
         Map<String, Object> data = new HashMap<>();
-        data.put("interaction_text", "Success, message added!");
+        data.put("interaction_text", interaction_text);
         data.put("role", interactionRequest.getInteraction().getRole());
 
         ResponseLog response = buildResponse(responseId, data);
@@ -422,16 +458,31 @@ public class WizardAgent implements AgentInterface {
                 interactionRequest.getInteraction()
                         .getLoggedUserRecipeSelectTimestampList());
         data.put("role", interactionRequest.getInteraction().getRole());
-        ApiFuture<WriteResult> writeResult = chatReference.set(data);
+
+        // use the Future returned by set() to set a timeout on the write operation.
+        // this seems to default to 50s but if it doesn't complete more quickly then
+        // something serious is probably wrong
+        ForwardingApiFuture<WriteResult> writeResult = new ForwardingApiFuture<WriteResult>(chatReference.set(data));
 
         try {
-            WriteResult result = writeResult.get();
-            logger.info("Firestore write completed at: " + result.getUpdateTime());
-        } catch (InterruptedException | ExecutionException e) {
+            WriteResult result = writeResult.get(10, TimeUnit.SECONDS);
+            //logger.info("Firestore write completed at: " + result.getUpdateTime());
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
-            logger.error("*** Firestore write exception: " + e.getMessage());
+            logger.error("*** Firestore write exception on " + conversationId + ", error = " + e.getMessage());
+            return null;
         }
 
         return chatReference;
+    }
+
+    @Override
+    public void endSession() {
+        logger.info("*** Calling endSession on WizardAgent");
+        if (listener != null) {
+            listener.removeRegistration();
+            listener = null;
+            logger.info("REMOVED A REGISTRATION");
+        }   
     }
 }
