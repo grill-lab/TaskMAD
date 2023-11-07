@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy:v1.19-latest
+FROM envoyproxy/envoy:v1.28-latest
 
 ARG envoy_config_file=./envoy.yaml
 COPY ${envoy_config_file} /etc/envoy/envoy.yaml
