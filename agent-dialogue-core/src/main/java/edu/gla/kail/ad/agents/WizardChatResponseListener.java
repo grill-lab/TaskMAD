@@ -35,14 +35,13 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
       logger.error("Listen failed: " + e);
       return;
     }
+
     if (snapshots != null && !snapshots.isEmpty()) {
       List<DocumentChange> documentChanges = snapshots.getDocumentChanges();
-      logger.debug("Num document changes:" + documentChanges.size());
+      logger.info("Num document changes:" + documentChanges.size());
       for (DocumentChange change : documentChanges) {
         Log.ResponseLog response;
         Map<String, Object> changeData = change.getDocument().getData();
-
-        logger.info("building response for " + change);
 
         // NOTE: This is replaying events from the DB for streaming.  It should copy the correct values from the
         // change data to the response to mimic the original response correctly.
@@ -61,7 +60,6 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
             changeData.put("role", Client.InteractionRole.valueOf((String)changeData.get("role")));
         }
 
-        logger.info("Calling WizardAgent.buildResponse");
         response = WizardAgent.buildResponse(responseId, changeData);
 
         // Information about the original change.
@@ -94,7 +92,6 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
                           .map(action -> action.getInteraction())
                           .collect(Collectors.toList()))
                   .build();
-          logger.debug("Sending response: " + interactionResponse.getResponseId());
           m_observer.onNext(interactionResponse);
         } catch (Exception exception) {
           logger.warn("Error processing request :" + exception.getMessage() + " " + exception.getMessage());
@@ -110,11 +107,18 @@ public class WizardChatResponseListener implements EventListener<QuerySnapshot> 
         }
       }
     } else {
-        logger.warn("Snapshots data is null/empty??");
+        logger.warn("Snapshots data is null/empty (this is expected for new conversations)");
     }
   }
 
   public void setRegistration(ListenerRegistration registration) {
     m_registration = registration;
+  }
+   
+  public void removeRegistration() {
+    if(m_registration != null) {
+      logger.info("Removing listener registration");
+      m_registration.remove();
+    }
   }
 }
