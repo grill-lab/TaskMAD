@@ -175,4 +175,8 @@ public class ModelInteractionAgent implements AgentInterface {
 
     }
 
+    @Override
+    public void endSession() {
+    }
+
 }

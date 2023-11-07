@@ -241,4 +241,8 @@ public class DialogflowAgent implements AgentInterface {
                                     StreamObserver<Client.InteractionResponse> responseObserver) throws Exception {
         responseObserver.onError(new Exception("Not implemented"));
     }
+
+    @Override
+    public void endSession() {
+    }
 }

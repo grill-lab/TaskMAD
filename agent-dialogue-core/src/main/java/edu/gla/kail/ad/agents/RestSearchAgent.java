@@ -178,4 +178,8 @@ public class RestSearchAgent implements AgentInterface {
 
     }
 
+    @Override
+    public void endSession() {
+    }
+
 }

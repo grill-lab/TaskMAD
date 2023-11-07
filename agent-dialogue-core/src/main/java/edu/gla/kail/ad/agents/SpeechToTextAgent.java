@@ -78,4 +78,8 @@ public class SpeechToTextAgent implements AgentInterface{
 
     }
 
+    @Override
+    public void endSession() {
+    }
+
 }
