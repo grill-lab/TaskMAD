@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--tag", type=str, required=True)
     parser.add_argument("-T", "--turns", type=int, required=True)
     parser.add_argument("-d", "--delay", type=float, required=True)
+    parser.add_argument("-b", "--backend", type=str, default="taskmad-backend.grill.science")
 
     args = parser.parse_args()
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
             f"test_user_{args.tag}_{n}",
             f"test_agent_{args.tag}_{n}",
             args.turns,
-            "taskmad-backend.grill.science",
+            args.backend,
             args.delay,
             True,
         )
