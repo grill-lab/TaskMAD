@@ -31,6 +31,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.Value;
 
+import edu.gla.kail.ad.Client;
 import edu.gla.kail.ad.Client.InteractionRequest;
 import edu.gla.kail.ad.Client.OutputInteraction;
 import edu.gla.kail.ad.CoreConfiguration.AgentConfig;
@@ -38,8 +39,10 @@ import edu.gla.kail.ad.core.AgentInterface;
 import edu.gla.kail.ad.core.Log.ResponseLog;
 import edu.gla.kail.ad.core.Log.ResponseLog.MessageStatus;
 import edu.gla.kail.ad.core.Log.SystemAct;
+import edu.gla.kail.ad.CoreConfiguration.ServiceProvider;
+import edu.gla.kail.ad.Client.InteractionType;
+import edu.gla.kail.ad.Client.OutputInteraction.Builder;
 import io.grpc.stub.StreamObserver;
-import jdk.internal.module.ServicesCatalog.ServiceProvider;
 
 /**
  * This is a Wizard-of-Oz agent created for experiments. It allows multiple
