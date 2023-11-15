@@ -684,3 +684,13 @@ agent-dialogue-core/keys/*
 !agent-dialogue-core/keys/.gitkeep
 config/certs/*
 !config/certs/.gitkeep
+run*.sh
+run*.bat
+gcp_deployment/core_disk_files
+gcp_deployment/core_deployment_config_files
+**/python/pyenv*
+**/python/*pb2.py
+**/python/*pb2_grpc.py
+**/python/*pb2.pyi
+**/python/__pycache__
+

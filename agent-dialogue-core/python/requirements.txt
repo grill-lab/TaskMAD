@@ -1,0 +1,4 @@
+colorama==0.4.6
+grpcio==1.59.2
+grpcio-tools==1.59.2
+protobuf==4.25.0
